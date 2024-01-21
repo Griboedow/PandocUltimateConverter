@@ -21,6 +21,18 @@ $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
 // You can specify other reuried extensions as well
 ```
+
+# Usage
+Follow these steps:
+1. Go to ```textSpecial:PandocUltimateConverter``` page. ![PandocUltimateConverterExtension](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/5ac1fcfd-1b2b-442b-a98a-06996f854649)
+
+2. Specify file to convert and target page name.
+   - Target page and all the images will be overwriten if they already exist
+4. After the file conversion is finished, you will be redirected to the target page
+   - Source file will be automatically removed from the wiki
+   - All the images will be automatically uploaded to MediaWiki with a name ```text Pandocultimateconverter-{guid}-{imageOriginalNameAndExtension}"```
+   - If the image is already present on wiki, the image duplicate will not be uploaded. We will just use the existing image.
+   - All the images will be automatically removed from the temp folder
    
 
 # Supported formats
