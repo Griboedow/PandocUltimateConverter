@@ -1,0 +1,20 @@
+{
+    "@metadata": {
+        "authors": [
+            "Nikolai Kochkin"
+        ]
+    },
+    "pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "File-to-article conversion option during upload process",
+    "pandocultimateconverter-summary": "File-to-article conversion option during upload process",
+    "pandocultimateconverter-warning-page-name-length": "The article title is either too short or too long. Length is restricted to between $1 and $2 characters.",
+    "pandocultimateconverter-warning-page-name-invalid-character": "The article title contains invalid characters of the following: $1.",
+    "pandocultimateconverter-warning-file-not-selected": "Please select file to upload",
+    "pandocultimateconverter-history-comment": "Pandoc conversion",
+    "pandocultimateconverter-conversion-complete-comment": "Conversion complete, file is automatically deleted",
+    "pandocultimateconverter-special-upload-description": "Please specify file and target page name. If page already exists, its content will be overwritten.",
+    "pandocultimateconverter-special-upload-file-section": "Original file",
+    "pandocultimateconverter-special-upload-file": "Select a file you want to convert to a wikipage",
+    "pandocultimateconverter-special-upload-target-page-section": "Target page name (will be overwritten if exists)",
+    "pandocultimateconverter-special-upload-button-label": "Upload and convert"
+}

@@ -1,0 +1,48 @@
+{
+  "name": "PandocUltimateConverter",
+  "version": "0.1.0",
+  "author": [
+    "Nikolai Kochkin"
+  ],
+  "description": "Pandoc extension which imports not only text, but also images",
+  "license-name": "MIT",
+  "type": "other",
+  "AutoloadClasses": {
+    "PandocWrapper": "PandocWrapper.php",
+    "PandocTextPostporcessor": "PandocTextPostporcessor.php",
+    "PandocUltimateConverterHooks": "PandocUltimateConverter.hooks.php",
+    "SpecialPandocUltimateConverterError": "SpecialPandocUltimateConverterError.php",
+    "SpecialPandocUltimateConverter": "SpecialPandocUltimateConverter.php"
+  },
+  "MessagesDirs": {
+    "PandocUltimateConverter": [
+      "i18n"
+    ]
+  },
+  "SpecialPages": {
+    "PandocUltimateConverter": "SpecialPandocUltimateConverter"
+  },
+  "ResourceModules": {
+    "ext.PandocUltimateConverter": {
+      "scripts": [
+        "ext.pandocUltimateConverterSpecial.js"
+      ],
+      "styles": [
+        "ext.pandocUltimateConverterSpecial.css"
+      ],
+      "messages": [
+        "pandocultimateconverter-warning-page-name-length",
+        "pandocultimateconverter-warning-page-name-invalid-character",
+        "pandocultimateconverter-warning-file-not-selected"
+      ],
+      "dependencies": [
+        "mediawiki.jqueryMsg"
+      ]
+    }
+  },
+  "ResourceFileModulePaths": {
+    "localBasePath": "modules",
+    "remoteExtPath": "PandocUltimateConverter"
+  },
+  "manifest_version": 1
+}
