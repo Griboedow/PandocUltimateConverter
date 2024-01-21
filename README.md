@@ -29,4 +29,5 @@ Theoretically it supports [everyting Pandoc supports](https://pandoc.org/MANUAL.
 PDF is not supported as input format of pandoc.
 
 # Simple demo
-Simple gif to hsow how it works: TBD
+Simple gif to hsow how it works:
+![PandocConverterGif](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/4be5a325-f95e-4e62-b9ce-e6189d6ee8fa)
