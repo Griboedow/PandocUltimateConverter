@@ -1,12 +1,12 @@
 # PandocUltimateConverter
-Pandoc converter extension for mediawiki which imports not only text, but also images
+Pandoc converter extension for MediaWiki which imports not only text, but also images
 
 # Prerequisites
 Tested on MediaWiki 1.41. May work on earlier versions (but I would not expect anything earlier than 1.39 to work).
 
 Requires pandoc to be installed.
 
-Should work on WIndows and Linux. Tested on Windows only (bur reports are welcomed). 
+Should work on Windows and Linux. Tested on Windows only (bug reports are welcomed). 
 
 # Installation
 Installation is just a bit more complicated than usual:
@@ -27,7 +27,7 @@ Follow these steps:
 1. Go to ```textSpecial:PandocUltimateConverter``` page. ![PandocUltimateConverterExtension](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/5ac1fcfd-1b2b-442b-a98a-06996f854649)
 
 2. Specify file to convert and target page name.
-   - Target page and all the images will be overwriten if they already exist
+   - Target page and all the images will be overwritten if they already exist
 4. After the file conversion is finished, you will be redirected to the target page
    - Source file will be automatically removed from the wiki
    - All the images will be automatically uploaded to MediaWiki with a name ```text Pandocultimateconverter-{guid}-{imageOriginalNameAndExtension}"```
@@ -36,10 +36,10 @@ Follow these steps:
    
 
 # Supported formats
-Theoretically it supports [everyting Pandoc supports](https://pandoc.org/MANUAL.html#general-options). On practice, I've tested for docx and odt only. 
+Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). On practice, I've tested for docx and odt only. 
 
 PDF is not supported as input format of pandoc.
 
 # Simple demo
-Simple gif to hsow how it works:
+Simple gif to show how it works:
 ![PandocConverterGif](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/4be5a325-f95e-4e62-b9ce-e6189d6ee8fa)
