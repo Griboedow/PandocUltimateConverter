@@ -1,8 +1,6 @@
 <?php
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
-use MediaWiki\Extension\ReplaceText\ReplaceAll;
-
 class PandocTextPostporcessor{
     public static function postprocess($text, $imagesVocabulary){
         $linesArray = explode("\n", $text);
