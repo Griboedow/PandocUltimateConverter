@@ -2,19 +2,16 @@
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Title\Title;
-use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\CommentStore\CommentStoreComment;
 
-class SpecialPandocUltimateConverter extends SpecialPage
+class SpecialPandocUltimateConverter extends \SpecialPage
 {
 	private static $TITLE_MIN_LENGTH = 4;
 	private static $TITLE_MAX_LENGTH = 255;
 
 	function __construct()
 	{
-		parent::__construct('PandocUltimateConverter', '', false);
+		parent::__construct('PandocUltimateConverter');
 	}
 
 	protected function getGroupName()
@@ -82,7 +79,7 @@ class SpecialPandocUltimateConverter extends SpecialPage
 			$pageName = self::getArticleTitle($formData['ConvertToArticleName']);
 
 			self::convertFileToPage($fileName, $pageName);
-			header('location: ' . Title::newFromText($pageName)->getFullUrl());
+			header('location: ' . \Title::newFromText($pageName)->getFullUrl());
 		} catch (\Exception $e) {
 			throw $e;
 			exit;
@@ -113,7 +110,7 @@ class SpecialPandocUltimateConverter extends SpecialPage
 		$user = $context->getUser();
 
 		$repoGroup = $services->getRepoGroup();
-		$fileTitle =  Title::newFromTextThrow( $fileName, NS_FILE);
+		$fileTitle =  \Title::newFromTextThrow( $fileName, NS_FILE);
 		
 		$localFile = $repoGroup->findFile($fileTitle);
 		$filePath = $localFile->getLocalRefPath(); 
@@ -134,11 +131,11 @@ class SpecialPandocUltimateConverter extends SpecialPage
 		$postprocessedText = PandocTextPostporcessor::postprocess($pandocOutput['text'], $imagesVocabulary);
 		
 		// Save page
-		$title =  Title::newFromText( $pageName );
+		$title =  \Title::newFromText( $pageName );
 		$pageUpdater = $titleFactory->newFromTitle($title)->newPageUpdater($user);
 		$content = new \WikitextContent($postprocessedText); 
 		$pageUpdater->setContent(SlotRecord::MAIN, $content);
-		$pageUpdater->saveRevision(CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
+		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
 
 		// Delete file after conversion
 		$delPageFactory = $services->getDeletePageFactory();

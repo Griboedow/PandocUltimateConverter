@@ -67,8 +67,14 @@
             case 'filetype-banned':
               error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
               break;
+            case 'uploaddisabled':
+              error_msg = "Upload is disabled on wiki. Enable it by adding '$wgEnableUploads = true;' to LocalSettings.php"
+              break;
+            case 'mustbeloggedin':
+              error_msg = "Only logged in users can upload files on this wiki"
+              break;
             default:
-              error_msg = data
+              error_msg = error.code
               break;
           }
           alert("Failed to upload file: " + error_msg)
