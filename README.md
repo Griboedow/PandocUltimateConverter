@@ -21,7 +21,7 @@ Installation is just a bit more complicated than usual:
 ```php
 $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
-// You can specify other reuried extensions as well
+// You can specify other requried extensions as well
 ```
 
 # Usage
