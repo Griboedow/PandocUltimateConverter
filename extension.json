@@ -10,8 +10,6 @@
   "AutoloadClasses": {
     "PandocWrapper": "PandocWrapper.php",
     "PandocTextPostporcessor": "PandocTextPostporcessor.php",
-    "PandocUltimateConverterHooks": "PandocUltimateConverter.hooks.php",
-    "SpecialPandocUltimateConverterError": "SpecialPandocUltimateConverterError.php",
     "SpecialPandocUltimateConverter": "SpecialPandocUltimateConverter.php"
   },
   "MessagesDirs": {
