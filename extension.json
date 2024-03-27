@@ -7,10 +7,8 @@
   "description": "Pandoc extension which imports not only text, but also images",
   "license-name": "MIT",
   "type": "other",
-  "AutoloadClasses": {
-    "PandocWrapper": "PandocWrapper.php",
-    "PandocTextPostporcessor": "PandocTextPostporcessor.php",
-    "SpecialPandocUltimateConverter": "SpecialPandocUltimateConverter.php"
+  "AutoloadNamespaces": {
+    "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
   },
   "MessagesDirs": {
     "PandocUltimateConverter": [
@@ -18,7 +16,7 @@
     ]
   },
   "SpecialPages": {
-    "PandocUltimateConverter": "SpecialPandocUltimateConverter"
+    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter"
   },
   "ResourceModules": {
     "ext.PandocUltimateConverter": {

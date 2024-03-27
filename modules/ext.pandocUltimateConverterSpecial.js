@@ -60,16 +60,19 @@
       console.log(mw.message('pandocultimateconverter-error-filetype-banned', ext))
 
       // TODO: switch to i18n messages
-      api.upload(upload_file_field[0], upload_file_params).fail(data =>{
-        switch(data){
-          case 'filetype-banned':
-            error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
-            break;
-          default:
-            error_msg = data
-            break;
+      api.upload(upload_file_field[0], upload_file_params).fail((...resp) =>{
+        let { upload = null, error = null } = resp[1];
+          if ( error ) {
+          switch(error.code){
+            case 'filetype-banned':
+              error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
+              break;
+            default:
+              error_msg = data
+              break;
+          }
+          alert("Failed to upload file: " + error_msg)
         }
-        alert("Failed to upload file: " + error_msg)
       }).always( data => {
         //go to backend logic after that
         $( "#loadingDiv" ).fadeOut(500, function() {
