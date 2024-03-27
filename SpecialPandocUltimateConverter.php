@@ -14,7 +14,7 @@ class SpecialPandocUltimateConverter extends SpecialPage
 
 	function __construct()
 	{
-		parent::__construct('PandocUltimateConverter', '', false);
+		parent::__construct('PandocUltimateConverter');
 	}
 
 	protected function getGroupName()
