@@ -27,19 +27,19 @@
 
       // Validate page name
       if (page_name.length < page_name_MIN_LENGTH || page_name.length > page_name_MAX_LENGTH) {
-        alert(mw.message('pandocultimateconverter-warning-page-name-length').text().replace("$1", page_name_MIN_LENGTH).replace("$2", page_name_MAX_LENGTH));
+        alert(mw.message('pandocultimateconverter-warning-page-name-length', page_name_MIN_LENGTH, page_name_MAX_LENGTH));
         return false;
       }
 
       if ((results = page_name.match(invalid_regex)) != null) {
         results = results.join(" ");
-        alert(mw.message('pandocultimateconverter-warning-page-name-invalid-character').text().replace("$1", results));
+        alert(mw.message('pandocultimateconverter-warning-page-name-invalid-character', results));
         return false;
       }
 
       // Validate file selector
       if (!upload_file_field.val()){
-        alert(mw.message('pandocultimateconverter-warning-file-not-selected').text())
+        alert(mw.message('pandocultimateconverter-warning-file-not-selected'))
       }
 
       // Upload image
@@ -56,9 +56,20 @@
         filename: file_name
       };  
 
+      console.log('test')
+      console.log(mw.message('pandocultimateconverter-error-filetype-banned', ext))
 
-      // TODO: add waiting form
+      // TODO: switch to i18n messages
       api.upload(upload_file_field[0], upload_file_params).fail(data =>{
+        switch(data){
+          case 'filetype-banned':
+            error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
+            break;
+          default:
+            error_msg = data
+            break;
+        }
+        alert("Failed to upload file: " + error_msg)
       }).always( data => {
         //go to backend logic after that
         $( "#loadingDiv" ).fadeOut(500, function() {
