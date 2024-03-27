@@ -3,7 +3,6 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Title\Title;
 
 function findFiles ($dir, &$results = array()) {
     $files = scandir($dir);
@@ -67,7 +66,7 @@ class PandocWrapper{
         foreach ($files as $file){
             $base = wfBaseName( $file );
             $file_page_name = $base_name . '-' . $base;
-            $title = Title::makeTitleSafe( NS_FILE, $file_page_name );
+            $title = \Title::makeTitleSafe( NS_FILE, $file_page_name );
             $image = $services->getRepoGroup()->getLocalRepo()
                 ->newFile( $title );
             
