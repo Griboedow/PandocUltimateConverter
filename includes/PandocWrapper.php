@@ -64,6 +64,12 @@ class PandocWrapper{
 
         $files = findFiles( $subfolder_name );
         foreach ($files as $file){
+            //TODO: find why findFiles method returns directories sometimes
+            if (is_dir($file)){
+                
+                continue;
+            }
+
             $base = wfBaseName( $file );
             $file_page_name = $base_name . '-' . $base;
             $title = \Title::makeTitleSafe( NS_FILE, $file_page_name );

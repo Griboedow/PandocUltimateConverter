@@ -1,4 +1,5 @@
 <?php
+
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\MediaWikiServices;
@@ -110,40 +111,39 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$user = $context->getUser();
 
 		$repoGroup = $services->getRepoGroup();
-		$fileTitle =  \Title::newFromTextThrow( $fileName, NS_FILE);
-		
+		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
+
 		$localFile = $repoGroup->findFile($fileTitle);
-		$filePath = $localFile->getLocalRefPath(); 
-		
+		$filePath = $localFile->getLocalRefPath();
+
 		// Run pandoc executable
 		$pandocOutput = PandocWrapper::convert($filePath);
 		// Media processing
-		try{
+		try {
 			$imagesVocabulary = PandocWrapper::processImages($pandocOutput['mediaFolder'], $pandocOutput['baseName'], $user);
 		} catch (\Exception $e) {
 			throw $e;
-		}
-		finally{
+		} finally {
 			PandocWrapper::deleteDirectory($pandocOutput['mediaFolder']);
 		}
-		
+
 		// Text postprocessing
 		$postprocessedText = PandocTextPostporcessor::postprocess($pandocOutput['text'], $imagesVocabulary);
-		
+
 		// Save page
-		$title =  \Title::newFromText( $pageName );
+		$title =  \Title::newFromText($pageName);
 		$pageUpdater = $titleFactory->newFromTitle($title)->newPageUpdater($user);
-		$content = new \WikitextContent($postprocessedText); 
+		$content = new \WikitextContent($postprocessedText);
 		$pageUpdater->setContent(SlotRecord::MAIN, $content);
 		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
 
 		// Delete file after conversion
 		$delPageFactory = $services->getDeletePageFactory();
-		$delPage = $delPageFactory->newDeletePage( $titleFactory->newFromTitle($fileTitle), $user );
+		$delPage = $delPageFactory->newDeletePage($titleFactory->newFromTitle($fileTitle), $user);
 		$status = $delPage
-                ->forceImmediate( true )
-                ->deleteUnsafe( wfMessage("pandocultimateconverter-conversion-complete-comment") ); 
-		if ( !$status->isOK() ) {
+			->forceImmediate(true)
+			->deleteUnsafe(wfMessage("pandocultimateconverter-conversion-complete-comment"));
+		if (!$status->isOK()) {
 			// TODO: error handling
 		}
 	}

@@ -1,4 +1,4 @@
-﻿$(document).ready(function() {
+﻿$(document).ready(function () {
   function uuidv4() {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
@@ -38,7 +38,7 @@
       }
 
       // Validate file selector
-      if (!upload_file_field.val()){
+      if (!upload_file_field.val()) {
         alert(mw.message('pandocultimateconverter-warning-file-not-selected'))
       }
 
@@ -46,7 +46,7 @@
       ext = getExtension(upload_file_field.val()).toLowerCase();
       file_name = 'pandocultimateconverter-' + uuidv4() + "." + ext;
       hidden_file_name.val(file_name);
-      
+
       submit_form.append('<div style="" id="loadingDiv"><div class="loader">Loading...</div></div>');
       api = new mw.Api();
       var upload_file_params = {
@@ -54,16 +54,16 @@
         stash: false,
         ignorewarnings: 1,
         filename: file_name
-      };  
+      };
 
       console.log('test')
       console.log(mw.message('pandocultimateconverter-error-filetype-banned', ext))
 
       // TODO: switch to i18n messages
-      api.upload(upload_file_field[0], upload_file_params).fail((...resp) =>{
+      api.upload(upload_file_field[0], upload_file_params).fail((...resp) => {
         let { upload = null, error = null } = resp[1];
-          if ( error ) {
-          switch(error.code){
+        if (error) {
+          switch (error.code) {
             case 'filetype-banned':
               error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
               break;
@@ -79,14 +79,14 @@
           }
           alert("Failed to upload file: " + error_msg)
         }
-      }).always( data => {
+      }).always(data => {
         //go to backend logic after that
-        $( "#loadingDiv" ).fadeOut(500, function() {
-          $( "#loadingDiv" ).remove(); //makes page more lightweight 
+        $("#loadingDiv").fadeOut(500, function () {
+          $("#loadingDiv").remove(); //makes page more lightweight 
         });
         this.submit();
-      } );
-      
+      });
+
     });
   }
 
