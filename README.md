@@ -45,3 +45,23 @@ PDF is not supported as input format of pandoc.
 # Simple demo
 Simple gif to show how it works:
 ![PandocConverterGif](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/4be5a325-f95e-4e62-b9ce-e6189d6ee8fa)
+
+# Debug
+In case you face any issues with the extension, please add these lines to the LocalSettings.php:
+
+```php
+error_reporting( -1 );
+$wgDebugLogFile = "/var/log/mediawiki/main.log";
+$wgDebugLogPrefix = date( '[Y-m-d H:i:s] ' );
+$wgShowExceptionDetails = true;
+$wgShowDBErrorBacktrace = true;
+error_reporting( E_ALL ); ini_set( 'display_errors', 1 );
+
+$wgDebugLogGroups['DBQuery'] =
+$wgDebugLogGroups['DBReplication'] =
+$wgDebugLogGroups['DBConnection'] =
+$wgDebugLogGroups['runJobs'] =
+$wgDebugLogGroups['Parsoid'] =
+$wgDebugLogGroups['rdbms'] = "/var/log/mediawiki/misc.log";
+```
+Confirm the issue once more and provide the content of /var/log/mediawiki/main.log. You may want to specify different path, especially if you are using WIndows OS.
