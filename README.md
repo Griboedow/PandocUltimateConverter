@@ -8,7 +8,8 @@ Tested on MediaWiki 1.39, 1.40, 1.41
 
 Requires pandoc to be installed.
 
-Should work on Windows and Linux. Tested on Windows and Linux.
+Tested on Windows and Linux.
+
 # Installation
 Installation is just a bit more complicated than usual:
 1. [Install pandoc](https://pandoc.org/installing.html)
