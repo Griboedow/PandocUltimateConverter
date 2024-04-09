@@ -24,6 +24,18 @@ $wgFileExtensions[] = 'odt';
 // You can specify other requried extensions as well
 ```
 
+Or in short eveyrhting:
+```php
+$wgEnableUploads = true;
+
+$wgFileExtensions[] = 'docx';
+$wgFileExtensions[] = 'odt';
+
+wfLoadExtension( 'PandocUltimateConverter' );
+$wgPandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe'; //Or smth like this for Linux: 
+$wgPandocTmpFolderPath = 'C:\_TMP'; //Or this one for Linux: $wgPandocTmpFolderPath = '/tmp';
+```
+
 # Usage
 Follow these steps:
 1. Go to ```Special:PandocUltimateConverter``` page. ![PandocUltimateConverterExtension](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/5ac1fcfd-1b2b-442b-a98a-06996f854649)
