@@ -32,6 +32,18 @@ class PandocWrapper{
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
 
+        //Pandoc path is not specified.
+        //Maybe pandoc is in the PATH so we can try without the full path?
+        if (!$wgPandocExecutablePath){
+            $wgPandocExecutablePath = 'pandoc';
+        }
+
+        // Temp folder is not specified. 
+        // Let's get system temp
+        if (!$wgPandocTmpFolderPath){
+            $wgPandocTmpFolderPath = sys_get_temp_dir();
+        }
+
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
         $subfolder_name = join(DIRECTORY_SEPARATOR, [$wgPandocTmpFolderPath, pathinfo($filePath, PATHINFO_FILENAME)]);
@@ -66,7 +78,6 @@ class PandocWrapper{
         foreach ($files as $file){
             //TODO: find why findFiles method returns directories sometimes
             if (is_dir($file)){
-                
                 continue;
             }
 
