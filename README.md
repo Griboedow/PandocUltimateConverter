@@ -24,7 +24,7 @@ $wgFileExtensions[] = 'odt';
 // You can specify other requried extensions as well
 ```
 
-Or in short eveyrhting:
+Or in short everything:
 ```php
 $wgEnableUploads = true;
 
