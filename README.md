@@ -15,8 +15,8 @@ Installation is just a bit more complicated than usual:
 1. [Install pandoc](https://pandoc.org/installing.html)
 2. Download extension
 3. Load the extension in LocalSettings.php ```wfLoadExtension( 'PandocUltimateConverter' );```
-4. Configure path to pandoc binary ```$wgPandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```
-6. Configure path to a temp folder where pandoc will store images before upload ```$wgPandocTmpFolderPath = 'D:\_TMP';```
+4. [Optional] Configure path to pandoc binary ```$wgPandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```. It will work without this param if pandoc is in the PATH env. variable
+6. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocTmpFolderPath = 'D:\_TMP';```. IT will try to use default temp folder if not specified. 
 7. Allow additional file extensions to be uploaded to MediaWiki
 ```php
 $wgFileExtensions[] = 'docx';
@@ -24,7 +24,7 @@ $wgFileExtensions[] = 'odt';
 // You can specify other requried extensions as well
 ```
 
-Or in short everything:
+TL;DR:
 ```php
 $wgEnableUploads = true;
 
@@ -32,8 +32,6 @@ $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
 
 wfLoadExtension( 'PandocUltimateConverter' );
-$wgPandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe'; //Or smth like this for Linux: 
-$wgPandocTmpFolderPath = 'C:\_TMP'; //Or this one for Linux: $wgPandocTmpFolderPath = '/tmp';
 ```
 
 # Usage
