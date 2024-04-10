@@ -1,5 +1,4 @@
-# PandocUltimateConverter
-Pandoc converter extension for MediaWiki which imports not only text, but also images.
+PandocUltimateConverter is a Pandoc converter extension for MediaWiki which imports not only text, but also images.
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
