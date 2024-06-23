@@ -57,7 +57,7 @@ Simple gif to show how it works:
 
 # Advanced configuration
 There are additional configs:
-1.  ```$wgPandocUltimateConverter_MediaFileExtensionsToSkip = [ 'emf' ];``` -- You can specify array of extensions which should not be uploaded to MediaWiki as a file. For example, emf images are not supported in web, and you there is no reason to upload them. THe config is case insensitive.
+1.  ```$wgPandocUltimateConverter_MediaFileExtensionsToSkip = [ 'emf' ];``` -- You can specify array of extensions which should not be uploaded to MediaWiki as a file. For example, emf images are not supported in web, and you there is no reason to upload them. The config is case insensitive.
 2. Global configs ```$wgPandocExecutablePath``` and ```$wgPandocTmpFolderPath ``` are still working but we recommend to switch to confiuration parameteres ```$wgPandocUltimateConverter_PandocExecutablePath``` and ```$wgPandocUltimateConverter_TempFolderPath```.
 
 # Debug
