@@ -27,19 +27,19 @@
 
       // Validate page name
       if (page_name.length < page_name_MIN_LENGTH || page_name.length > page_name_MAX_LENGTH) {
-        alert(mw.message('pandocultimateconverter-warning-page-name-length', page_name_MIN_LENGTH, page_name_MAX_LENGTH));
+        alert(mw.message('pandocultimateconverter-warning-page-name-length', page_name_MIN_LENGTH, page_name_MAX_LENGTH).text());
         return false;
       }
 
       if ((results = page_name.match(invalid_regex)) != null) {
         results = results.join(" ");
-        alert(mw.message('pandocultimateconverter-warning-page-name-invalid-character', results));
+        alert(mw.message('pandocultimateconverter-warning-page-name-invalid-character', results).text());
         return false;
       }
 
       // Validate file selector
       if (!upload_file_field.val()) {
-        alert(mw.message('pandocultimateconverter-warning-file-not-selected'))
+        alert(mw.message('pandocultimateconverter-warning-file-not-selected').text())
       }
 
       // Upload image
@@ -56,28 +56,25 @@
         filename: file_name
       };
 
-      console.log('test')
-      console.log(mw.message('pandocultimateconverter-error-filetype-banned', ext))
-
-      // TODO: switch to i18n messages
       api.upload(upload_file_field[0], upload_file_params).fail((...resp) => {
         let { upload = null, error = null } = resp[1];
         if (error) {
           switch (error.code) {
             case 'filetype-banned':
-              error_msg = "You have not enabled upload " + ext + " files. Please follow the instructions on the extension page to enable it"
+              //seconfd arg '$' is a stupid hack: I don't know how to escape $ in mw.messages
+              error_msg = mw.message('pandocultimateconverter-error-filetype-banned', ext, '$').text()
               break;
             case 'uploaddisabled':
-              error_msg = "Upload is disabled on wiki. Enable it by adding '$wgEnableUploads = true;' to LocalSettings.php"
+              error_msg = mw.message('pandocultimateconverter-error-uploaddisabled').text()
               break;
             case 'mustbeloggedin':
-              error_msg = "Only logged in users can upload files on this wiki"
+              error_msg = mw.message('pandocultimateconverter-error-mustbeloggedin').text()
               break;
             default:
               error_msg = error.code
               break;
           }
-          alert("Failed to upload file: " + error_msg)
+          alert(mw.message('pandocultimateconverter-error-generic', error_msg).text())
         }
       }).always(data => {
         //go to backend logic after that

@@ -29,7 +29,11 @@
       "messages": [
         "pandocultimateconverter-warning-page-name-length",
         "pandocultimateconverter-warning-page-name-invalid-character",
-        "pandocultimateconverter-warning-file-not-selected"
+        "pandocultimateconverter-warning-file-not-selected",
+        "pandocultimateconverter-error-filetype-banned",
+        "pandocultimateconverter-error-uploaddisabled",
+        "pandocultimateconverter-error-mustbeloggedin",
+        "pandocultimateconverter-error-generic"
       ],
       "dependencies": [
         "mediawiki.jqueryMsg"
@@ -40,5 +44,26 @@
     "localBasePath": "modules",
     "remoteExtPath": "PandocUltimateConverter"
   },
+  "config": {
+    "PandocUltimateConverter_PandocExecutablePath": {
+      "path": false,
+			"description": "Full path to pandoc library. No need to specify if pandoc is in PATH env variable",
+			"public": true
+		},
+    "PandocUltimateConverter_TempFolderPath": {
+      "path": false,
+			"description": "Full path to temp folder where pandoc will unpack all the images. Will use system setting if not specified.",
+			"public": true
+		},
+    "PandocUltimateConverter_MediaFileExtensionsToSkip": {
+			"value": [],
+      "path": false,
+			"description": "Extensions speicified in this config, will be ignored during conversion -- media files will not be uploaded, but links to them will still exist in the converted doc",
+			"public": true
+		}
+	},
+	"ConfigRegistry": {
+		"PandocUltimateConverter": "GlobalVarConfig::newInstance"
+	},
   "manifest_version": 1
 }

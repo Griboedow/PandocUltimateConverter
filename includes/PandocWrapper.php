@@ -29,31 +29,25 @@ class PandocWrapper{
 
 
     public static function convert($filePath){
+        // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
 
-        //Pandoc path is not specified.
-        //Maybe pandoc is in the PATH so we can try without the full path?
-        if (!$wgPandocExecutablePath){
-            $wgPandocExecutablePath = 'pandoc';
-        }
-
-        // Temp folder is not specified. 
-        // Let's get system temp
-        if (!$wgPandocTmpFolderPath){
-            $wgPandocTmpFolderPath = sys_get_temp_dir();
-        }
+        // New config
+        $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
+        $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
+        $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get( 'PandocUltimateConverter_TempFolderPath' ) ?? sys_get_temp_dir();
 
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
-        $subfolder_name = join(DIRECTORY_SEPARATOR, [$wgPandocTmpFolderPath, pathinfo($filePath, PATHINFO_FILENAME)]);
+        $subfolder_name = join(DIRECTORY_SEPARATOR, [$tempFolderPath, pathinfo($filePath, PATHINFO_FILENAME)]);
         $subfolder_name = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $subfolder_name);
 
         // Try to upload even if format is not in the list
         // In the future we may want to extend list of formats.
         $sourceFormat = self::$supportedFormats[$ext] ?? $ext;
 		$res = Shell::command(
-			$wgPandocExecutablePath,
+			$pandocExecutablePath,
 			'--from=' . $sourceFormat,
 			'--to=mediawiki',
             '--extract-media='. $subfolder_name,
@@ -70,14 +64,22 @@ class PandocWrapper{
     }
 
     public static function processImages($subfolder_name, $base_name, $user){
-        $imagesVocabulary = [];
-
         $services = MediaWikiServices::getInstance();
+        $config = $services->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );    
+        $mediaFilesExtensionsToSkip = $config->get( 'PandocUltimateConverter_MediaFileExtensionsToSkip' ) ?? []; 
+
+        $imagesVocabulary = [];
 
         $files = findFiles( $subfolder_name );
         foreach ($files as $file){
             //TODO: find why findFiles method returns directories sometimes
             if (is_dir($file)){
+                continue;
+            }
+
+            // Skip uploading unsupported media files
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))){
                 continue;
             }
 

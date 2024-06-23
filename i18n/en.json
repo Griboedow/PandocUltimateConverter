@@ -18,5 +18,8 @@
     "pandocultimateconverter-special-upload-target-page-section": "Target page name (will be overwritten if exists)",
     "pandocultimateconverter-special-upload-button-label": "Upload and convert",
     "pandocultimateconverter-error-upload": "Failed to upload file: $1",
-    "pandocultimateconverter-error-filetype-banned": "The file type '$1' is not allowed on this wiki. You can fix it via adding this line to LocalSettings.php: $wgFileExtensions[] = '$1';"
+    "pandocultimateconverter-error-filetype-banned": "The file type $1 is not allowed on this wiki. You can fix it via adding this line to LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+    "pandocultimateconverter-error-uploaddisabled": "Upload is disabled on wiki. Enable it by adding '$wgEnableUploads = true;' to LocalSettings.php",
+    "pandocultimateconverter-error-mustbeloggedin": "Only logged in users can upload files on this wiki. Please login to proceed.",
+    "pandocultimateconverter-error-generic": "Failed to upload file: $1"
 }
