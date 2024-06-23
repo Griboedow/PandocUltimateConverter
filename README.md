@@ -14,8 +14,8 @@ Installation is just a bit more complicated than usual:
 1. [Install pandoc](https://pandoc.org/installing.html)
 2. Download extension
 3. Load the extension in LocalSettings.php ```wfLoadExtension( 'PandocUltimateConverter' );```
-4. [Optional] Configure path to pandoc binary ```$wgPandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```. It will work without this param if pandoc is in the PATH env. variable
-6. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocTmpFolderPath = 'D:\_TMP';```. IT will try to use default temp folder if not specified. 
+4. [Optional] Configure path to pandoc binary ```$wgPandocUltimateConverter_PandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```. It will work without this param if pandoc is in the PATH env. variable
+6. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocUltimateConverter_TempFolderPath = 'D:\_TMP';```. IT will try to use default temp folder if not specified. 
 7. Allow additional file extensions to be uploaded to MediaWiki
 ```php
 $wgFileExtensions[] = 'docx';
@@ -54,6 +54,11 @@ PDF is not supported as input format of pandoc.
 # Simple demo
 Simple gif to show how it works:
 ![PandocConverterGif](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/4be5a325-f95e-4e62-b9ce-e6189d6ee8fa)
+
+# Advanced configuration
+There are additional configs:
+1.  ```$wgPandocUltimateConverter_MediaFileExtensionsToSkip = [ 'emf' ];``` -- You can specify array of extensions which should not be uploaded to MediaWiki as a file. For example, emf images are not supported in web, and you there is no reason to upload them. THe config is case insensitive.
+2. Global configs ```$wgPandocExecutablePath``` and ```$wgPandocTmpFolderPath ``` are still working but we recommend to switch to confiuration parameteres ```$wgPandocUltimateConverter_PandocExecutablePath``` and ```$wgPandocUltimateConverter_TempFolderPath```.
 
 # Debug
 In case you face any issues with the extension, please add these lines to the LocalSettings.php:
