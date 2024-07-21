@@ -27,6 +27,17 @@ class PandocWrapper{
         "markdown" => "markdown"
     ];
 
+    // I'm not switching to manifest 2.0 for now because I want to support old MW
+    // Old maniest reutrns array with config declaration if config is not set. 
+    // This hack should be removed after we switch to manifest 2.0 fully.
+    private static function fixConfigFromNewManiest($conf, $default){
+        if(is_array($conf) && isset($conf["description"])){
+            return $default;
+        }
+        else{
+            return $conf;
+        }
+    }
 
     public static function convert($filePath){
         // Legacy config from globals
@@ -36,7 +47,10 @@ class PandocWrapper{
         // New config
         $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
         $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
+        $pandocExecutablePath = PandocWrapper::fixConfigFromNewManiest($pandocExecutablePath, 'pandoc');
+
         $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get( 'PandocUltimateConverter_TempFolderPath' ) ?? sys_get_temp_dir();
+        $tempFolderPath = PandocWrapper::fixConfigFromNewManiest($tempFolderPath, sys_get_temp_dir());
 
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
@@ -67,6 +81,7 @@ class PandocWrapper{
         $services = MediaWikiServices::getInstance();
         $config = $services->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );    
         $mediaFilesExtensionsToSkip = $config->get( 'PandocUltimateConverter_MediaFileExtensionsToSkip' ) ?? []; 
+        $mediaFilesExtensionsToSkip = PandocWrapper::fixConfigFromNewManiest($mediaFilesExtensionsToSkip, []);
 
         $imagesVocabulary = [];
 
