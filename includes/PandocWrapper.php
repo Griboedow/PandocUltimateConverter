@@ -27,18 +27,6 @@ class PandocWrapper{
         "markdown" => "markdown"
     ];
 
-    // I'm not switching to manifest 2.0 for now because I want to support old MW
-    // Old maniest reutrns array with config declaration if config is not set. 
-    // This hack should be removed after we switch to manifest 2.0 fully.
-    private static function fixConfigFromNewManiest($conf, $default){
-        if(is_array($conf) && isset($conf["description"])){
-            return $default;
-        }
-        else{
-            return $conf;
-        }
-    }
-
     public static function convert($filePath){
         // Legacy config from globals
         global $wgPandocExecutablePath;
@@ -47,7 +35,6 @@ class PandocWrapper{
         // New config
         $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
         $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
-
         $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get( 'PandocUltimateConverter_TempFolderPath' ) ?? sys_get_temp_dir();
 
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
