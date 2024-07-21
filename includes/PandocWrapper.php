@@ -79,7 +79,22 @@ class PandocWrapper{
 
             // Skip uploading unsupported media files
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))){
+
+            $mediaFilesExtensionsToSkipLowercase = [];
+            foreach ( $mediaFilesExtensionsToSkip as $element ){
+                if( is_array($element) ){
+                    continue;
+                }
+                
+                try {
+                    $mediaFilesExtensionsToSkipLowercase[] = strtolower($element);
+                }
+                catch(\Exception $e) {
+                    wfDebugLog( 'PandocUltimateConverter', "Failed to process {$element}" );
+                }
+            }
+
+            if (in_array(strtolower($extension), $mediaFilesExtensionsToSkipLowercase)){
                 continue;
             }
 
