@@ -47,10 +47,8 @@ class PandocWrapper{
         // New config
         $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
         $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
-        $pandocExecutablePath = PandocWrapper::fixConfigFromNewManiest($pandocExecutablePath, 'pandoc');
 
         $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get( 'PandocUltimateConverter_TempFolderPath' ) ?? sys_get_temp_dir();
-        $tempFolderPath = PandocWrapper::fixConfigFromNewManiest($tempFolderPath, sys_get_temp_dir());
 
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
@@ -80,8 +78,7 @@ class PandocWrapper{
     public static function processImages($subfolder_name, $base_name, $user){
         $services = MediaWikiServices::getInstance();
         $config = $services->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );    
-        $mediaFilesExtensionsToSkip = $config->get( 'PandocUltimateConverter_MediaFileExtensionsToSkip' ) ?? []; 
-        $mediaFilesExtensionsToSkip = PandocWrapper::fixConfigFromNewManiest($mediaFilesExtensionsToSkip, []);
+        $mediaFilesExtensionsToSkip = $config->get( 'PandocUltimateConverter_MediaFileExtensionsToSkip' ) ?? [];
 
         $imagesVocabulary = [];
 
@@ -94,22 +91,7 @@ class PandocWrapper{
 
             // Skip uploading unsupported media files
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-
-            $mediaFilesExtensionsToSkipLowercase = [];
-            foreach ( $mediaFilesExtensionsToSkip as $element ){
-                if( is_array($element) ){
-                    continue;
-                }
-                
-                try {
-                    $mediaFilesExtensionsToSkipLowercase[] = strtolower($element);
-                }
-                catch(\Exception $e) {
-                    wfDebugLog( 'PandocUltimateConverter', "Failed to process {$element}" );
-                }
-            }
-
-            if (in_array(strtolower($extension), $mediaFilesExtensionsToSkipLowercase)){
+            if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))){
                 continue;
             }
 

@@ -46,11 +46,13 @@
   },
   "config": {
     "PandocUltimateConverter_PandocExecutablePath": {
+      "value":null,
       "path": false,
 			"description": "Full path to pandoc library. No need to specify if pandoc is in PATH env variable",
 			"public": true
 		},
     "PandocUltimateConverter_TempFolderPath": {
+      "value":null,
       "path": false,
 			"description": "Full path to temp folder where pandoc will unpack all the images. Will use system setting if not specified.",
 			"public": true
@@ -65,5 +67,5 @@
 	"ConfigRegistry": {
 		"PandocUltimateConverter": "GlobalVarConfig::newInstance"
 	},
-  "manifest_version": 1
+  "manifest_version": 2
 }
