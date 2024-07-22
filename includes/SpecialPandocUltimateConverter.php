@@ -73,6 +73,49 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$htmlForm->show();
 	}
 
+	private static function deleteFile($fileName){
+		$context = \RequestContext::getMain();
+		$user = $context->getUser();
+		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
+		$services = MediaWikiServices::getInstance();
+		$reason = wfMessage("pandocultimateconverter-conversion-complete-comment")->text();
+
+		//Delete file itself if it is local
+		try{
+			$repoGroup = $services->getRepoGroup();
+			$fileOnDisk = $repoGroup->findFile(
+				$fileTitle, [ 'ignoreRedirect' => true ] // To be sure we don't remove smth useful
+			);
+			if ( $fileOnDisk && $fileOnDisk->isLocal() ) {
+				$fileOnDisk->deleteFile( $reason, $user );
+				$fileOnDisk->purgeEverything();
+			}
+		}
+		catch (\Exception $e) {
+			//TODO: logging
+			throw $e;
+		}
+
+		// Delete file page after the file itself is deleted
+		try{
+			$titleFactory = $services->getWikiPageFactory();
+			$delPageFactory = $services->getDeletePageFactory();
+			$delPage = $delPageFactory->newDeletePage($titleFactory->newFromTitle($fileTitle), $user);
+			$status = $delPage
+				->forceImmediate(true)
+				->deleteUnsafe($reason);
+			if (!$status->isOK()) {
+				// TODO: error handling
+			}
+		}
+		catch (\Exception $e) {
+			//TODO: logging
+			throw $e;
+		}
+
+
+	}
+
 	public static function processForm($formData)
 	{
 		try {
@@ -85,7 +128,9 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 			throw $e;
 			exit;
 		} finally {
-			// TODO: ideally do file deletion here			
+			if($fileName){
+				self::deleteFile($fileName);
+			}
 		}
 	}
 
@@ -136,15 +181,5 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$content = new \WikitextContent($postprocessedText);
 		$pageUpdater->setContent(SlotRecord::MAIN, $content);
 		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
-
-		// Delete file after conversion
-		$delPageFactory = $services->getDeletePageFactory();
-		$delPage = $delPageFactory->newDeletePage($titleFactory->newFromTitle($fileTitle), $user);
-		$status = $delPage
-			->forceImmediate(true)
-			->deleteUnsafe(wfMessage("pandocultimateconverter-conversion-complete-comment"));
-		if (!$status->isOK()) {
-			// TODO: error handling
-		}
 	}
 }
