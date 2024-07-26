@@ -65,6 +65,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 				'class' => 'HTMLHiddenField',
 				'section' => 'pandocultimateconverter-special-upload-target-page-section',
 			],
+			//todo: label-message
 			'SourceUrl' => [
 				'section' => 'pandocultimateconverter-special-upload-file-section',
 				'type' => 'url',
@@ -78,6 +79,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 					'url',
 				],
 			],
+			//todo: label-message
 			'ConvertToArticleName' => [
 				'type' => 'title',
 				'id' => 'wpArticleTitle',
