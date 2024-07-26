@@ -36,9 +36,11 @@ wfLoadExtension( 'PandocUltimateConverter' );
 
 # Usage
 Follow these steps:
-1. Go to ```Special:PandocUltimateConverter``` page. ![PandocUltimateConverterExtension](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/5ac1fcfd-1b2b-442b-a98a-06996f854649)
+1. Go to ```Special:PandocUltimateConverter``` page. ![PandocUltimateConverter-Extension-with-URL](https://github.com/user-attachments/assets/d935bc66-a7f8-4e1f-9d1f-4442c555570b)
 
-2. Specify file to convert and target page name.
+2. 
+
+3. Specify file to convert and target page name.
    - Target page and all the images will be overwritten if they already exist
 4. After the file conversion is finished, you will be redirected to the target page
    - Source file will be automatically removed from the wiki
