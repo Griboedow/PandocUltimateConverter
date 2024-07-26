@@ -1,4 +1,4 @@
-PandocUltimateConverter is a Pandoc converter extension for MediaWiki which imports not only text, but also images.
+PandocUltimateConverter is a Pandoc converter extension for MediaWiki which converts files and webpages and imports not only text, but also images.
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
@@ -49,12 +49,16 @@ Follow these steps:
 
 # Supported formats
 Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). On practice, I've tested for docx and odt only. 
-
 PDF is not supported as input format of pandoc.
 
+Webpages can be imported as well. Pandoc does not work very well with webpages, but it might be helpful if the webpage contains a lot of images and other files.
+
 # Simple demo
-Simple gif to show how it works:
-![PandocConverterGif](https://github.com/Griboedow/PandocUltimateConverter/assets/4194526/4be5a325-f95e-4e62-b9ce-e6189d6ee8fa)
+Simple gif to show how it works for files:
+![PandocConverterWordGif](https://github.com/user-attachments/assets/3c52a62c-5647-47a9-a941-37ac2ac3c192)
+
+And another gif to show demo for importing a webpage:
+![PandocConverterUrlGif](https://github.com/user-attachments/assets/0c1a8855-a09b-42c8-9e94-003bd5487404)
 
 # Advanced configuration
 There are additional configs:
@@ -79,4 +83,4 @@ $wgDebugLogGroups['runJobs'] =
 $wgDebugLogGroups['Parsoid'] =
 $wgDebugLogGroups['rdbms'] = "/var/log/mediawiki/misc.log";
 ```
-Confirm the issue once more and provide the content of /var/log/mediawiki/main.log. You may want to specify different path, especially if you are using WIndows OS.
+Confirm the issue once more and provide the content of /var/log/mediawiki/main.log. You may want to specify different path, especially if you are using Windows OS.
