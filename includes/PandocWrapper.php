@@ -45,6 +45,7 @@ class PandocWrapper{
             $pandocExecutablePath,
 			'--to=mediawiki',
             '--extract-media='. $subfolder_name,
+            '--request-header=User-Agent:"Mozilla/5.0"',
 			$source
         ];
         if ($format){
