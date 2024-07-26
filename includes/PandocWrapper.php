@@ -27,7 +27,7 @@ class PandocWrapper{
         "markdown" => "markdown"
     ];
 
-    public static function convertInternal($sourceFormat, $source, $base_name){
+    public static function convertInternal($source, $base_name){
         // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
@@ -42,19 +42,22 @@ class PandocWrapper{
 
         // Try to upload even if format is not in the list
         // In the future we may want to extend list of formats.
-        
-		$res = Shell::command(
-			$pandocExecutablePath,
-			'--from=' . $sourceFormat,
+        $commands = [
+            $pandocExecutablePath,
 			'--to=mediawiki',
             '--extract-media='. $subfolder_name,
 			$source
-		  )->includeStderr()
+        ];
+
+		$res = Shell::command(
+			$commands
+		  )->environment(getenv()) //network stack does not work without it
+          ->includeStderr()
 			->execute();
 
         //Return text part and path to folder
         return [
-            "text" => $res->getStdout(),
+            "text" =>$res->getStdout(),
             "baseName" =>  $base_name,
             "mediaFolder" => $subfolder_name
         ];
@@ -63,15 +66,13 @@ class PandocWrapper{
     public static function convertFile($filePath){
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
-        $sourceFormat = self::$supportedFormats[$ext] ?? $ext;
-        return PandocWrapper::convertInternal($sourceFormat, $filePath, $base_name);
+        return PandocWrapper::convertInternal($filePath, $base_name);
     }
 
     
     public static function convertUrl($sourceUrl){
         $base_name = parse_url($sourceUrl, PHP_URL_HOST);
-        $sourceFormat = 'html';
-        return PandocWrapper::convertInternal($sourceFormat, $sourceUrl, $base_name);
+        return PandocWrapper::convertInternal($sourceUrl, $base_name);
     }
 
     public static function processImages($subfolder_name, $base_name, $user){
