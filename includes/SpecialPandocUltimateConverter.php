@@ -33,6 +33,17 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$output->addWikiTextAsInterface($wikitext);
 
 		$formDescriptor = [
+			'SourceType' => [
+				'section' => 'pandocultimateconverter-special-upload-file-section',
+				'type' => 'select',
+				'id' => 'wpConvertSourceType',
+				'label' => 'Type: ',
+				// The options available within the menu (displayed => value)
+				'options' => [
+					'File' => 'file', 
+					'URL' => 'url',
+				],
+			],
 			'UploadFile' => [
 				'class' => \UploadSourceField::class,
 				'section' => 'pandocultimateconverter-special-upload-file-section',
@@ -40,17 +51,38 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 				'id' => 'wpUploadFile',
 				'radio-id' => 'wpSourceTypeFile',
 				'label-message' => 'pandocultimateconverter-special-upload-file',
-				'upload-type' => 'File'
+				'upload-type' => 'File',
+				'hide-if' => [
+					'!==',
+					'SourceType',
+					'file',
+				],
 			],
 			'UploadedFileName' => [
+				'section' => 'pandocultimateconverter-special-upload-file-section',
 				'type' => 'text',
 				'id' => 'wpUploadedFileName',
 				'class' => 'HTMLHiddenField',
 				'section' => 'pandocultimateconverter-special-upload-target-page-section',
 			],
+			'SourceUrl' => [
+				'section' => 'pandocultimateconverter-special-upload-file-section',
+				'type' => 'url',
+				'size' => 80,
+				'id' => 'wpUrlToConvert',
+				'name' => 'web-url',
+				'label' => 'URL: ',
+				'hide-if' => [
+					'!==',
+					'SourceType',
+					'url',
+				],
+			],
 			'ConvertToArticleName' => [
-				'type' => 'text',
+				'type' => 'title',
 				'id' => 'wpArticleTitle',
+				'name' => 'page-title',
+				'label' => 'Page: ',
 				'size' => 80,
 				'placeholder' => "Type in the title for the article created here. Existing article will get overwritten.",
 				'section' => 'pandocultimateconverter-special-upload-target-page-section',
@@ -118,20 +150,33 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
 	public static function processForm($formData)
 	{
-		try {
-			$fileName = $formData['UploadedFileName'];
-			$pageName = self::getArticleTitle($formData['ConvertToArticleName']);
+		$sourceType = $formData['SourceType'];
+		$pageName = self::getArticleTitle($formData['ConvertToArticleName']);
 
-			self::convertFileToPage($fileName, $pageName);
-			header('location: ' . \Title::newFromText($pageName)->getFullUrl());
-		} catch (\Exception $e) {
-			throw $e;
-			exit;
-		} finally {
-			if($fileName){
-				self::deleteFile($fileName);
+		if ( $sourceType == 'file' ){
+			try {
+				$fileName = $formData['UploadedFileName'];
+	
+				self::convertFileToPage($fileName, $pageName);
+				header('location: ' . \Title::newFromText($pageName)->getFullUrl());
+			} catch (\Exception $e) {
+				throw $e;
+				exit;
+			} finally {
+				if($fileName){
+					self::deleteFile($fileName);
+				}
 			}
+			return;
 		}
+		
+		if ( $sourceType == 'url' ){
+			$sourceUrl = $formData['SourceUrl'];
+			self::convertUrlToPage($sourceUrl, $pageName);
+			header('location: ' . \Title::newFromText($pageName)->getFullUrl());
+			return;
+		}
+
 	}
 
 
@@ -147,22 +192,14 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		return $titleString;
 	}
 
-	public static function convertFileToPage($fileName, $pageName)
-	{
+
+	private static function convertPandocOutputToPageInternal($pandocOutput, $pageName){
+		// Reading context
+		$context = \RequestContext::getMain();
+		$user = $context->getUser();
 		$services = MediaWikiServices::getInstance();
 		$titleFactory = $services->getWikiPageFactory();
 
-		$context = \RequestContext::getMain();
-		$user = $context->getUser();
-
-		$repoGroup = $services->getRepoGroup();
-		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
-
-		$localFile = $repoGroup->findFile($fileTitle);
-		$filePath = $localFile->getLocalRefPath();
-
-		// Run pandoc executable
-		$pandocOutput = PandocWrapper::convert($filePath);
 		// Media processing
 		try {
 			$imagesVocabulary = PandocWrapper::processImages($pandocOutput['mediaFolder'], $pandocOutput['baseName'], $user);
@@ -181,5 +218,24 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$content = new \WikitextContent($postprocessedText);
 		$pageUpdater->setContent(SlotRecord::MAIN, $content);
 		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
+	}
+
+	private static function convertUrlToPage($sourceUrl, $pageName){
+		$pandocOutput = PandocWrapper::convertUrl($sourceUrl);
+		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
+	}
+
+	private static function convertFileToPage($fileName, $pageName)
+	{
+		$services = MediaWikiServices::getInstance();
+
+		$repoGroup = $services->getRepoGroup();
+		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
+
+		$localFile = $repoGroup->findFile($fileTitle);
+		$filePath = $localFile->getLocalRefPath();
+
+		$pandocOutput = PandocWrapper::convertFile($filePath);
+		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
 	}
 }
