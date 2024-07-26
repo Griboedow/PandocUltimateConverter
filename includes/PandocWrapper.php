@@ -26,7 +26,7 @@ function findFiles ($dir, &$results = array()) {
  It looks ugly when I look for it in every single method. 
 */
 class PandocWrapper{
-    public static function convertInternal($source, $base_name){
+    public static function convertInternal($source, $base_name, $format=null){
         // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
@@ -47,6 +47,9 @@ class PandocWrapper{
             '--extract-media='. $subfolder_name,
 			$source
         ];
+        if ($format){
+            $commands[] = '--from=' . $format; 
+        }
 
         $envArr = getenv();
         if (!is_array($envArr)){
@@ -75,7 +78,8 @@ class PandocWrapper{
     
     public static function convertUrl($sourceUrl){
         $base_name = parse_url($sourceUrl, PHP_URL_HOST);
-        return PandocWrapper::convertInternal($sourceUrl, $base_name);
+        // html works better with format specified for smth like https://github.com/Griboedow/PandocUltimateConverter/blob/main/README.md
+        return PandocWrapper::convertInternal($sourceUrl, $base_name, 'html');
     }
 
     public static function processImages($subfolder_name, $base_name, $user){
@@ -97,7 +101,7 @@ class PandocWrapper{
             if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))){
                 continue;
             }
-            
+
             // TODO: move upload single file to a spearate method
             $base = wfBaseName( $file );
             $file_page_name = $base_name . '-' . $base;
