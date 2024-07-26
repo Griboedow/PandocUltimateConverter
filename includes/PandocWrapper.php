@@ -122,7 +122,7 @@ class PandocWrapper{
             $mwProps = new \MWFileProps( $services->getMimeAnalyzer() );
             if ($image->recordUpload3(
                 $archive->value,
-                wfMessage("pandocultimateconverter-history-comment")->text, 
+                wfMessage("pandocultimateconverter-history-comment")->text(), 
                 '',
                 $user,
                 $mwProps->getPropsFromPath( $file, true )
