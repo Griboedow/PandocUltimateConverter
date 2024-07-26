@@ -20,13 +20,12 @@ function findFiles ($dir, &$results = array()) {
     return $results;
 }
 
-class PandocWrapper{
-    private static $supportedFormats = [
-        "docx" => "docx",
-        "md" => "markdown",
-        "markdown" => "markdown"
-    ];
 
+/*
+ TODO: set useful context like MW services, context, user, etc in constructor.
+ It looks ugly when I look for it in every single method. 
+*/
+class PandocWrapper{
     public static function convertInternal($source, $base_name){
         // Legacy config from globals
         global $wgPandocExecutablePath;
@@ -49,9 +48,13 @@ class PandocWrapper{
 			$source
         ];
 
+        $envArr = getenv();
+        if (!is_array($envArr)){
+            $envArr = [];
+        }
 		$res = Shell::command(
 			$commands
-		  )->environment(getenv()) //network stack does not work without it
+		  )->environment($envArr) //network stack does not work without it
           ->includeStderr()
 			->execute();
 
@@ -94,7 +97,8 @@ class PandocWrapper{
             if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))){
                 continue;
             }
-
+            
+            // TODO: move upload single file to a spearate method
             $base = wfBaseName( $file );
             $file_page_name = $base_name . '-' . $base;
             $title = \Title::makeTitleSafe( NS_FILE, $file_page_name );
