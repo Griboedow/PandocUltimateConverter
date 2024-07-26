@@ -16,6 +16,8 @@
   var hidden_file_name = $("#wpUploadedFileName");
   var submit_form = $("#mw-pandoc-upload-form");
   var submit_button = $("#mw-pandoc-upload-form-submit");
+  var source_type = $("#wpConvertSourceType");
+
 
   var invalid_regex = /[\/\'\"\$]/g;
   if (submit_form.length == 1) {
@@ -37,52 +39,62 @@
         return false;
       }
 
-      // Validate file selector
-      if (!upload_file_field.val()) {
-        alert(mw.message('pandocultimateconverter-warning-file-not-selected').text())
+      if (source_type.val() === 'url') {
+        this.submit();
+        return;
       }
 
-      // Upload image
-      ext = getExtension(upload_file_field.val()).toLowerCase();
-      file_name = 'pandocultimateconverter-' + uuidv4() + "." + ext;
-      hidden_file_name.val(file_name);
-
-      submit_form.append('<div style="" id="loadingDiv"><div class="loader">Loading...</div></div>');
-      api = new mw.Api();
-      var upload_file_params = {
-        format: 'json',
-        stash: false,
-        ignorewarnings: 1,
-        filename: file_name
-      };
-
-      api.upload(upload_file_field[0], upload_file_params).fail((...resp) => {
-        let { upload = null, error = null } = resp[1];
-        if (error) {
-          switch (error.code) {
-            case 'filetype-banned':
-              //seconfd arg '$' is a stupid hack: I don't know how to escape $ in mw.messages
-              error_msg = mw.message('pandocultimateconverter-error-filetype-banned', ext, '$').text()
-              break;
-            case 'uploaddisabled':
-              error_msg = mw.message('pandocultimateconverter-error-uploaddisabled').text()
-              break;
-            case 'mustbeloggedin':
-              error_msg = mw.message('pandocultimateconverter-error-mustbeloggedin').text()
-              break;
-            default:
-              error_msg = error.code
-              break;
-          }
-          alert(mw.message('pandocultimateconverter-error-generic', error_msg).text())
+      if (source_type.val() === 'file') {
+        // Validate file selector
+        if (!upload_file_field.val()) {
+          alert(mw.message('pandocultimateconverter-warning-file-not-selected').text())
+          return false;
         }
-      }).always(data => {
-        //go to backend logic after that
-        $("#loadingDiv").fadeOut(500, function () {
-          $("#loadingDiv").remove(); //makes page more lightweight 
+
+        // Upload image
+        ext = getExtension(upload_file_field.val()).toLowerCase();
+        file_name = 'pandocultimateconverter-' + uuidv4() + "." + ext;
+        hidden_file_name.val(file_name);
+
+        submit_form.append('<div style="" id="loadingDiv"><div class="loader">Loading...</div></div>');
+        api = new mw.Api();
+        var upload_file_params = {
+          format: 'json',
+          stash: false,
+          ignorewarnings: 1,
+          filename: file_name
+        };
+
+        api.upload(upload_file_field[0], upload_file_params).fail((...resp) => {
+          let { upload = null, error = null } = resp[1];
+          if (error) {
+            switch (error.code) {
+              case 'filetype-banned':
+                //seconfd arg '$' is a stupid hack: I don't know how to escape $ in mw.messages
+                error_msg = mw.message('pandocultimateconverter-error-filetype-banned', ext, '$').text()
+                break;
+              case 'uploaddisabled':
+                error_msg = mw.message('pandocultimateconverter-error-uploaddisabled').text()
+                break;
+              case 'mustbeloggedin':
+                error_msg = mw.message('pandocultimateconverter-error-mustbeloggedin').text()
+                break;
+              default:
+                error_msg = error.code
+                break;
+            }
+            alert(mw.message('pandocultimateconverter-error-generic', error_msg).text())
+          }
+        }).always(data => {
+          //go to backend logic after that
+          $("#loadingDiv").fadeOut(500, function () {
+            $("#loadingDiv").remove(); //makes page more lightweight 
+          });
+          this.submit();
+          return;
         });
-        this.submit();
-      });
+      }
+
 
     });
   }

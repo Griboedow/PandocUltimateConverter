@@ -27,7 +27,7 @@ class PandocWrapper{
         "markdown" => "markdown"
     ];
 
-    public static function convert($filePath){
+    public static function convertInternal($source, $base_name){
         // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
@@ -36,30 +36,43 @@ class PandocWrapper{
         $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
         $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
         $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get( 'PandocUltimateConverter_TempFolderPath' ) ?? sys_get_temp_dir();
-
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-        $base_name = pathinfo($filePath, PATHINFO_FILENAME);
-        $subfolder_name = join(DIRECTORY_SEPARATOR, [$tempFolderPath, pathinfo($filePath, PATHINFO_FILENAME)]);
+        $subfolder_name = join(DIRECTORY_SEPARATOR, [$tempFolderPath, $base_name]);
         $subfolder_name = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $subfolder_name);
+
 
         // Try to upload even if format is not in the list
         // In the future we may want to extend list of formats.
-        $sourceFormat = self::$supportedFormats[$ext] ?? $ext;
-		$res = Shell::command(
-			$pandocExecutablePath,
-			'--from=' . $sourceFormat,
+        $commands = [
+            $pandocExecutablePath,
 			'--to=mediawiki',
             '--extract-media='. $subfolder_name,
-			$filePath
-		  )->includeStderr()
+			$source
+        ];
+
+		$res = Shell::command(
+			$commands
+		  )->environment(getenv()) //network stack does not work without it
+          ->includeStderr()
 			->execute();
 
         //Return text part and path to folder
         return [
-            "text" => $res->getStdout(),
+            "text" =>$res->getStdout(),
             "baseName" =>  $base_name,
             "mediaFolder" => $subfolder_name
         ];
+    }
+
+    public static function convertFile($filePath){
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        $base_name = pathinfo($filePath, PATHINFO_FILENAME);
+        return PandocWrapper::convertInternal($filePath, $base_name);
+    }
+
+    
+    public static function convertUrl($sourceUrl){
+        $base_name = parse_url($sourceUrl, PHP_URL_HOST);
+        return PandocWrapper::convertInternal($sourceUrl, $base_name);
     }
 
     public static function processImages($subfolder_name, $base_name, $user){
@@ -110,7 +123,7 @@ class PandocWrapper{
             $mwProps = new \MWFileProps( $services->getMimeAnalyzer() );
             if ($image->recordUpload3(
                 $archive->value,
-                wfMessage("pandocultimateconverter-history-comment"), 
+                wfMessage("pandocultimateconverter-history-comment")->text(), 
                 '',
                 $user,
                 $mwProps->getPropsFromPath( $file, true )
