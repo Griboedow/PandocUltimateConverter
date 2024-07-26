@@ -4,13 +4,15 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 class PandocTextPostporcessor
 {
-    private static function fixTableDeclaration(&$line){
+    private static function fixTableDeclaration(&$line)
+    {
         if ($line == "{|") {
             $line = "{| class='wikitable'";
         }
     }
 
-    private static function fixFileLinks(&$line, $imagesVocabulary){
+    private static function fixFileLinks(&$line, $imagesVocabulary)
+    {
         // images voc processing -- bind to new file names
         // TODO: rewrite, its not effective probably
 
@@ -36,7 +38,7 @@ class PandocTextPostporcessor
 
             # TODO: fix headers if header starts from level 1 (=header=)
             # TODO: remove styles from headers
-            
+
         }
         return  implode("\n", $linesArray);
     }

@@ -40,7 +40,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 				'label' => 'Type: ',
 				// The options available within the menu (displayed => value)
 				'options' => [
-					'File' => 'file', 
+					'File' => 'file',
 					'URL' => 'url',
 				],
 			],
@@ -107,7 +107,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$htmlForm->show();
 	}
 
-	private static function deleteFile($fileName){
+	private static function deleteFile($fileName)
+	{
 		$context = \RequestContext::getMain();
 		$user = $context->getUser();
 		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
@@ -115,23 +116,23 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$reason = wfMessage("pandocultimateconverter-conversion-complete-comment")->text();
 
 		//Delete file itself if it is local
-		try{
+		try {
 			$repoGroup = $services->getRepoGroup();
 			$fileOnDisk = $repoGroup->findFile(
-				$fileTitle, [ 'ignoreRedirect' => true ] // To be sure we don't remove smth useful
+				$fileTitle,
+				['ignoreRedirect' => true] // To be sure we don't remove smth useful
 			);
-			if ( $fileOnDisk && $fileOnDisk->isLocal() ) {
-				$fileOnDisk->deleteFile( $reason, $user );
+			if ($fileOnDisk && $fileOnDisk->isLocal()) {
+				$fileOnDisk->deleteFile($reason, $user);
 				$fileOnDisk->purgeEverything();
 			}
-		}
-		catch (\Exception $e) {
+		} catch (\Exception $e) {
 			//TODO: logging
 			throw $e;
 		}
 
 		// Delete file page after the file itself is deleted
-		try{
+		try {
 			$titleFactory = $services->getWikiPageFactory();
 			$delPageFactory = $services->getDeletePageFactory();
 			$delPage = $delPageFactory->newDeletePage($titleFactory->newFromTitle($fileTitle), $user);
@@ -141,13 +142,10 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 			if (!$status->isOK()) {
 				// TODO: error handling
 			}
-		}
-		catch (\Exception $e) {
+		} catch (\Exception $e) {
 			//TODO: logging
 			throw $e;
 		}
-
-
 	}
 
 	public static function processForm($formData)
@@ -155,30 +153,29 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$sourceType = $formData['SourceType'];
 		$pageName = self::getArticleTitle($formData['ConvertToArticleName']);
 
-		if ( $sourceType == 'file' ){
+		if ($sourceType == 'file') {
 			try {
 				$fileName = $formData['UploadedFileName'];
-	
+
 				self::convertFileToPage($fileName, $pageName);
 				header('location: ' . \Title::newFromText($pageName)->getFullUrl());
 			} catch (\Exception $e) {
 				throw $e;
 				exit;
 			} finally {
-				if($fileName){
+				if ($fileName) {
 					self::deleteFile($fileName);
 				}
 			}
 			return;
 		}
-		
-		if ( $sourceType == 'url' ){
+
+		if ($sourceType == 'url') {
 			$sourceUrl = $formData['SourceUrl'];
 			self::convertUrlToPage($sourceUrl, $pageName);
 			header('location: ' . \Title::newFromText($pageName)->getFullUrl());
 			return;
 		}
-
 	}
 
 
@@ -195,7 +192,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 	}
 
 
-	private static function convertPandocOutputToPageInternal($pandocOutput, $pageName){
+	private static function convertPandocOutputToPageInternal($pandocOutput, $pageName)
+	{
 		// Reading context
 		$context = \RequestContext::getMain();
 		$user = $context->getUser();
@@ -222,7 +220,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
 	}
 
-	private static function convertUrlToPage($sourceUrl, $pageName){
+	private static function convertUrlToPage($sourceUrl, $pageName)
+	{
 		$pandocOutput = PandocWrapper::convertUrl($sourceUrl);
 		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
 	}
