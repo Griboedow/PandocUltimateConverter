@@ -56,9 +56,11 @@ PDF is not supported as input format of pandoc.
 Webpages can be imported as well. Pandoc does not work very well with webpages, but it might be helpful if the webpage contains a lot of images and other files.
 
 # Simple demo
+## Convert file
 Simple gif to show how it works for files:
 ![PandocConverterWordGif](https://github.com/user-attachments/assets/3c52a62c-5647-47a9-a941-37ac2ac3c192)
 
+## Convert webpage (URL)
 And another gif to show demo for importing a webpage:
 ![PandocConverterUrlGif](https://github.com/user-attachments/assets/0c1a8855-a09b-42c8-9e94-003bd5487404)
 
