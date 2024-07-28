@@ -22,11 +22,6 @@ function findFiles($dir, &$results = array())
     return $results;
 }
 
-
-/*
- TODO: set useful context like MW services, context, user, etc in constructor.
- It looks ugly when I look for it in every single method. 
-*/
 class PandocWrapper
 {
     private $pandocExecutablePath;
