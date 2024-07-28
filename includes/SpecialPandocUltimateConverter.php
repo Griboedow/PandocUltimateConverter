@@ -10,9 +10,36 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 	private static $TITLE_MIN_LENGTH = 4;
 	private static $TITLE_MAX_LENGTH = 255;
 
+	// context
+	private $context;
+	private $mwServices;
+	private $user;
+	private $titleFactory;
+	private $repoGroup;
+
+	//Config
+	private $config;
+
+	// Helpers
+	private $pandocWrapper;
+
 	function __construct()
 	{
-		parent::__construct('PandocUltimateConverter');
+		// Get custom permissions if exist
+		$mwConfig = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('PandocUltimateConverter');
+		$userRight = $mwConfig->get('PandocUltimateConverter_PandocCustomUserRight') ?? '';
+
+		parent::__construct('PandocUltimateConverter', $userRight);
+
+		$this->context = \RequestContext::getMain();
+		$this->user = $this->context->getUser();
+		$this->mwServices = MediaWikiServices::getInstance();
+		$this->titleFactory = $this->mwServices->getWikiPageFactory();
+		$this->repoGroup = $this->mwServices->getRepoGroup();
+
+		$this->config = $mwConfig;
+
+		$this->pandocWrapper = new PandocWrapper($this->config, $this->mwServices, $this->user);
 	}
 
 	protected function getGroupName()
@@ -21,7 +48,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 	}
 
 
-	function execute($par)
+	function  execute($par)
 	{
 		$this->setHeaders();
 		$this->checkPermissions();
@@ -92,11 +119,10 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 			]
 		];
 
-		$context = \RequestContext::getMain();
 		$htmlForm = \HTMLForm::factory(
 			'table',
 			$formDescriptor,
-			$context
+			$this->context
 		);
 		$htmlForm->setSubmitText(wfMessage("pandocultimateconverter-special-upload-button-label"));
 		$htmlForm->setId('mw-pandoc-upload-form');
@@ -107,23 +133,19 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		$htmlForm->show();
 	}
 
-	private static function deleteFile($fileName)
+	private function deleteFile($fileName)
 	{
-		$context = \RequestContext::getMain();
-		$user = $context->getUser();
 		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
-		$services = MediaWikiServices::getInstance();
 		$reason = wfMessage("pandocultimateconverter-conversion-complete-comment")->text();
 
 		//Delete file itself if it is local
 		try {
-			$repoGroup = $services->getRepoGroup();
-			$fileOnDisk = $repoGroup->findFile(
+			$fileOnDisk = $this->repoGroup->findFile(
 				$fileTitle,
 				['ignoreRedirect' => true] // To be sure we don't remove smth useful
 			);
 			if ($fileOnDisk && $fileOnDisk->isLocal()) {
-				$fileOnDisk->deleteFile($reason, $user);
+				$fileOnDisk->deleteFile($reason, $this->user);
 				$fileOnDisk->purgeEverything();
 			}
 		} catch (\Exception $e) {
@@ -133,9 +155,9 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
 		// Delete file page after the file itself is deleted
 		try {
-			$titleFactory = $services->getWikiPageFactory();
-			$delPageFactory = $services->getDeletePageFactory();
-			$delPage = $delPageFactory->newDeletePage($titleFactory->newFromTitle($fileTitle), $user);
+
+			$delPageFactory = $this->mwServices->getDeletePageFactory();
+			$delPage = $delPageFactory->newDeletePage($this->titleFactory->newFromTitle($fileTitle), $this->user);
 			$status = $delPage
 				->forceImmediate(true)
 				->deleteUnsafe($reason);
@@ -148,10 +170,10 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 		}
 	}
 
-	public static function processForm($formData)
+	public function processForm($formData)
 	{
 		$sourceType = $formData['SourceType'];
-		$pageName = self::getArticleTitle($formData['ConvertToArticleName']);
+		$pageName = $this->getArticleTitle($formData['ConvertToArticleName']);
 
 		if ($sourceType == 'file') {
 			try {
@@ -179,7 +201,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 	}
 
 
-	private static function getArticleTitle($titleString)
+	private function getArticleTitle($titleString)
 	{
 		if (strlen($titleString) > self::$TITLE_MAX_LENGTH) {
 			$titleString = substr($titleString, 0, self::$TITLE_MAX_LENGTH);
@@ -192,21 +214,15 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 	}
 
 
-	private static function convertPandocOutputToPageInternal($pandocOutput, $pageName)
+	private function convertPandocOutputToPageInternal($pandocOutput, $pageName)
 	{
-		// Reading context
-		$context = \RequestContext::getMain();
-		$user = $context->getUser();
-		$services = MediaWikiServices::getInstance();
-		$titleFactory = $services->getWikiPageFactory();
-
 		// Media processing
 		try {
-			$imagesVocabulary = PandocWrapper::processImages($pandocOutput['mediaFolder'], $pandocOutput['baseName'], $user);
+			$imagesVocabulary = $this->pandocWrapper->processImages($pandocOutput['mediaFolder'], $pandocOutput['baseName']);
 		} catch (\Exception $e) {
 			throw $e;
 		} finally {
-			PandocWrapper::deleteDirectory($pandocOutput['mediaFolder']);
+			$this->pandocWrapper->deleteDirectory($pandocOutput['mediaFolder']);
 		}
 
 		// Text postprocessing
@@ -214,29 +230,26 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
 		// Save page
 		$title =  \Title::newFromText($pageName);
-		$pageUpdater = $titleFactory->newFromTitle($title)->newPageUpdater($user);
+		$pageUpdater = $this->titleFactory->newFromTitle($title)->newPageUpdater($this->user);
 		$content = new \WikitextContent($postprocessedText);
 		$pageUpdater->setContent(SlotRecord::MAIN, $content);
 		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
 	}
 
-	private static function convertUrlToPage($sourceUrl, $pageName)
+	private function convertUrlToPage($sourceUrl, $pageName)
 	{
-		$pandocOutput = PandocWrapper::convertUrl($sourceUrl);
+		$pandocOutput = $this->pandocWrapper->convertUrl($sourceUrl);
 		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
 	}
 
-	private static function convertFileToPage($fileName, $pageName)
+	private function convertFileToPage($fileName, $pageName)
 	{
-		$services = MediaWikiServices::getInstance();
-
-		$repoGroup = $services->getRepoGroup();
 		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
 
-		$localFile = $repoGroup->findFile($fileTitle);
+		$localFile = $this->repoGroup->findFile($fileTitle);
 		$filePath = $localFile->getLocalRefPath();
 
-		$pandocOutput = PandocWrapper::convertFile($filePath);
+		$pandocOutput = $this->pandocWrapper->convertFile($filePath);
 		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
 	}
 }

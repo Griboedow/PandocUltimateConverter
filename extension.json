@@ -62,6 +62,12 @@
       "path": false,
 			"description": "Extensions speicified in this config, will be ignored during conversion -- media files will not be uploaded, but links to them will still exist in the converted doc",
 			"public": true
+		},
+    "PandocUltimateConverter_PandocCustomUserRight": {
+			"value": "",
+      "path": false,
+			"description": "Specify custom user rights for this extension. See list here: https://www.mediawiki.org/wiki/Manual:User_rights",
+			"public": true
 		}
 	},
 	"ConfigRegistry": {

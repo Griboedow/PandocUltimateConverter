@@ -29,24 +29,39 @@ function findFiles($dir, &$results = array())
 */
 class PandocWrapper
 {
-    public static function convertInternal($source, $base_name, $format = null)
+    private $pandocExecutablePath;
+    private $tempFolderPath;
+    private $mediaFilesExtensionsToSkip;
+
+    private $mwServices;
+    private $user;
+
+
+    function __construct($config, $mwServices, $user)
     {
         // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
 
-        // New config
-        $config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('PandocUltimateConverter');
-        $pandocExecutablePath = $wgPandocExecutablePath ?? $config->get('PandocUltimateConverter_PandocExecutablePath') ?? 'pandoc';
-        $tempFolderPath = $wgPandocTmpFolderPath ?? $config->get('PandocUltimateConverter_TempFolderPath') ?? sys_get_temp_dir();
-        $subfolder_name = join(DIRECTORY_SEPARATOR, [$tempFolderPath, $base_name]);
+        //Configs
+        $this->pandocExecutablePath = $wgPandocExecutablePath ?? $config->get('PandocUltimateConverter_PandocExecutablePath') ?? 'pandoc';
+        $this->tempFolderPath = $wgPandocTmpFolderPath ?? $config->get('PandocUltimateConverter_TempFolderPath') ?? sys_get_temp_dir();
+        $this->mediaFilesExtensionsToSkip = $config->get('PandocUltimateConverter_MediaFileExtensionsToSkip') ?? [];
+
+        //Context
+        $this->mwServices = $mwServices;
+        $this->user = $user;
+    }
+    public function convertInternal($source, $base_name, $format = null)
+    {
+        $subfolder_name = join(DIRECTORY_SEPARATOR, [$this->tempFolderPath, $base_name]);
         $subfolder_name = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $subfolder_name);
 
 
         // Try to upload even if format is not in the list
         // In the future we may want to extend list of formats.
         $commands = [
-            $pandocExecutablePath,
+            $this->pandocExecutablePath,
             '--to=mediawiki',
             '--extract-media=' . $subfolder_name,
             '--request-header=User-Agent:"Mozilla/5.0"',
@@ -74,27 +89,23 @@ class PandocWrapper
         ];
     }
 
-    public static function convertFile($filePath)
+    public function convertFile($filePath)
     {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        //$ext = pathinfo($filePath, PATHINFO_EXTENSION); // Can be used to specify format forcefully
         $base_name = pathinfo($filePath, PATHINFO_FILENAME);
         return PandocWrapper::convertInternal($filePath, $base_name);
     }
 
 
-    public static function convertUrl($sourceUrl)
+    public function convertUrl($sourceUrl)
     {
         $base_name = parse_url($sourceUrl, PHP_URL_HOST);
         // html works better with format specified for smth like https://github.com/Griboedow/PandocUltimateConverter/blob/main/README.md
         return PandocWrapper::convertInternal($sourceUrl, $base_name, 'html');
     }
 
-    public static function processImages($subfolder_name, $base_name, $user)
+    public function processImages($subfolder_name, $base_name)
     {
-        $services = MediaWikiServices::getInstance();
-        $config = $services->getConfigFactory()->makeConfig('PandocUltimateConverter');
-        $mediaFilesExtensionsToSkip = $config->get('PandocUltimateConverter_MediaFileExtensionsToSkip') ?? [];
-
         $imagesVocabulary = [];
 
         $files = findFiles($subfolder_name);
@@ -106,52 +117,54 @@ class PandocWrapper
 
             // Skip uploading unsupported media files
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (in_array(strtolower($extension), array_map('strtolower', $mediaFilesExtensionsToSkip))) {
+            if (in_array(strtolower($extension), array_map('strtolower', $this->mediaFilesExtensionsToSkip))) {
                 continue;
             }
 
-            // TODO: move upload single file to a spearate method
-            $base = wfBaseName($file);
-            $file_page_name = $base_name . '-' . $base;
-            $title = \Title::makeTitleSafe(NS_FILE, $file_page_name);
-            $image = $services->getRepoGroup()->getLocalRepo()
-                ->newFile($title);
-
-            $sha1 = \FSFile::getSha1Base36FromPath($file);
-
-            # check duplicates, skip upload duplicate (use duplicate)
-            # TODO - make it an optioal parameter?
-            $repo = $image->getRepo();
-            $dupes = $repo->findBySha1($sha1);
-            if ($dupes) {
-                $imagesVocabulary[$file] = $dupes[0]->getName();
-                continue;
-            }
-
-            # Upload missing file
-            $flags = 0;
-            $publishOptions = [];
-            $archive = $image->publish($file, $flags, $publishOptions);
-            if (!$archive->isGood()) {
-                $errorMesg = $archive->getMessage(false, false, 'en')->text() . "\n";
-                throw new \Exception($errorMesg);
-            }
-            $mwProps = new \MWFileProps($services->getMimeAnalyzer());
-            if ($image->recordUpload3(
-                $archive->value,
-                wfMessage("pandocultimateconverter-history-comment")->text(),
-                '',
-                $user,
-                $mwProps->getPropsFromPath($file, true)
-            )->isOK()) {
-                $imagesVocabulary[$file] = $file_page_name;
-                continue;
-            } else {
-                throw new \Exception('Failed to upload ' . $file);
-            }
+            $imagesVocabulary[$file] = $this->uploadFile($file, $base_name);
         }
 
         return $imagesVocabulary;
+    }
+
+    private function uploadFile($file, $base_name)
+    {
+        $base = wfBaseName($file);
+        $file_page_name = $base_name . '-' . $base;
+        $title = \Title::makeTitleSafe(NS_FILE, $file_page_name);
+        $image = $this->mwServices->getRepoGroup()->getLocalRepo()
+            ->newFile($title);
+
+        $sha1 = \FSFile::getSha1Base36FromPath($file);
+
+        # check duplicates, skip upload duplicate (use duplicate)
+        # TODO - make it an optioal parameter?
+        $repo = $image->getRepo();
+        $dupes = $repo->findBySha1($sha1);
+        if ($dupes) {
+            return $dupes[0]->getName();
+        }
+
+        # Upload missing file
+        $flags = 0;
+        $publishOptions = [];
+        $archive = $image->publish($file, $flags, $publishOptions);
+        if (!$archive->isGood()) {
+            $errorMesg = $archive->getMessage(false, false, 'en')->text() . "\n";
+            throw new \Exception($errorMesg);
+        }
+        $mwProps = new \MWFileProps($this->mwServices->getMimeAnalyzer());
+        if ($image->recordUpload3(
+            $archive->value,
+            wfMessage("pandocultimateconverter-history-comment")->text(),
+            '',
+            $this->user,
+            $mwProps->getPropsFromPath($file, true)
+        )->isOK()) {
+            return $file_page_name;
+        } else {
+            throw new \Exception('Failed to upload ' . $file);
+        }
     }
 
     public static function deleteDirectory($dir)
