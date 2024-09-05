@@ -10,6 +10,9 @@
   "AutoloadNamespaces": {
     "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
   },
+  "ExtensionMessagesFiles": {
+    "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
+  },
   "MessagesDirs": {
     "PandocUltimateConverter": [
       "i18n"
