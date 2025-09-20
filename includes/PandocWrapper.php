@@ -27,6 +27,8 @@ class PandocWrapper
     private $pandocExecutablePath;
     private $tempFolderPath;
     private $mediaFilesExtensionsToSkip;
+    private $customPandocFilters;
+    private $filtersFolderPath;
 
     private $mwServices;
     private $user;
@@ -38,15 +40,23 @@ class PandocWrapper
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
 
+        // extension folder path
+        global $wgExtensionDirectory;
+        global $IP;
+
         //Configs
         $this->pandocExecutablePath = $wgPandocExecutablePath ?? $config->get('PandocUltimateConverter_PandocExecutablePath') ?? 'pandoc';
         $this->tempFolderPath = $wgPandocTmpFolderPath ?? $config->get('PandocUltimateConverter_TempFolderPath') ?? sys_get_temp_dir();
         $this->mediaFilesExtensionsToSkip = $config->get('PandocUltimateConverter_MediaFileExtensionsToSkip') ?? [];
-
+        $this->customPandocFilters = $config->get('PandocUltimateConverter_FiltersToUse') ?? [];
+        $this->filtersFolderPath = ($wgExtensionDirectory ?? ($IP . DIRECTORY_SEPARATOR . 'extensions')) .
+             DIRECTORY_SEPARATOR . 'PandocUltimateConverter' . DIRECTORY_SEPARATOR . 
+            'filters' . DIRECTORY_SEPARATOR;
         //Context
         $this->mwServices = $mwServices;
         $this->user = $user;
     }
+
     public function convertInternal($source, $base_name, $format = null)
     {
         $subfolder_name = join(DIRECTORY_SEPARATOR, [$this->tempFolderPath, $base_name]);
@@ -62,9 +72,16 @@ class PandocWrapper
             '--request-header=User-Agent:"Mozilla/5.0"',
             $source
         ];
+
+        foreach ($this->customPandocFilters as $filter) {
+            $commands[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
+        }
+
         if ($format) {
             $commands[] = '--from=' . $format;
         }
+
+        wfDebugLog( 'PandocUltimateConverter', 'Running command: ' . implode("\n", $commands));
 
         $envArr = getenv();
         if (!is_array($envArr)) {

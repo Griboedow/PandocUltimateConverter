@@ -71,6 +71,12 @@
       "path": false,
       "description": "Specify custom user rights for this extension. See list here: https://www.mediawiki.org/wiki/Manual:User_rights",
       "public": true
+    },
+    "PandocUltimateConverter_FiltersToUse": {
+      "value": [],
+      "path": false,
+      "description": "Array of custom filters which will be applied during conversion.",
+      "public": true
     }
   },
   "ConfigRegistry": {
