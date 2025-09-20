@@ -72,6 +72,11 @@ There are additional configs:
 
 ![image](https://github.com/user-attachments/assets/550ec70b-60fe-4074-b0aa-acb475aed9ab)
 
+## Specifying custom Pandoc filters
+You can specify custom [Pandoc filters](https://pandoc.org/filters.html) using ```$wgPandocUltimateConverter_FiltersToUse[] = 'filter_name.lua';```. Filter must be located in a ```filters``` subfolder of an extension. We have a few pre-built filters you can use:
+1. ```increase_heading_level.lua``` -- increase heading levels by 1. Helps when document has heading starting from level 1 (MediaWiki users typically prefer startin from level 2 headings)
+2. ```colorize_mark_class.lua``` -- highlight with yellow all the 'mark' classes. These classes usually appear when you convert a docx with background color. See [Issue #14](https://github.com/Griboedow/PandocUltimateConverter/issues/14)
+
 # Debug
 In case you face any issues with the extension, please add these lines to the LocalSettings.php:
 
