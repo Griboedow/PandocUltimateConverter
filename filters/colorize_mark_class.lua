@@ -1,4 +1,4 @@
-function Span(el)
+local function colorize_mark_class(el)
     local MARK_COLOR = "yellow"
     for _, cls in ipairs(el.attr.classes) do
         if cls == "mark" then
@@ -11,7 +11,10 @@ function Span(el)
     return el
 end
 
+function Span(el)
+    return colorize_mark_class(el)
+end
+
 function Div(el)
-    apply_inline_styles(el.attr)
-    return el
+    return colorize_mark_class(el)
 end
