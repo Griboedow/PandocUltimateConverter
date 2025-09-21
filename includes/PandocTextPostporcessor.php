@@ -4,13 +4,6 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 class PandocTextPostporcessor
 {
-    private static function fixTableDeclaration(&$line)
-    {
-        if ($line == "{|") {
-            $line = "{| class='wikitable'";
-        }
-    }
-
     private static function fixFileLinks(&$line, $imagesVocabulary)
     {
         // images voc processing -- bind to new file names
@@ -33,7 +26,6 @@ class PandocTextPostporcessor
     {
         $linesArray = explode("\n", $text);
         foreach ($linesArray as &$line) {
-            PandocTextPostporcessor::fixTableDeclaration($line);
             PandocTextPostporcessor::fixFileLinks($line, $imagesVocabulary);
 
             # TODO: fix headers if header starts from level 1 (=header=)
