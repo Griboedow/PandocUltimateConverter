@@ -1,258 +1,299 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
-
-function findFiles($dir, &$results = array())
-{
-    $files = scandir($dir);
-
-    foreach ($files as $key => $value) {
-        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
-        if (!is_dir($path)) {
-            $results[] = $path;
-        } else if ($value != "." && $value != "..") {
-            findFiles($path, $results);
-            $results[] = $path;
-        }
-    }
-
-    return $results;
-}
+use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
 
 class PandocWrapper
 {
-    private $pandocExecutablePath;
-    private $tempFolderPath;
-    private $mediaFilesExtensionsToSkip;
-    private $customPandocFilters;
-    private $filtersFolderPath;
+    private string $pandocExecutablePath;
+    private string $tempFolderPath;
+    private array $mediaFilesExtensionsToSkip;
+    private array $customPandocFilters;
+    private string $filtersFolderPath;
+    private bool $useColorProcessors;
 
+    /** @var MediaWikiServices */
     private $mwServices;
+    /** @var \User */
     private $user;
-    private $useColorProcessors;
 
-
-    function __construct($config, $mwServices, $user)
+    public function __construct( $config, MediaWikiServices $mwServices, $user )
     {
-        // Legacy config from globals
-        global $wgPandocExecutablePath;
-        global $wgPandocTmpFolderPath;
-        global $wgPandocUltimateConverter_UseColorProcessors;
+        // Support legacy global variable overrides
+        global $wgPandocExecutablePath, $wgPandocTmpFolderPath,
+               $wgPandocUltimateConverter_UseColorProcessors,
+               $wgExtensionDirectory, $IP;
 
-        // extension folder path
-        global $wgExtensionDirectory;
-        global $IP;
+        $this->pandocExecutablePath = $wgPandocExecutablePath
+            ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' )
+            ?? 'pandoc';
 
-        //Configs
-        $this->pandocExecutablePath = $wgPandocExecutablePath ?? $config->get('PandocUltimateConverter_PandocExecutablePath') ?? 'pandoc';
-        $this->tempFolderPath = $wgPandocTmpFolderPath ?? $config->get('PandocUltimateConverter_TempFolderPath') ?? sys_get_temp_dir();
-        $this->mediaFilesExtensionsToSkip = $config->get('PandocUltimateConverter_MediaFileExtensionsToSkip') ?? [];
-        $this->customPandocFilters = $config->get('PandocUltimateConverter_FiltersToUse') ?? [];
-        $this->useColorProcessors = $wgPandocUltimateConverter_UseColorProcessors ?? $config->get('PandocUltimateConverter_UseColorProcessors') ?? false;
-        $this->filtersFolderPath = ($wgExtensionDirectory ?? ($IP . DIRECTORY_SEPARATOR . 'extensions')) .
-             DIRECTORY_SEPARATOR . 'PandocUltimateConverter' . DIRECTORY_SEPARATOR . 
-            'filters' . DIRECTORY_SEPARATOR;
-        //Context
+        $this->tempFolderPath = $wgPandocTmpFolderPath
+            ?? $config->get( 'PandocUltimateConverter_TempFolderPath' )
+            ?? sys_get_temp_dir();
+
+        $this->mediaFilesExtensionsToSkip = $config->get( 'PandocUltimateConverter_MediaFileExtensionsToSkip' ) ?? [];
+        $this->customPandocFilters        = $config->get( 'PandocUltimateConverter_FiltersToUse' ) ?? [];
+
+        $this->useColorProcessors = $wgPandocUltimateConverter_UseColorProcessors
+            ?? $config->get( 'PandocUltimateConverter_UseColorProcessors' )
+            ?? false;
+
+        $extensionsDir = $wgExtensionDirectory ?? ( $IP . DIRECTORY_SEPARATOR . 'extensions' );
+        $this->filtersFolderPath = $extensionsDir
+            . DIRECTORY_SEPARATOR . 'PandocUltimateConverter'
+            . DIRECTORY_SEPARATOR . 'filters'
+            . DIRECTORY_SEPARATOR;
+
         $this->mwServices = $mwServices;
         $this->user = $user;
     }
 
-    public function convertInternal($source, $base_name, $format = null, $useColorProcessors = null)
+    /**
+     * Recursively list all files under a directory.
+     *
+     * @param string $dir
+     * @return string[]
+     */
+    private static function walkFiles( string $dir ): array
     {
-        if ($useColorProcessors === null) {
-            $useColorProcessors = $this->useColorProcessors;
+        $results = [];
+        foreach ( scandir( $dir ) as $entry ) {
+            if ( $entry === '.' || $entry === '..' ) {
+                continue;
+            }
+            $path = realpath( $dir . DIRECTORY_SEPARATOR . $entry );
+            if ( $path === false ) {
+                continue;
+            }
+            if ( is_dir( $path ) ) {
+                $results = array_merge( $results, self::walkFiles( $path ) );
+            } else {
+                $results[] = $path;
+            }
         }
-        // Create media folder first (needed for both ODT/DOCX preprocessing and regular Pandoc)
-        $subfolder_name = join(DIRECTORY_SEPARATOR, [$this->tempFolderPath, $base_name]);
-        $subfolder_name = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $subfolder_name);
+        return $results;
+    }
 
-        // Ensure the directory exists
-        if (!is_dir($subfolder_name)) {
-            mkdir($subfolder_name, 0755, true);
-        }
+    /**
+     * Core conversion routine. Dispatches to color preprocessors or Pandoc directly.
+     *
+     * @param string      $source  File path or URL to convert.
+     * @param string      $baseName  Base name used for the temp media folder and uploaded filenames.
+     * @param string|null $format  Explicit input format override (e.g. 'html', 'odt', 'docx').
+     * @param bool|null   $useColorProcessors  Override the instance-level flag for testing.
+     * @return array{text: string, baseName: string, mediaFolder: string}
+     */
+    public function convertInternal( string $source, string $baseName, ?string $format = null, ?bool $useColorProcessors = null ): array
+    {
+        $useColorProcessors ??= $this->useColorProcessors;
 
-        wfDebugLog( 'PandocUltimateConverter', 'convertInternal called with source: ' . $source . ', base_name: ' . $base_name . ', format: ' . ($format ?? 'null') );
-
-        // Optional ODT/DOCX color preprocessing (default false)
-        $useODTColorPreprocessing = false;
-        $useDOCXColorPreprocessing = false;
-
-        $fileExtension = strtolower(pathinfo($source, PATHINFO_EXTENSION));
-        if ($useColorProcessors && ($format === 'odt' || $fileExtension === 'odt')) {
-            $useODTColorPreprocessing = true;
-        } elseif ($useColorProcessors && ($format === 'docx' || $fileExtension === 'docx')) {
-            $useDOCXColorPreprocessing = true;
-        }
-
-        wfDebugLog( 'PandocUltimateConverter', 'File extension: ' . $fileExtension . ', ODT: ' . ($useODTColorPreprocessing ? 'yes' : 'no') . ', DOCX: ' . ($useDOCXColorPreprocessing ? 'yes' : 'no') );
-
-        if ($useODTColorPreprocessing) {
-            // Use ODT color preprocessor
-            $preprocessor = new ODTColorPreprocessor();
-
-            $result = $preprocessor->processODTFile($source, 'mediawiki', $subfolder_name);
-
-            // Return with proper media folder
-            return [
-                "text" => $result,
-                "baseName" => $base_name,
-                "mediaFolder" => $subfolder_name
-            ];
-        } elseif ($useDOCXColorPreprocessing) {
-            // Use DOCX color preprocessor
-            wfDebugLog( 'PandocUltimateConverter', 'Using DOCX color preprocessor for file: ' . $source );
-            $preprocessor = new DOCXColorPreprocessor();
-
-            $result = $preprocessor->processDOCXFile($source, 'mediawiki', $subfolder_name);
-
-            // Return with proper media folder
-            return [
-                "text" => $result,
-                "baseName" => $base_name,
-                "mediaFolder" => $subfolder_name
-            ];
+        $mediaFolder = str_replace(
+            [ '/', '\\' ],
+            DIRECTORY_SEPARATOR,
+            $this->tempFolderPath . DIRECTORY_SEPARATOR . $baseName
+        );
+        if ( !is_dir( $mediaFolder ) ) {
+            mkdir( $mediaFolder, 0755, true );
         }
 
-        // Original Pandoc processing for other formats
-        $commands = [
-            $this->pandocExecutablePath,
-            '--to=mediawiki',
-            '--extract-media=' . $subfolder_name,
-            '--request-header=User-Agent:"Mozilla/5.0"',
-            $source
-        ];
+        wfDebugLog( 'PandocUltimateConverter', "convertInternal: source=$source, baseName=$baseName, format=" . ( $format ?? 'null' ) );
 
-        foreach ($this->customPandocFilters as $filter) {
-            $commands[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
+        $fileExtension = strtolower( pathinfo( $source, PATHINFO_EXTENSION ) );
+        $isOdt  = $format === 'odt'  || $fileExtension === 'odt';
+        $isDocx = $format === 'docx' || $fileExtension === 'docx';
+
+        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, ODT=" . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) );
+
+        // Build lua filter args once — shared with colour preprocessors
+        $luaFilterArgs = [];
+        foreach ( $this->customPandocFilters as $filter ) {
+            $luaFilterArgs[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
         }
 
-        if ($format) {
+        if ( $useColorProcessors && $isOdt ) {
+            $preprocessor = new ODTColorPreprocessor( $this->pandocExecutablePath, $luaFilterArgs );
+            $text = $preprocessor->processODTFile( $source, $mediaFolder );
+            return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
+        }
+
+        if ( $useColorProcessors && $isDocx ) {
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: using DOCX color preprocessor for $source" );
+            $preprocessor = new DOCXColorPreprocessor( $this->pandocExecutablePath, $luaFilterArgs );
+            $text = $preprocessor->processDOCXFile( $source, $mediaFolder );
+            return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
+        }
+
+        // Standard Pandoc conversion
+        $commands = array_merge(
+            [
+                $this->pandocExecutablePath,
+                '--to=mediawiki',
+                '--extract-media=' . $mediaFolder,
+                '--request-header=User-Agent:"Mozilla/5.0"',
+            ],
+            $luaFilterArgs
+        );
+        if ( $format !== null ) {
             $commands[] = '--from=' . $format;
         }
+        $commands[] = $source;
 
-        wfDebugLog( 'PandocUltimateConverter', 'Running command: ' . implode("\n", $commands));
+        wfDebugLog( 'PandocUltimateConverter', 'convertInternal: running ' . implode( ' ', $commands ) );
 
-        $envArr = getenv();
-        if (!is_array($envArr)) {
-            $envArr = [];
-        }
-        $res = Shell::command(
-            $commands
-        )->environment($envArr) //network stack does not work without it
-            ->includeStderr()
-            ->execute();
-
-        //Return text part and path to folder
         return [
-            "text" => $res->getStdout(),
-            "baseName" =>  $base_name,
-            "mediaFolder" => $subfolder_name
+            'text'        => self::invokePandoc( $commands, true ),
+            'baseName'    => $baseName,
+            'mediaFolder' => $mediaFolder,
         ];
     }
 
-    public function convertFile($filePath)
+    /**
+     * Convert a file on disk to MediaWiki wikitext.
+     *
+     * @param string $filePath Absolute file path.
+     * @return array{text: string, baseName: string, mediaFolder: string}
+     */
+    public function convertFile( string $filePath ): array
     {
-        //$ext = pathinfo($filePath, PATHINFO_EXTENSION); // Can be used to specify format forcefully
-        $base_name = pathinfo($filePath, PATHINFO_FILENAME);
-        return PandocWrapper::convertInternal($filePath, $base_name);
+        $baseName = pathinfo( $filePath, PATHINFO_FILENAME );
+        return $this->convertInternal( $filePath, $baseName );
     }
 
-
-    public function convertUrl($sourceUrl)
+    /**
+     * Convert a URL to MediaWiki wikitext.
+     *
+     * @param string $sourceUrl
+     * @return array{text: string, baseName: string, mediaFolder: string}
+     */
+    public function convertUrl( string $sourceUrl ): array
     {
-        $base_name = parse_url($sourceUrl, PHP_URL_HOST);
-        // html works better with format specified for smth like https://github.com/Griboedow/PandocUltimateConverter/blob/main/README.md
-        return PandocWrapper::convertInternal($sourceUrl, $base_name, 'html');
+        $baseName = (string)( parse_url( $sourceUrl, PHP_URL_HOST ) ?? 'url-import' );
+        // Specifying 'html' improves results for real web pages (e.g. GitHub rendered pages)
+        return $this->convertInternal( $sourceUrl, $baseName, 'html' );
     }
 
-    public function processImages($subfolder_name, $base_name)
+    /**
+     * Upload all media files found in the temp folder to the wiki.
+     *
+     * @param string $mediaFolder Absolute path to the folder containing extracted media.
+     * @param string $baseName    Prefix used for uploaded file names.
+     * @return array<string, string> Map of local file path → uploaded wiki file name.
+     */
+    public function processImages( string $mediaFolder, string $baseName ): array
     {
         $imagesVocabulary = [];
 
-        $files = findFiles($subfolder_name);
-        foreach ($files as $file) {
-            //TODO: find why findFiles method returns directories sometimes
-            if (is_dir($file)) {
+        foreach ( self::walkFiles( $mediaFolder ) as $file ) {
+            if ( is_dir( $file ) ) {
                 continue;
             }
 
-            // Skip uploading unsupported media files
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (in_array(strtolower($extension), array_map('strtolower', $this->mediaFilesExtensionsToSkip))) {
+            $extension = pathinfo( $file, PATHINFO_EXTENSION );
+            if ( in_array( strtolower( $extension ), array_map( 'strtolower', $this->mediaFilesExtensionsToSkip ) ) ) {
                 continue;
             }
 
-            $imagesVocabulary[$file] = $this->uploadFile($file, $base_name);
+            $imagesVocabulary[$file] = $this->uploadFile( $file, $baseName );
         }
 
         return $imagesVocabulary;
     }
 
-    private function uploadFile($file, $base_name)
+    /**
+     * Upload a single file to the MediaWiki file repository.
+     *
+     * @param string $file     Absolute path to the file on disk.
+     * @param string $baseName Prefix applied to the wiki file name.
+     * @return string The resulting wiki file name (e.g. "PageName-image.png").
+     * @throws \Exception On upload failure.
+     */
+    private function uploadFile( string $file, string $baseName ): string
     {
-        $base = wfBaseName($file);
-        $file_page_name = $base_name . '-' . $base;
-        $title = \Title::makeTitleSafe(NS_FILE, $file_page_name);
-        $image = $this->mwServices->getRepoGroup()->getLocalRepo()
-            ->newFile($title);
+        $base          = wfBaseName( $file );
+        $filePageName  = $baseName . '-' . $base;
+        $title         = \Title::makeTitleSafe( NS_FILE, $filePageName );
+        $image         = $this->mwServices->getRepoGroup()->getLocalRepo()->newFile( $title );
 
-        $sha1 = \FSFile::getSha1Base36FromPath($file);
-
-        # check duplicates, skip upload duplicate (use duplicate)
-        # TODO - make it an optioal parameter?
-        $repo = $image->getRepo();
-        $dupes = $repo->findBySha1($sha1);
-        if ($dupes) {
+        $sha1  = \FSFile::getSha1Base36FromPath( $file );
+        $dupes = $image->getRepo()->findBySha1( $sha1 );
+        if ( $dupes ) {
+            // Reuse existing identical file instead of uploading a duplicate
             return $dupes[0]->getName();
         }
 
-        # Upload missing file
-        $flags = 0;
-        $publishOptions = [];
-        $archive = $image->publish($file, $flags, $publishOptions);
-        if (!$archive->isGood()) {
-            $errorMesg = $archive->getMessage(false, false, 'en')->text() . "\n";
-            throw new \Exception($errorMesg);
+        $archive = $image->publish( $file, 0, [] );
+        if ( !$archive->isGood() ) {
+            throw new \Exception( $archive->getMessage( false, false, 'en' )->text() );
         }
-        $mwProps = new \MWFileProps($this->mwServices->getMimeAnalyzer());
-        if ($image->recordUpload3(
+
+        $mwProps = new \MWFileProps( $this->mwServices->getMimeAnalyzer() );
+        $status  = $image->recordUpload3(
             $archive->value,
-            wfMessage("pandocultimateconverter-history-comment")->text(),
+            wfMessage( 'pandocultimateconverter-history-comment' )->text(),
             '',
             $this->user,
-            $mwProps->getPropsFromPath($file, true)
-        )->isOK()) {
-            return $file_page_name;
-        } else {
-            throw new \Exception('Failed to upload ' . $file);
+            $mwProps->getPropsFromPath( $file, true )
+        );
+        if ( !$status->isOK() ) {
+            throw new \Exception( 'Failed to upload ' . $file );
         }
+
+        return $filePageName;
     }
 
-    public static function deleteDirectory($dir)
+    /**
+     * Execute Pandoc and return its stdout. This is the single place in the codebase
+     * that invokes Shell::command() for Pandoc.
+     *
+     * @param string[] $cmd         Full command array starting with the pandoc executable.
+     * @param bool     $inheritEnv  Pass the current process environment to the child process.
+     *                              Required for URL fetching; not needed for local file processing.
+     * @return string Pandoc stdout.
+     * @throws \RuntimeException On non-zero exit code.
+     */
+    public static function invokePandoc( array $cmd, bool $inheritEnv = false ): string
     {
-        if (!file_exists($dir)) {
+        $runner = Shell::command( $cmd )->includeStderr();
+        if ( $inheritEnv ) {
+            $envArr = getenv();
+            $runner = $runner->environment( is_array( $envArr ) ? $envArr : [] );
+        }
+        $result = $runner->execute();
+        if ( $result->getExitCode() !== 0 ) {
+            throw new \RuntimeException( 'Pandoc conversion failed: ' . $result->getStdout() );
+        }
+        return $result->getStdout();
+    }
+
+    /**
+     * Recursively delete a directory and all its contents.
+     *
+     * @param string $dir
+     * @return bool
+     */
+    public static function deleteDirectory( string $dir ): bool
+    {
+        if ( !file_exists( $dir ) ) {
             return true;
         }
-
-        if (!is_dir($dir)) {
-            return unlink($dir);
+        if ( !is_dir( $dir ) ) {
+            return unlink( $dir );
         }
-
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
+        foreach ( scandir( $dir ) as $item ) {
+            if ( $item === '.' || $item === '..' ) {
                 continue;
             }
-
-            if (!self::deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+            if ( !self::deleteDirectory( $dir . DIRECTORY_SEPARATOR . $item ) ) {
                 return false;
             }
         }
-
-        return rmdir($dir);
+        return rmdir( $dir );
     }
 }

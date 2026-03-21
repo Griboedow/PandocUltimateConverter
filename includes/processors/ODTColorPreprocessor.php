@@ -1,129 +1,84 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
 use ZipArchive;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
 
 /**
  * ODT Color Extractor and Injector
- * Pre-processes ODT files to extract color information and inject it into Pandoc AST
+ *
+ * Pre-processes ODT files to extract color information, injects placeholder tokens
+ * into the XML before handing off to Pandoc, and post-processes the Pandoc output
+ * to replace those tokens with HTML color spans / wiki table cell styles.
  */
-
-class ODTColorPreprocessor
+class ODTColorPreprocessor extends AbstractColorPreprocessor
 {
-    private $tempDir;
-    private $pandocPath;
-    private $mediaOutputDir;
-    private $colorPlaceholders = [];
+    /** @var array<string, array{text: string, colors: array<string,string>, isTableCell?: bool}> */
+    private array $colorPlaceholders = [];
 
-    public function __construct()
+    public function __construct( string $pandocPath = 'pandoc', array $luaFilters = [] )
     {
+        parent::__construct( $pandocPath, $luaFilters );
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'pandoc_odt_colors_' . uniqid();
-        $this->pandocPath = 'pandoc';
-        $this->mediaOutputDir = null;
-        $this->colorPlaceholders = [];
     }
 
     /**
-     * Main processing function
+     * Convert an ODT file to the requested output format while preserving colour information.
+     *
+     * @param string      $inputFile Absolute path to the ODT file.
+     * @param string|null $mediaDir  Directory where extracted media should be placed.
+     * @return string Converted document text.
      */
-    public function processODTFile($inputFile, $outputFormat = 'mediawiki', $mediaDir = null)
+    public function processODTFile( string $inputFile, ?string $mediaDir = null ): string
     {
-        // Create temp directory
-        mkdir($this->tempDir);
-
-        // Set media output directory
+        mkdir( $this->tempDir );
         $this->mediaOutputDir = $mediaDir;
 
         try {
-            // Extract ODT file
-            $this->extractODT($inputFile);
-
-            // Parse color information and modify XML with placeholders
+            $this->extractODT( $inputFile );
             $this->parseODTColors();
-
-            // Repackage the modified ODT
             $modifiedOdtPath = $this->repackageODT();
-
-            // Convert with Pandoc using the modified ODT
-            $pandocOutput = $this->convertWithPandoc($modifiedOdtPath, $outputFormat);
-
-            // Post-process to inject colors by replacing placeholders
-            $finalOutput = $this->injectColorsIntoOutput($pandocOutput);
-
-            return $finalOutput;
-
+            $extraArgs = $this->mediaOutputDir !== null ? [ '--extract-media=' . $this->mediaOutputDir ] : [];
+            $pandocOutput    = $this->runPandoc( $modifiedOdtPath, 'odt', $extraArgs );
+            return $this->injectColorsIntoOutput( $pandocOutput );
         } finally {
-            // Cleanup
-            $this->cleanup();
+            $this->deleteDirectory( $this->tempDir );
         }
     }
 
-    /**
-     * Extract ODT file (ZIP archive) and handle media
-     */
-    private function extractODT($odtFile)
+    private function extractODT( string $odtFile ): void
     {
         $zip = new ZipArchive();
-        if ($zip->open($odtFile) === TRUE) {
-            // Extract all files
-            $zip->extractTo($this->tempDir);
-            $zip->close();
-
-            // Extract media files to the media directory if they exist
-            $this->extractODTMedia();
-        } else {
-            throw new \Exception("Failed to extract ODT file");
+        if ( $zip->open( $odtFile ) !== true ) {
+            throw new \RuntimeException( 'Failed to extract ODT file: ' . $odtFile );
         }
+        $zip->extractTo( $this->tempDir );
+        $zip->close();
+        $this->extractODTMedia();
     }
 
-    /**
-     * Extract media files from ODT to the media directory
-     */
-    private function extractODTMedia()
+    private function extractODTMedia(): void
     {
         $picturesDir = $this->tempDir . DIRECTORY_SEPARATOR . 'Pictures';
-        if (is_dir($picturesDir)) {
-            // Copy all files from Pictures directory to the media output directory
-            $mediaFiles = glob($picturesDir . DIRECTORY_SEPARATOR . '*');
-            foreach ($mediaFiles as $mediaFile) {
-                if (is_file($mediaFile)) {
-                    $fileName = basename($mediaFile);
-                    copy($mediaFile, $this->mediaOutputDir . DIRECTORY_SEPARATOR . $fileName);
-                }
+        if ( !is_dir( $picturesDir ) || $this->mediaOutputDir === null ) {
+            return;
+        }
+        foreach ( glob( $picturesDir . DIRECTORY_SEPARATOR . '*' ) ?: [] as $mediaFile ) {
+            if ( is_file( $mediaFile ) ) {
+                copy( $mediaFile, $this->mediaOutputDir . DIRECTORY_SEPARATOR . basename( $mediaFile ) );
             }
         }
     }
 
-    /**
-     * Repackage the modified XML back into an ODT file
-     */
-    private function repackageODT()
+    private function repackageODT(): string
     {
         $modifiedOdtPath = $this->tempDir . DIRECTORY_SEPARATOR . 'modified.odt';
-
-        $zip = new ZipArchive();
-        if ($zip->open($modifiedOdtPath, ZipArchive::CREATE) === TRUE) {
-            // Add all files from the temp directory back to the ZIP
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($this->tempDir),
-                RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($files as $file) {
-                if (!$file->isDir()) {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($this->tempDir) + 1);
-
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-
-            $zip->close();
-        }
-
+        $this->repackageDir( $this->tempDir, $modifiedOdtPath );
         return $modifiedOdtPath;
     }
 
@@ -283,33 +238,21 @@ class ODTColorPreprocessor
     }
 
     /**
-     * Normalize color values
+     * Normalise an ODT color value to a CSS hex string.
      */
-    private function normalizeColor($color)
+    private function normalizeColor( string $color ): string
     {
-        // Convert ODT color format to CSS
-        if (preg_match('/^#([0-9a-f]{6})$/i', $color)) {
-            return $color;
-        }
-        return $color;
+        return $color; // Already in #rrggbb form from ODT
     }
 
-    /**
-     * Get colors from a style name if present
-     */
-    private function resolveStyleColors($styleName, $styleMap)
+    /** @param array<string, array<string,string>> $styleMap */
+    private function resolveStyleColors( string $styleName, array $styleMap ): array
     {
-        if (!$styleName || !isset($styleMap[$styleName])) {
-            return [];
-        }
-
-        return $styleMap[$styleName];
+        return $styleMap[$styleName] ?? [];
     }
 
-    /**
-     * Resolve cell color settings with row/table inheritance
-     */
-    private function resolveCellColors(\DOMElement $cell, $styleMap)
+    /** @param array<string, array<string,string>> $styleMap */
+    private function resolveCellColors( \DOMElement $cell, array $styleMap )
     {
         $colors = [];
 
@@ -338,22 +281,6 @@ class ODTColorPreprocessor
         $colors = array_merge($colors, $this->resolveStyleColors($cellStyle, $styleMap));
 
         return $colors;
-    }
-
-    /**
-     * Convert with Pandoc
-     */
-    private function convertWithPandoc($inputFile, $outputFormat)
-    {
-        $command = sprintf(
-            '%s --from=odt --to=%s "%s"',
-            escapeshellarg($this->pandocPath),
-            escapeshellarg($outputFormat),
-            escapeshellarg($inputFile)
-        );
-
-        $output = shell_exec($command);
-        return $output;
     }
 
     /**
@@ -429,47 +356,4 @@ class ODTColorPreprocessor
 
         return $processedOutput;
     }
-
-    /**
-     * Cleanup temporary files
-     */
-    private function cleanup()
-    {
-        if (is_dir($this->tempDir)) {
-            $this->deleteDirectory($this->tempDir);
-        }
-    }
-
-    /**
-     * Recursively delete directory
-     */
-    private function deleteDirectory($dir)
-    {
-        if (!file_exists($dir)) {
-            return true;
-        }
-
-        if (!is_dir($dir)) {
-            return unlink($dir);
-        }
-
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-
-            if (!$this->deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
-                return false;
-            }
-        }
-
-        return rmdir($dir);
-    }
-}
-
-// Usage example
-if ($argc > 1) {
-    $processor = new ODTColorPreprocessor();
-    $result = $processor->processODTFile($argv[1]);
-    echo $result;
 }

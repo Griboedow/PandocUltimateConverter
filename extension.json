@@ -2,7 +2,7 @@
   "name": "PandocUltimateConverter",
   "version": "0.2.1",
   "author": [
-    "Nikolai Kochkin"
+    "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
   "description": "Pandoc extension which imports not only text, but also images",
   "license-name": "MIT",
@@ -36,7 +36,8 @@
         "pandocultimateconverter-error-filetype-banned",
         "pandocultimateconverter-error-uploaddisabled",
         "pandocultimateconverter-error-mustbeloggedin",
-        "pandocultimateconverter-error-generic"
+        "pandocultimateconverter-error-generic",
+        "pandocultimateconverter-loading"
       ],
       "dependencies": [
         "mediawiki.jqueryMsg"
@@ -76,6 +77,12 @@
       "value": [],
       "path": false,
       "description": "Array of custom filters which will be applied during conversion.",
+      "public": true
+    },
+    "PandocUltimateConverter_UseColorProcessors": {
+      "value": false,
+      "path": false,
+      "description": "When true, use the ODT/DOCX color preprocessors to preserve text and background colours during conversion.",
       "public": true
     }
   },

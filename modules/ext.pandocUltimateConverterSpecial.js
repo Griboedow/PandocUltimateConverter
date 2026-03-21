@@ -56,7 +56,7 @@
         file_name = 'pandocultimateconverter-' + uuidv4() + "." + ext;
         hidden_file_name.val(file_name);
 
-        submit_form.append('<div style="" id="loadingDiv"><div class="loader">Loading...</div></div>');
+        submit_form.append('<div style="" id="loadingDiv"><div class="loader">' + mw.message('pandocultimateconverter-loading').text() + '</div></div>');
         api = new mw.Api();
         var upload_file_params = {
           format: 'json',

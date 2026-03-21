@@ -1,255 +1,206 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
+use MediaWiki\Config\Config;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\SlotRecord;
 
 class SpecialPandocUltimateConverter extends \SpecialPage
 {
-	private static $TITLE_MIN_LENGTH = 4;
-	private static $TITLE_MAX_LENGTH = 255;
+    private const TITLE_MIN_LENGTH = 4;
+    private const TITLE_MAX_LENGTH = 255;
 
-	// context
-	private $context;
-	private $mwServices;
-	private $user;
-	private $titleFactory;
-	private $repoGroup;
+    private RequestContext $context;
+    private MediaWikiServices $mwServices;
+    /** @var \User */
+    private $user;
+    private WikiPageFactory $titleFactory;
+    /** @var \RepoGroup */
+    private $repoGroup;
+    private Config $config;
+    private PandocWrapper $pandocWrapper;
 
-	//Config
-	private $config;
+    public function __construct()
+    {
+        $mwConfig  = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
+        $userRight = $mwConfig->get( 'PandocUltimateConverter_PandocCustomUserRight' ) ?? '';
 
-	// Helpers
-	private $pandocWrapper;
+        parent::__construct( 'PandocUltimateConverter', $userRight );
 
-	function __construct()
-	{
-		// Get custom permissions if exist
-		$mwConfig = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('PandocUltimateConverter');
-		$userRight = $mwConfig->get('PandocUltimateConverter_PandocCustomUserRight') ?? '';
+        $this->context      = RequestContext::getMain();
+        $this->user         = $this->context->getUser();
+        $this->mwServices   = MediaWikiServices::getInstance();
+        $this->titleFactory = $this->mwServices->getWikiPageFactory();
+        $this->repoGroup    = $this->mwServices->getRepoGroup();
+        $this->config       = $mwConfig;
+        $this->pandocWrapper = new PandocWrapper( $this->config, $this->mwServices, $this->user );
+    }
 
-		parent::__construct('PandocUltimateConverter', $userRight);
+    protected function getGroupName(): string
+    {
+        return 'media';
+    }
 
-		$this->context = \RequestContext::getMain();
-		$this->user = $this->context->getUser();
-		$this->mwServices = MediaWikiServices::getInstance();
-		$this->titleFactory = $this->mwServices->getWikiPageFactory();
-		$this->repoGroup = $this->mwServices->getRepoGroup();
+    public function execute( $par ): void
+    {
+        $this->setHeaders();
+        $this->checkPermissions();
 
-		$this->config = $mwConfig;
+        $output = $this->getOutput();
+        $output->addModules( 'ext.PandocUltimateConverter' );
 
-		$this->pandocWrapper = new PandocWrapper($this->config, $this->mwServices, $this->user);
-	}
+        $output->addWikiTextAsInterface( wfMessage( 'pandocultimateconverter-special-upload-description' ) );
 
-	protected function getGroupName()
-	{
-		return 'media';
-	}
+        $formDescriptor = [
+            'SourceType' => [
+                'section' => 'pandocultimateconverter-special-upload-file-section',
+                'type'    => 'select',
+                'id'      => 'wpConvertSourceType',
+                'label'   => 'Type: ',
+                'options' => [
+                    'File' => 'file',
+                    'URL'  => 'url',
+                ],
+            ],
+            'UploadFile' => [
+                'class'         => \UploadSourceField::class,
+                'section'       => 'pandocultimateconverter-special-upload-file-section',
+                'type'          => 'file',
+                'id'            => 'wpUploadFile',
+                'radio-id'      => 'wpSourceTypeFile',
+                'label-message' => 'pandocultimateconverter-special-upload-file',
+                'upload-type'   => 'File',
+                'hide-if'       => [ '!==', 'SourceType', 'file' ],
+            ],
+            'UploadedFileName' => [
+                'section' => 'pandocultimateconverter-special-upload-target-page-section',
+                'type'    => 'text',
+                'id'      => 'wpUploadedFileName',
+                'class'   => 'HTMLHiddenField',
+            ],
+            'SourceUrl' => [
+                'section' => 'pandocultimateconverter-special-upload-file-section',
+                'type'    => 'url',
+                'size'    => 80,
+                'id'      => 'wpUrlToConvert',
+                'name'    => 'web-url',
+                'label'   => 'URL: ',
+                'hide-if' => [ '!==', 'SourceType', 'url' ],
+            ],
+            'ConvertToArticleName' => [
+                'section'     => 'pandocultimateconverter-special-upload-target-page-section',
+                'type'        => 'title',
+                'id'          => 'wpArticleTitle',
+                'name'        => 'page-title',
+                'label'       => 'Page: ',
+                'size'        => 80,
+                'placeholder' => 'Type in the title for the article created here. Existing article will get overwritten.',
+                'default'     => 'test',
+            ],
+        ];
 
+        $htmlForm = \HTMLForm::factory( 'table', $formDescriptor, $this->context );
+        $htmlForm->setSubmitText( wfMessage( 'pandocultimateconverter-special-upload-button-label' ) );
+        $htmlForm->setId( 'mw-pandoc-upload-form' );
+        $htmlForm->setSubmitID( 'mw-pandoc-upload-form-submit' );
+        $htmlForm->setSubmitCallback( [ $this, 'processForm' ] );
+        $htmlForm->setTitle( $this->getPageTitle() );
+        $htmlForm->show();
+    }
 
-	function  execute($par)
-	{
-		$this->setHeaders();
-		$this->checkPermissions();
+    private function deleteFile( string $fileName ): void
+    {
+        $fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
+        $reason    = wfMessage( 'pandocultimateconverter-conversion-complete-comment' )->text();
 
-		$output = $this->getOutput();
-		$output->addModules("ext.PandocUltimateConverter");
+        $fileOnDisk = $this->repoGroup->findFile( $fileTitle, [ 'ignoreRedirect' => true ] );
+        if ( $fileOnDisk && $fileOnDisk->isLocal() ) {
+            $fileOnDisk->deleteFile( $reason, $this->user );
+            $fileOnDisk->purgeEverything();
+        }
 
-		$wikitext = wfMessage("pandocultimateconverter-special-upload-description");
-		$output->addWikiTextAsInterface($wikitext);
+        $delPage = $this->mwServices
+            ->getDeletePageFactory()
+            ->newDeletePage( $this->titleFactory->newFromTitle( $fileTitle ), $this->user );
+        $delPage->forceImmediate( true )->deleteUnsafe( $reason );
+    }
 
-		$formDescriptor = [
-			'SourceType' => [
-				'section' => 'pandocultimateconverter-special-upload-file-section',
-				'type' => 'select',
-				'id' => 'wpConvertSourceType',
-				'label' => 'Type: ',
-				// The options available within the menu (displayed => value)
-				'options' => [
-					'File' => 'file',
-					'URL' => 'url',
-				],
-			],
-			'UploadFile' => [
-				'class' => \UploadSourceField::class,
-				'section' => 'pandocultimateconverter-special-upload-file-section',
-				'type' => 'file',
-				'id' => 'wpUploadFile',
-				'radio-id' => 'wpSourceTypeFile',
-				'label-message' => 'pandocultimateconverter-special-upload-file',
-				'upload-type' => 'File',
-				'hide-if' => [
-					'!==',
-					'SourceType',
-					'file',
-				],
-			],
-			'UploadedFileName' => [
-				'section' => 'pandocultimateconverter-special-upload-file-section',
-				'type' => 'text',
-				'id' => 'wpUploadedFileName',
-				'class' => 'HTMLHiddenField',
-				'section' => 'pandocultimateconverter-special-upload-target-page-section',
-			],
-			//todo: label-message
-			'SourceUrl' => [
-				'section' => 'pandocultimateconverter-special-upload-file-section',
-				'type' => 'url',
-				'size' => 80,
-				'id' => 'wpUrlToConvert',
-				'name' => 'web-url',
-				'label' => 'URL: ',
-				'hide-if' => [
-					'!==',
-					'SourceType',
-					'url',
-				],
-			],
-			//todo: label-message
-			'ConvertToArticleName' => [
-				'type' => 'title',
-				'id' => 'wpArticleTitle',
-				'name' => 'page-title',
-				'label' => 'Page: ',
-				'size' => 80,
-				'placeholder' => "Type in the title for the article created here. Existing article will get overwritten.",
-				'section' => 'pandocultimateconverter-special-upload-target-page-section',
-				'default' => 'test'
-			]
-		];
+    public function processForm( array $formData ): void
+    {
+        $sourceType = $formData['SourceType'];
+        $pageName   = $this->sanitizeArticleTitle( $formData['ConvertToArticleName'] );
 
-		$htmlForm = \HTMLForm::factory(
-			'table',
-			$formDescriptor,
-			$this->context
-		);
-		$htmlForm->setSubmitText(wfMessage("pandocultimateconverter-special-upload-button-label"));
-		$htmlForm->setId('mw-pandoc-upload-form');
-		$htmlForm->setSubmitID('mw-pandoc-upload-form-submit');
-		$htmlForm->setSubmitCallback([$this, 'processForm']);
-		$htmlForm->setTitle($this->getPageTitle()); // Remove subpage
+        if ( $sourceType === 'file' ) {
+            $fileName = (string)( $formData['UploadedFileName'] ?? '' );
+            try {
+                $this->convertFileToPage( $fileName, $pageName );
+            } finally {
+                if ( $fileName !== '' ) {
+                    $this->deleteFile( $fileName );
+                }
+            }
+            $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
+            return;
+        }
 
-		$htmlForm->show();
-	}
+        if ( $sourceType === 'url' ) {
+            $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
+            $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
+        }
+    }
 
-	private function deleteFile($fileName)
-	{
-		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
-		$reason = wfMessage("pandocultimateconverter-conversion-complete-comment")->text();
+    private function sanitizeArticleTitle( string $titleString ): string
+    {
+        if ( strlen( $titleString ) > self::TITLE_MAX_LENGTH ) {
+            $titleString = substr( $titleString, 0, self::TITLE_MAX_LENGTH );
+        }
+        if ( strlen( $titleString ) < self::TITLE_MIN_LENGTH ) {
+            $titleString = 'PandocUltimateConverter' . $titleString;
+        }
+        return $titleString;
+    }
 
-		//Delete file itself if it is local
-		try {
-			$fileOnDisk = $this->repoGroup->findFile(
-				$fileTitle,
-				['ignoreRedirect' => true] // To be sure we don't remove smth useful
-			);
-			if ($fileOnDisk && $fileOnDisk->isLocal()) {
-				$fileOnDisk->deleteFile($reason, $this->user);
-				$fileOnDisk->purgeEverything();
-			}
-		} catch (\Exception $e) {
-			//TODO: logging
-			throw $e;
-		}
+    private function convertPandocOutputToPage( array $pandocOutput, string $pageName ): void
+    {
+        try {
+            $imagesVocabulary = $this->pandocWrapper->processImages(
+                $pandocOutput['mediaFolder'],
+                $pandocOutput['baseName']
+            );
+        } finally {
+            PandocWrapper::deleteDirectory( $pandocOutput['mediaFolder'] );
+        }
 
-		// Delete file page after the file itself is deleted
-		try {
+        $postprocessedText = PandocTextPostprocessor::postprocess( $pandocOutput['text'], $imagesVocabulary );
 
-			$delPageFactory = $this->mwServices->getDeletePageFactory();
-			$delPage = $delPageFactory->newDeletePage($this->titleFactory->newFromTitle($fileTitle), $this->user);
-			$status = $delPage
-				->forceImmediate(true)
-				->deleteUnsafe($reason);
-			if (!$status->isOK()) {
-				// TODO: error handling
-			}
-		} catch (\Exception $e) {
-			//TODO: logging
-			throw $e;
-		}
-	}
+        $title       = \Title::newFromText( $pageName );
+        $pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );
+        $content     = new \WikitextContent( $postprocessedText );
+        $pageUpdater->setContent( SlotRecord::MAIN, $content );
+        $pageUpdater->saveRevision(
+            \CommentStoreComment::newUnsavedComment( wfMessage( 'pandocultimateconverter-history-comment' ) ),
+            EDIT_INTERNAL
+        );
+    }
 
-	public function processForm($formData)
-	{
-		$sourceType = $formData['SourceType'];
-		$pageName = $this->getArticleTitle($formData['ConvertToArticleName']);
+    private function convertUrlToPage( string $sourceUrl, string $pageName ): void
+    {
+        $pandocOutput = $this->pandocWrapper->convertUrl( $sourceUrl );
+        $this->convertPandocOutputToPage( $pandocOutput, $pageName );
+    }
 
-		if ($sourceType == 'file') {
-			try {
-				$fileName = $formData['UploadedFileName'];
+    private function convertFileToPage( string $fileName, string $pageName ): void
+    {
+        $fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
+        $localFile = $this->repoGroup->findFile( $fileTitle );
+        $filePath  = $localFile->getLocalRefPath();
 
-				self::convertFileToPage($fileName, $pageName);
-				header('location: ' . \Title::newFromText($pageName)->getFullUrl());
-			} catch (\Exception $e) {
-				throw $e;
-				exit;
-			} finally {
-				if ($fileName) {
-					self::deleteFile($fileName);
-				}
-			}
-			return;
-		}
-
-		if ($sourceType == 'url') {
-			$sourceUrl = $formData['SourceUrl'];
-			self::convertUrlToPage($sourceUrl, $pageName);
-			header('location: ' . \Title::newFromText($pageName)->getFullUrl());
-			return;
-		}
-	}
-
-
-	private function getArticleTitle($titleString)
-	{
-		if (strlen($titleString) > self::$TITLE_MAX_LENGTH) {
-			$titleString = substr($titleString, 0, self::$TITLE_MAX_LENGTH);
-		}
-		if (strlen($titleString) < self::$TITLE_MIN_LENGTH) {
-			// TODO: move small title prefix to a param
-			$titleString = "PandocUltimateConverter" . $titleString;
-		}
-		return $titleString;
-	}
-
-
-	private function convertPandocOutputToPageInternal($pandocOutput, $pageName)
-	{
-		// Media processing
-		try {
-			$imagesVocabulary = $this->pandocWrapper->processImages($pandocOutput['mediaFolder'], $pandocOutput['baseName']);
-		} catch (\Exception $e) {
-			throw $e;
-		} finally {
-			$this->pandocWrapper->deleteDirectory($pandocOutput['mediaFolder']);
-		}
-
-		// Text postprocessing
-		$postprocessedText = PandocTextPostporcessor::postprocess($pandocOutput['text'], $imagesVocabulary);
-
-		// Save page
-		$title =  \Title::newFromText($pageName);
-		$pageUpdater = $this->titleFactory->newFromTitle($title)->newPageUpdater($this->user);
-		$content = new \WikitextContent($postprocessedText);
-		$pageUpdater->setContent(SlotRecord::MAIN, $content);
-		$pageUpdater->saveRevision(\CommentStoreComment::newUnsavedComment(wfMessage("pandocultimateconverter-history-comment")), EDIT_INTERNAL);
-	}
-
-	private function convertUrlToPage($sourceUrl, $pageName)
-	{
-		$pandocOutput = $this->pandocWrapper->convertUrl($sourceUrl);
-		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
-	}
-
-	private function convertFileToPage($fileName, $pageName)
-	{
-		$fileTitle =  \Title::newFromTextThrow($fileName, NS_FILE);
-
-		$localFile = $this->repoGroup->findFile($fileTitle);
-		$filePath = $localFile->getLocalRefPath();
-
-		$pandocOutput = $this->pandocWrapper->convertFile($filePath);
-		self::convertPandocOutputToPageInternal($pandocOutput, $pageName);
-	}
+        $pandocOutput = $this->pandocWrapper->convertFile( $filePath );
+        $this->convertPandocOutputToPage( $pandocOutput, $pageName );
+    }
 }

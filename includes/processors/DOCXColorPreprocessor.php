@@ -1,89 +1,79 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
 use ZipArchive;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
 
 /**
  * DOCX Color Preprocessor
- * Extracts color information from DOCX files and injects it into Pandoc output
+ *
+ * Extracts color information from DOCX files, injects placeholder tokens into the XML
+ * before handing off to Pandoc, and post-processes the output to replace those tokens
+ * with HTML color spans / wiki table cell styles.
  */
-class DOCXColorPreprocessor
+class DOCXColorPreprocessor extends AbstractColorPreprocessor
 {
-    private $tempDir;
-    private $pandocPath;
-    private $mediaOutputDir;
-    private $colorPlaceholders = [];
+    /** @var array<string, array{text: string, colors: array<string,string>, isTableCell?: bool}> */
+    private array $colorPlaceholders = [];
 
-    public function __construct()
+    public function __construct( string $pandocPath = 'pandoc', array $luaFilters = [] )
     {
+        parent::__construct( $pandocPath, $luaFilters );
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'pandoc_docx_colors_' . uniqid();
-        $this->pandocPath = 'pandoc';
-        $this->mediaOutputDir = null;
     }
 
     /**
-     * Main processing function
+     * Convert a DOCX file to the requested output format while preserving colour information.
+     *
+     * @param string      $inputFile Absolute path to the DOCX file.
+     * @param string|null $mediaDir  Directory where extracted media should be placed.
+     * @return string Converted document text.
      */
-    public function processDOCXFile($inputFile, $outputFormat = 'mediawiki', $mediaDir = null)
+    public function processDOCXFile( string $inputFile, ?string $mediaDir = null ): string
     {
-        // Create temp directory
-        mkdir($this->tempDir);
-
-        // Set media output directory
+        mkdir( $this->tempDir );
         $this->mediaOutputDir = $mediaDir;
 
         try {
-            // Debug: Log that we're processing
-            wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: Processing file ' . $inputFile);
+            wfDebugLog( 'PandocUltimateConverter', 'DOCXColorPreprocessor: Processing file ' . $inputFile );
 
-            // Extract DOCX (which is a ZIP file)
-            $this->extractDOCX($inputFile);
-
-            // Parse color information and inject placeholders in document.xml
+            $this->extractDOCX( $inputFile );
             $this->parseDOCXColors();
-            wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: Found ' . count($this->colorPlaceholders) . ' color placeholders');
+            wfDebugLog( 'PandocUltimateConverter', 'DOCXColorPreprocessor: Found ' . count( $this->colorPlaceholders ) . ' color placeholders' );
 
-            // Repackage modified DOCX with placeholder text
             $modifiedDocxPath = $this->repackageDOCX();
-
-            // Convert with Pandoc using the modified DOCX
-            $pandocOutput = $this->convertWithPandoc($modifiedDocxPath, $outputFormat);
-
-            // Inject actual colors into Pandoc output by replacing placeholders
-            $processedOutput = $this->injectColors($pandocOutput);
-
-            // Extract media files
+            $pandocOutput     = $this->runPandoc( $modifiedDocxPath, 'docx' );
+            $processedOutput  = $this->injectColors( $pandocOutput );
             $this->extractDOCXMedia();
 
             return $processedOutput;
-
         } finally {
-            // Clean up temp directory
-            $this->removeDirectory($this->tempDir);
+            $this->deleteDirectory( $this->tempDir );
         }
     }
 
     /**
      * Extract DOCX file (ZIP archive)
      */
-    private function extractDOCX($docxFile)
+    private function extractDOCX( string $docxFile ): void
     {
         $zip = new ZipArchive();
-        if ($zip->open($docxFile) === TRUE) {
-            $zip->extractTo($this->tempDir);
-            $zip->close();
-        } else {
-            throw new \Exception("Failed to extract DOCX file");
+        if ( $zip->open( $docxFile ) !== true ) {
+            throw new \RuntimeException( 'Failed to extract DOCX file: ' . $docxFile );
         }
+        $zip->extractTo( $this->tempDir );
+        $zip->close();
     }
 
     /**
      * Parse color information from DOCX XML and replace runs with placeholders.
      */
-    private function parseDOCXColors()
+    private function parseDOCXColors(): void
     {
         $documentXml = $this->tempDir . DIRECTORY_SEPARATOR . 'word' . DIRECTORY_SEPARATOR . 'document.xml';
         if (!file_exists($documentXml)) {
@@ -269,7 +259,7 @@ class DOCXColorPreprocessor
     /**
      * Map DOCX highlight color names to CSS colors
      */
-    private function mapDOCXColor($docxColor)
+    private function mapDOCXColor( string $docxColor ): string
     {
         $colorMap = [
             'yellow' => '#ffff00',
@@ -296,7 +286,7 @@ class DOCXColorPreprocessor
     /**
      * Normalize DOCX color values
      */
-    private function normalizeDOCXColor($color)
+    private function normalizeDOCXColor( string $color ): string
     {
         // Remove auto and convert to hex
         if ($color === 'auto' || empty($color)) {
@@ -312,74 +302,19 @@ class DOCXColorPreprocessor
     }
 
     /**
-     * Convert file with Pandoc
-     */
-    private function convertWithPandoc($inputFile, $outputFormat)
-    {
-        $descriptors = [
-            0 => ['pipe', 'r'], // stdin
-            1 => ['pipe', 'w'], // stdout
-            2 => ['pipe', 'w']  // stderr
-        ];
-
-        $process = proc_open(
-            [$this->pandocPath, '--from=docx', '--to=' . $outputFormat, $inputFile],
-            $descriptors,
-            $pipes
-        );
-
-        if (!is_resource($process)) {
-            throw new \Exception("Failed to start Pandoc process");
-        }
-
-        $output = stream_get_contents($pipes[1]);
-        $error = stream_get_contents($pipes[2]);
-
-        fclose($pipes[0]);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-
-        $returnCode = proc_close($process);
-
-        if ($returnCode !== 0) {
-            throw new \Exception("Pandoc conversion failed: " . $error);
-        }
-
-        return $output;
-    }
-
-    /**
      * Repackage modified DOCX with placeholder text
      */
-    private function repackageDOCX()
+    private function repackageDOCX(): string
     {
         $modifiedDocxPath = $this->tempDir . DIRECTORY_SEPARATOR . 'modified.docx';
-
-        $zip = new ZipArchive();
-        if ($zip->open($modifiedDocxPath, ZipArchive::CREATE) === TRUE) {
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($this->tempDir),
-                RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            foreach ($files as $file) {
-                if (!$file->isDir()) {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($this->tempDir) + 1);
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-
-            $zip->close();
-        }
-
+        $this->repackageDir( $this->tempDir, $modifiedDocxPath );
         return $modifiedDocxPath;
     }
 
     /**
      * Inject colors into Pandoc output
      */
-    private function injectColors($pandocOutput)
+    private function injectColors( string $pandocOutput ): string
     {
         wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: Injecting ' . count($this->colorPlaceholders) . ' placeholders into output');
 
@@ -465,49 +400,16 @@ class DOCXColorPreprocessor
         return $processedOutput;
     }
 
-    /**
-     * Extract media files from DOCX
-     */
-    private function extractDOCXMedia()
+    private function extractDOCXMedia(): void
     {
         $mediaDir = $this->tempDir . DIRECTORY_SEPARATOR . 'word' . DIRECTORY_SEPARATOR . 'media';
-        if (is_dir($mediaDir) && $this->mediaOutputDir) {
-            $mediaFiles = glob($mediaDir . DIRECTORY_SEPARATOR . '*');
-            foreach ($mediaFiles as $mediaFile) {
-                if (is_file($mediaFile)) {
-                    $fileName = basename($mediaFile);
-                    copy($mediaFile, $this->mediaOutputDir . DIRECTORY_SEPARATOR . $fileName);
-                }
-            }
-        }
-    }
-
-    /**
-     * Recursively remove directory
-     */
-    private function removeDirectory($dir)
-    {
-        if (!is_dir($dir)) {
+        if ( !is_dir( $mediaDir ) || $this->mediaOutputDir === null ) {
             return;
         }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir . DIRECTORY_SEPARATOR . $file;
-            if (is_dir($path)) {
-                $this->removeDirectory($path);
-            } else {
-                unlink($path);
+        foreach ( glob( $mediaDir . DIRECTORY_SEPARATOR . '*' ) ?: [] as $mediaFile ) {
+            if ( is_file( $mediaFile ) ) {
+                copy( $mediaFile, $this->mediaOutputDir . DIRECTORY_SEPARATOR . basename( $mediaFile ) );
             }
         }
-
-        rmdir($dir);
     }
-}
-
-// Usage example
-if ($argc > 1) {
-    $processor = new DOCXColorPreprocessor();
-    $result = $processor->processDOCXFile($argv[1]);
-    echo $result;
 }
