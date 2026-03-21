@@ -140,6 +140,64 @@ class DOCXColorPreprocessor
 
         $placeholderCounter = 0;
 
+        // Process table cells first — cell-level shd fill color (w:tc > w:tcPr > w:shd)
+        foreach ($xpath->query('//w:tc') as $cell) {
+            if (!($cell instanceof \DOMElement)) {
+                continue;
+            }
+
+            $tcPr = $xpath->query('w:tcPr', $cell)->item(0);
+            if (!($tcPr instanceof \DOMElement)) {
+                continue;
+            }
+
+            $shdNode = $xpath->query('w:shd', $tcPr)->item(0);
+            if (!($shdNode instanceof \DOMElement)) {
+                continue;
+            }
+
+            $fill = $shdNode->getAttribute('w:fill');
+            if (empty($fill) || $fill === 'auto' || $fill === '000000') {
+                continue;
+            }
+
+            $bgColor = '#' . strtolower($fill);
+
+            // Get text content from all runs in this cell
+            $cellText = '';
+            foreach ($xpath->query('.//w:t', $cell) as $tNode) {
+                $cellText .= $tNode->textContent;
+            }
+            $cellText = trim($cellText);
+            if ($cellText === '') {
+                $cellText = "\xC2\xA0"; // NBSP for empty colored cells
+            }
+
+            $placeholderId = '__DOCX_COLOR_PLACEHOLDER_' . $placeholderCounter . '__';
+            $this->colorPlaceholders[$placeholderId] = [
+                'text' => $cellText,
+                'colors' => ['background' => $bgColor],
+                'isTableCell' => true,
+            ];
+            $placeholderCounter++;
+
+            wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: table-cell placeholder=' . $placeholderId . ' fill=' . $bgColor . ' text=' . $cellText);
+
+            // Replace all paragraph content in this cell with a single placeholder paragraph
+            foreach (iterator_to_array($xpath->query('w:p', $cell)) as $para) {
+                $cell->removeChild($para);
+            }
+            $newPara = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:p');
+            $newRun = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:r');
+            $newT = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:t');
+            $newT->setAttribute('xml:space', 'preserve');
+            $newT->appendChild($dom->createTextNode($placeholderId));
+            $newRun->appendChild($newT);
+            $newPara->appendChild($newRun);
+            $cell->appendChild($newPara);
+        }
+
+        // Process text runs for inline color/highlight
         foreach ($xpath->query('//w:r') as $run) {
             if (!($run instanceof \DOMElement)) {
                 continue;
@@ -336,24 +394,67 @@ class DOCXColorPreprocessor
             $processedOutput
         );
 
+        $tableCellMarkers = [];
+
         // Replace placeholders inserted in DOCX with final span style
         foreach ($this->colorPlaceholders as $placeholderId => $data) {
-            $text = htmlspecialchars($data['text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $text = $data['text'];
             $colors = $data['colors'];
+            $isTableCell = !empty($data['isTableCell']);
+
+            $cellBgColor = null;
             $styleParts = [];
 
             if (!empty($colors['color'])) {
                 $styleParts[] = 'color: ' . $colors['color'];
             }
             if (!empty($colors['background'])) {
-                $styleParts[] = 'background-color: ' . $colors['background'];
+                if ($isTableCell) {
+                    $cellBgColor = $colors['background'];
+                } else {
+                    $styleParts[] = 'background-color: ' . $colors['background'];
+                }
             }
 
+            $inlineReplacement = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             if (!empty($styleParts)) {
-                $replacement = '<span style="' . implode('; ', $styleParts) . '">' . $text . '</span>';
-                $processedOutput = str_replace($placeholderId, $replacement, $processedOutput);
+                $inlineReplacement = '<span style="' . implode('; ', $styleParts) . '">' . $inlineReplacement . '</span>';
+            }
+
+            if ($isTableCell && $cellBgColor !== null) {
+                $tableCellMarkers[$placeholderId] = [
+                    'background' => $cellBgColor,
+                    'inline' => $inlineReplacement,
+                ];
+                $processedOutput = str_replace($placeholderId, '__TABLE_CELL_MARKER_' . $placeholderId . '__', $processedOutput);
+            } else {
+                $processedOutput = str_replace($placeholderId, $inlineReplacement, $processedOutput);
             }
         }
+
+        // Emit wiki table cell style syntax (handles both | data cells and ! header cells)
+        wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: tableCellMarkers=' . json_encode($tableCellMarkers));
+        foreach ($tableCellMarkers as $placeholderId => $markerData) {
+            $cellStyle = 'background-color:' . $markerData['background'];
+            $markerText = '__TABLE_CELL_MARKER_' . $placeholderId . '__';
+
+            // | cell  and  ! header cell variants, with optional attributes before the marker (e.g. | style="..."|)
+            $processedOutput = preg_replace(
+                '/([|!][^|\n]*)\|\s*' . preg_quote($markerText, '/') . '/',
+                '$1| style="' . $cellStyle . '" | ' . $markerData['inline'],
+                $processedOutput
+            );
+            // Simple | MARKER and ! MARKER (no nested pipe)
+            $processedOutput = preg_replace(
+                '/^([|!])\s*' . preg_quote($markerText, '/') . '/m',
+                '$1 style="' . $cellStyle . '" | ' . $markerData['inline'],
+                $processedOutput
+            );
+            // Fallback: bare marker anywhere
+            $processedOutput = str_replace($markerText, $markerData['inline'], $processedOutput);
+        }
+
+        wfDebugLog('PandocUltimateConverter', 'DOCXColorPreprocessor: output=' . substr($processedOutput, 0, 1000));
 
         return $processedOutput;
     }
