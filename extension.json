@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -9,6 +9,9 @@
   "type": "other",
   "AutoloadNamespaces": {
     "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
+  },
+  "APIModules": {
+    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
