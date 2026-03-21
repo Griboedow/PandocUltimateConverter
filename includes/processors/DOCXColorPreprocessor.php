@@ -128,7 +128,10 @@ class DOCXColorPreprocessor
                     }
                     $shdNode = $stylesXpath->query('.//w:shd', $rPrNode)->item(0);
                     if ($shdNode instanceof \DOMElement && $shdNode->hasAttribute('w:fill')) {
-                        $styleColors['background'] = '#' . $this->normalizeDOCXColor($shdNode->getAttribute('w:fill'));
+                        $bg = $this->normalizeDOCXColor($shdNode->getAttribute('w:fill'));
+                        if ($bg !== '') {
+                            $styleColors['background'] = $bg;
+                        }
                     }
                 }
 
@@ -217,7 +220,10 @@ class DOCXColorPreprocessor
                 }
                 $shdNode = $xpath->query('w:shd', $rPr)->item(0);
                 if ($shdNode instanceof \DOMElement && $shdNode->hasAttribute('w:fill')) {
-                    $runColors['background'] = '#' . $this->normalizeDOCXColor($shdNode->getAttribute('w:fill'));
+                    $bg = $this->normalizeDOCXColor($shdNode->getAttribute('w:fill'));
+                    if ($bg !== '') {
+                        $runColors['background'] = $bg;
+                    }
                 }
                 $rStyleNode = $xpath->query('w:rStyle', $rPr)->item(0);
                 if ($rStyleNode instanceof \DOMElement && $rStyleNode->hasAttribute('w:val')) {
