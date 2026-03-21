@@ -64,6 +64,7 @@ Simple gif to show how it works for files:
 And another gif to show demo for importing a webpage:
 ![PandocConverterUrlGif](https://github.com/user-attachments/assets/0c1a8855-a09b-42c8-9e94-003bd5487404)
 
+
 # Advanced configuration
 There are additional configs:
 1.  ```$wgPandocUltimateConverter_MediaFileExtensionsToSkip = [ 'emf' ];``` -- You can specify array of extensions which should not be uploaded to MediaWiki as a file. For example, emf images are not supported in web, and you there is no reason to upload them. The config is case insensitive.
@@ -95,5 +96,71 @@ $wgDebugLogGroups['DBConnection'] =
 $wgDebugLogGroups['runJobs'] =
 $wgDebugLogGroups['Parsoid'] =
 $wgDebugLogGroups['rdbms'] = "/var/log/mediawiki/misc.log";
+
+// Extension-specific log group — all PandocUltimateConverter messages go here
+$wgDebugLogGroups['PandocUltimateConverter'] = "/var/log/mediawiki/pandoc.log";
 ```
-Confirm the issue once more and provide the content of /var/log/mediawiki/main.log. You may want to specify different path, especially if you are using Windows OS.
+The extension writes its own diagnostic messages to the `PandocUltimateConverter` log group. Configuring that group to a dedicated file (e.g. `pandoc.log`) makes it much easier to trace conversion issues without digging through the main log.
+
+Confirm the issue once more and provide the content of `/var/log/mediawiki/pandoc.log` (or whichever path you specified). You may want to use a different path, especially on Windows.
+
+# Action API
+The extension exposes a `pandocconvert` action API module so that conversions can be triggered programmatically.
+
+## Authentication
+The module requires a **CSRF token** and the caller must be logged in (or be a bot account). Obtain a token with:
+```
+GET /api.php?action=query&meta=tokens&format=json
+```
+
+## Convert a URL
+```
+POST /api.php
+action=pandocconvert
+url=https://example.com/article
+pagename=My Article
+forceoverwrite=1
+token=<csrf-token>
+format=json
+```
+
+## Convert an already-uploaded file
+Upload the file first via the standard `action=upload` API, then call:
+```
+POST /api.php
+action=pandocconvert
+filename=Document.docx
+pagename=My Article
+forceoverwrite=1
+token=<csrf-token>
+format=json
+```
+The source file is **not** automatically deleted — remove it afterwards with `action=delete` if desired.
+
+## Parameters
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `pagename` | yes | Target wiki page title. |
+| `filename` | one of | Name of an already-uploaded file in the wiki (e.g. `Document.docx`). Mutually exclusive with `url`. |
+| `url` | one of | Remote `http`/`https` URL to fetch and convert. Mutually exclusive with `filename`. |
+| `forceoverwrite` | no | Set to `1` to overwrite the target page if it already exists (default: `0`). |
+| `token` | yes | Standard MediaWiki CSRF token. |
+
+## Successful response
+```json
+{
+  "pandocconvert": {
+    "result": "success",
+    "pagename": "My Article"
+  }
+}
+```
+
+## Error codes
+| Code | Meaning |
+|---|---|
+| `apierror-pandocultimateconverter-nosource` | Neither `filename` nor `url` was supplied. |
+| `apierror-pandocultimateconverter-multiplesource` | Both `filename` and `url` were supplied. |
+| `apierror-pandocultimateconverter-invalidurlscheme` | URL scheme is not `http` or `https`. |
+| `apierror-pandocultimateconverter-pageexists` | Target page exists and `forceoverwrite` was not set. |
+| `apierror-pandocultimateconverter-conversionfailed` | Pandoc conversion failed (details in the message). |
