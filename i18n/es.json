@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Opción de conversión de archivo a artículo durante el proceso de carga",
+	"pandocultimateconverter-summary": "Opción de conversión de archivo a artículo durante el proceso de carga",
+	"pandocultimateconverter-warning-page-name-length": "El título del artículo es demasiado corto o demasiado largo. La longitud debe estar entre $1 y $2 caracteres.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "El título del artículo contiene caracteres no válidos: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Por favor, selecciona un archivo para cargar",
+	"pandocultimateconverter-history-comment": "Conversión con Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Conversión completada, el archivo se eliminó automáticamente",
+	"pandocultimateconverter-special-upload-description": "Especifica el archivo y el nombre de la página de destino. Si la página ya existe, su contenido será sobreescrito.",
+	"pandocultimateconverter-special-upload-file-section": "Elige lo que deseas convertir en una página wiki",
+	"pandocultimateconverter-special-upload-file": "Archivo:",
+	"pandocultimateconverter-special-source-type-label": "Tipo:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Página:",
+	"pandocultimateconverter-special-page-placeholder": "Escribe el título del artículo que se creará. El artículo existente será sobreescrito.",
+	"pandocultimateconverter-special-upload-target-page-section": "Nombre de la página de destino (se sobreescribirá si existe)",
+	"pandocultimateconverter-special-upload-button-label": "Cargar y convertir",
+	"pandocultimateconverter-loading": "Cargando...",
+	"pandocultimateconverter-error-upload": "Error al cargar el archivo: $1",
+	"pandocultimateconverter-error-filetype-banned": "El tipo de archivo $1 no está permitido en este wiki. Puedes solucionarlo añadiendo esta línea en LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "La carga de archivos está desactivada en este wiki. Actívala añadiendo '$wgEnableUploads = true;' en LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Solo los usuarios registrados pueden cargar archivos en este wiki. Por favor, inicia sesión para continuar.",
+	"pandocultimateconverter-error-generic": "Error al cargar el archivo: $1"
+}

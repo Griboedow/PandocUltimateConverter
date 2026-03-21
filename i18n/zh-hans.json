@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "上传过程中将文件转换为文章的选项",
+	"pandocultimateconverter-summary": "上传过程中将文件转换为文章的选项",
+	"pandocultimateconverter-warning-page-name-length": "文章标题过短或过长。长度限制为 $1 至 $2 个字符。",
+	"pandocultimateconverter-warning-page-name-invalid-character": "文章标题包含以下无效字符：$1。",
+	"pandocultimateconverter-warning-file-not-selected": "请选择要上传的文件",
+	"pandocultimateconverter-history-comment": "Pandoc 转换",
+	"pandocultimateconverter-conversion-complete-comment": "转换完成，文件已自动删除",
+	"pandocultimateconverter-special-upload-description": "请指定文件和目标页面名称。如果页面已存在，其内容将被覆盖。",
+	"pandocultimateconverter-special-upload-file-section": "选择要转换为维基页面的内容",
+	"pandocultimateconverter-special-upload-file": "文件：",
+	"pandocultimateconverter-special-source-type-label": "类型：",
+	"pandocultimateconverter-special-url-label": "URL：",
+	"pandocultimateconverter-special-page-label": "页面：",
+	"pandocultimateconverter-special-page-placeholder": "输入要创建的文章标题。现有文章将被覆盖。",
+	"pandocultimateconverter-special-upload-target-page-section": "目标页面名称（如存在则覆盖）",
+	"pandocultimateconverter-special-upload-button-label": "上传并转换",
+	"pandocultimateconverter-loading": "加载中...",
+	"pandocultimateconverter-error-upload": "文件上传失败：$1",
+	"pandocultimateconverter-error-filetype-banned": "此维基不允许 $1 类型的文件。您可以通过在 LocalSettings.php 中添加此行来修复：'$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "此维基已禁用文件上传。请在 LocalSettings.php 中添加 '$wgEnableUploads = true;' 来启用。",
+	"pandocultimateconverter-error-mustbeloggedin": "只有已登录的用户才能在此维基上传文件。请登录后继续。",
+	"pandocultimateconverter-error-generic": "文件上传失败：$1"
+}

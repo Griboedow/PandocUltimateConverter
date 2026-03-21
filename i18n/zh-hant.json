@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "上傳過程中將檔案轉換為文章的選項",
+	"pandocultimateconverter-summary": "上傳過程中將檔案轉換為文章的選項",
+	"pandocultimateconverter-warning-page-name-length": "文章標題過短或過長。長度限制為 $1 至 $2 個字元。",
+	"pandocultimateconverter-warning-page-name-invalid-character": "文章標題包含以下無效字元：$1。",
+	"pandocultimateconverter-warning-file-not-selected": "請選擇要上傳的檔案",
+	"pandocultimateconverter-history-comment": "Pandoc 轉換",
+	"pandocultimateconverter-conversion-complete-comment": "轉換完成，檔案已自動刪除",
+	"pandocultimateconverter-special-upload-description": "請指定檔案和目標頁面名稱。如果頁面已存在，其內容將被覆蓋。",
+	"pandocultimateconverter-special-upload-file-section": "選擇要轉換為維基頁面的內容",
+	"pandocultimateconverter-special-upload-file": "檔案：",
+	"pandocultimateconverter-special-source-type-label": "類型：",
+	"pandocultimateconverter-special-url-label": "URL：",
+	"pandocultimateconverter-special-page-label": "頁面：",
+	"pandocultimateconverter-special-page-placeholder": "輸入要建立的文章標題。現有文章將被覆蓋。",
+	"pandocultimateconverter-special-upload-target-page-section": "目標頁面名稱（如存在則覆蓋）",
+	"pandocultimateconverter-special-upload-button-label": "上傳並轉換",
+	"pandocultimateconverter-loading": "載入中...",
+	"pandocultimateconverter-error-upload": "檔案上傳失敗：$1",
+	"pandocultimateconverter-error-filetype-banned": "此維基不允許 $1 類型的檔案。您可以在 LocalSettings.php 中新增此行來修復：'$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "此維基已停用檔案上傳。請在 LocalSettings.php 中新增 '$wgEnableUploads = true;' 來啟用。",
+	"pandocultimateconverter-error-mustbeloggedin": "只有已登入的使用者才能在此維基上傳檔案。請登入後繼續。",
+	"pandocultimateconverter-error-generic": "檔案上傳失敗：$1"
+}

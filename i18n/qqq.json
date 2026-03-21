@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
+		]
+	},
+	"pandocultimateconverter": "Name of this extension. Shown as the title of the special page.",
+	"pandocultimateconverter-desc": "Short description of the extension, shown in the extension credits list.",
+	"pandocultimateconverter-summary": "Short description of the extension, used in various places.",
+	"pandocultimateconverter-warning-page-name-length": "Warning shown when the user-entered article title is too short or too long. $1 is the minimum allowed character count, $2 is the maximum allowed character count.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Warning shown when the article title contains characters that are not allowed in page titles. $1 is a list of the invalid characters found.",
+	"pandocultimateconverter-warning-file-not-selected": "Warning shown when the user tries to submit the form without selecting a file.",
+	"pandocultimateconverter-history-comment": "Edit summary appended to the page revision history when Pandoc converts a file into a wiki page.",
+	"pandocultimateconverter-conversion-complete-comment": "Edit summary used when the uploaded source file is automatically deleted after successful conversion.",
+	"pandocultimateconverter-special-upload-description": "Introductory description shown at the top of the special page upload form.",
+	"pandocultimateconverter-special-upload-file-section": "Label for the file-selection section of the upload form.",
+	"pandocultimateconverter-special-upload-file": "Label for the file input field.",
+	"pandocultimateconverter-special-source-type-label": "Label for the source-type selector (File vs URL) dropdown.",
+	"pandocultimateconverter-special-url-label": "Label for the URL input field.",
+	"pandocultimateconverter-special-page-label": "Label for the target wiki page name input field.",
+	"pandocultimateconverter-special-page-placeholder": "Placeholder text inside the target page name input field.",
+	"pandocultimateconverter-special-upload-target-page-section": "Label for the section where the user enters the target wiki page name.",
+	"pandocultimateconverter-special-upload-button-label": "Label text on the submit button of the upload/convert form.",
+	"pandocultimateconverter-loading": "Text shown inside a loading overlay while a file is being uploaded and converted.",
+	"pandocultimateconverter-error-upload": "Error message shown when a file upload fails for a generic reason. $1 is the error detail returned by the server.",
+	"pandocultimateconverter-error-filetype-banned": "Error message shown when the uploaded file type is not allowed. $1 is the file extension (e.g. 'docx'). $2 is the PHP variable prefix ('$wg') — do not translate it. The full PHP snippet '$2wgFileExtensions[] = \"$1\";' must remain syntactically correct.",
+	"pandocultimateconverter-error-uploaddisabled": "Error message shown when file uploads are disabled on the wiki. The PHP snippet '$wgEnableUploads = true;' is a code literal and must not be translated.",
+	"pandocultimateconverter-error-mustbeloggedin": "Error message shown when an anonymous user tries to upload a file.",
+	"pandocultimateconverter-error-generic": "Generic fallback error message when a file upload fails. $1 is the error detail returned by the server."
+}

@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
+	"pandocultimateconverter-summary": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
+	"pandocultimateconverter-warning-page-name-length": "De paginatitel is te kort of te lang. De lengte moet tussen $1 en $2 tekens zijn.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "De paginatitel bevat ongeldige tekens: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Selecteer een bestand om te uploaden",
+	"pandocultimateconverter-history-comment": "Pandoc-conversie",
+	"pandocultimateconverter-conversion-complete-comment": "Conversie voltooid, bestand is automatisch verwijderd",
+	"pandocultimateconverter-special-upload-description": "Geef het bestand en de naam van de doelpagina op. Als de pagina al bestaat, wordt de inhoud overschreven.",
+	"pandocultimateconverter-special-upload-file-section": "Kies wat u wilt omzetten naar een wikipagina",
+	"pandocultimateconverter-special-upload-file": "Bestand:",
+	"pandocultimateconverter-special-source-type-label": "Type:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Pagina:",
+	"pandocultimateconverter-special-page-placeholder": "Typ de titel van het te maken artikel. Een bestaand artikel wordt overschreven.",
+	"pandocultimateconverter-special-upload-target-page-section": "Naam van de doelpagina (wordt overschreven als deze bestaat)",
+	"pandocultimateconverter-special-upload-button-label": "Uploaden en omzetten",
+	"pandocultimateconverter-loading": "Laden...",
+	"pandocultimateconverter-error-upload": "Uploaden van bestand mislukt: $1",
+	"pandocultimateconverter-error-filetype-banned": "Het bestandstype $1 is niet toegestaan op dit wiki. U kunt dit oplossen door deze regel toe te voegen aan LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Uploaden van bestanden is uitgeschakeld op dit wiki. Schakel het in door '$wgEnableUploads = true;' toe te voegen aan LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Alleen ingelogde gebruikers kunnen bestanden uploaden naar dit wiki. Log in om door te gaan.",
+	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1"
+}

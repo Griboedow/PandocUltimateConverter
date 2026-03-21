@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Конвертация файлов в статьи в процессе загрузки",
+	"pandocultimateconverter-summary": "Конвертация файлов в статьи в процессе загрузки",
+	"pandocultimateconverter-warning-page-name-length": "Заголовок статьи слишком короткий или слишком длинный. Допустимая длина — от $1 до $2 символов.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Заголовок статьи содержит недопустимые символы: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Пожалуйста, выберите файл для загрузки",
+	"pandocultimateconverter-history-comment": "Конвертация Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Конвертация завершена, файл автоматически удалён",
+	"pandocultimateconverter-special-upload-description": "Укажите файл и целевое название страницы. Если страница уже существует, её содержимое будет перезаписано.",
+	"pandocultimateconverter-special-upload-file-section": "Выберите, что вы хотите конвертировать в вики-страницу",
+	"pandocultimateconverter-special-upload-file": "Файл:",
+	"pandocultimateconverter-special-source-type-label": "Тип:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Страница:",
+	"pandocultimateconverter-special-page-placeholder": "Введите заголовок создаваемой статьи. Существующая статья будет перезаписана.",
+	"pandocultimateconverter-special-upload-target-page-section": "Название целевой страницы (будет перезаписана, если существует)",
+	"pandocultimateconverter-special-upload-button-label": "Загрузить и конвертировать",
+	"pandocultimateconverter-loading": "Загрузка...",
+	"pandocultimateconverter-error-upload": "Не удалось загрузить файл: $1",
+	"pandocultimateconverter-error-filetype-banned": "Тип файла $1 не разрешён на этой вики. Исправьте это, добавив следующую строку в LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Загрузка файлов отключена на вики. Включите её, добавив '$wgEnableUploads = true;' в LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Загружать файлы на эту вики могут только авторизованные пользователи. Пожалуйста, войдите в систему.",
+	"pandocultimateconverter-error-generic": "Не удалось загрузить файл: $1"
+}

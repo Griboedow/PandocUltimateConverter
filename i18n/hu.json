@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Fájl cikké konvertálása feltöltés közben",
+	"pandocultimateconverter-summary": "Fájl cikké konvertálása feltöltés közben",
+	"pandocultimateconverter-warning-page-name-length": "A cikk címe túl rövid vagy túl hosszú. A hossznak $1 és $2 karakter között kell lennie.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "A cikk címe érvénytelen karaktereket tartalmaz: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Kérjük, válasszon feltöltendő fájlt",
+	"pandocultimateconverter-history-comment": "Pandoc konverzió",
+	"pandocultimateconverter-conversion-complete-comment": "Konverzió kész, a fájlt automatikusan törölték",
+	"pandocultimateconverter-special-upload-description": "Adja meg a fájlt és a céloldal nevét. Ha az oldal már létezik, tartalma felülírodásra kerül.",
+	"pandocultimateconverter-special-upload-file-section": "Válasza ki, mit szeretne wiki-oldallá konvertálni",
+	"pandocultimateconverter-special-upload-file": "Fájl:",
+	"pandocultimateconverter-special-source-type-label": "Típus:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Oldal:",
+	"pandocultimateconverter-special-page-placeholder": "Adja meg a létrehozandó cikk címét. A meglévő cikk felülírodásra kerül.",
+	"pandocultimateconverter-special-upload-target-page-section": "Céloldal neve (felülírja, ha már létezik)",
+	"pandocultimateconverter-special-upload-button-label": "Feltöltés és konvertálás",
+	"pandocultimateconverter-loading": "Betöltés...",
+	"pandocultimateconverter-error-upload": "A fájl feltöltése sikertelen: $1",
+	"pandocultimateconverter-error-filetype-banned": "A(z) $1 fájltípus nem engedélyezett ezen a wikin. Javítsa ki, ha hozzáadja ezt a sort a LocalSettings.php fájlhoz: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "A fájlfeltöltés le van tiltva ezen a wikin. Engedélyezze a '$wgEnableUploads = true;' sor hozzáadásával a LocalSettings.php fájlhoz",
+	"pandocultimateconverter-error-mustbeloggedin": "Csak bejelentkezett felhasználók tölthetnek fel fájlokat erre a wikire. A folytatáshoz kérjük, jelentkezzen be.",
+	"pandocultimateconverter-error-generic": "A fájl feltöltése sikertelen: $1"
+}

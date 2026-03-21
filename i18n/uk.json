@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Конвертація файлів у статті під час завантаження",
+	"pandocultimateconverter-summary": "Конвертація файлів у статті під час завантаження",
+	"pandocultimateconverter-warning-page-name-length": "Заголовок статті надто короткий або надто довгий. Допустима довжина — від $1 до $2 символів.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Заголовок статті містить недопустимі символи: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Будь ласка, оберіть файл для завантаження",
+	"pandocultimateconverter-history-comment": "Конвертація Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Конвертацію завершено, файл автоматично видалено",
+	"pandocultimateconverter-special-upload-description": "Вкажіть файл і назву цільової сторінки. Якщо сторінка вже існує, її вміст буде перезаписано.",
+	"pandocultimateconverter-special-upload-file-section": "Оберіть, що ви хочете конвертувати у вікі-сторінку",
+	"pandocultimateconverter-special-upload-file": "Файл:",
+	"pandocultimateconverter-special-source-type-label": "Тип:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Сторінка:",
+	"pandocultimateconverter-special-page-placeholder": "Введіть заголовок статті, яку буде створено. Існуюча стаття буде перезаписана.",
+	"pandocultimateconverter-special-upload-target-page-section": "Назва цільової сторінки (буде перезаписана, якщо існує)",
+	"pandocultimateconverter-special-upload-button-label": "Завантажити та конвертувати",
+	"pandocultimateconverter-loading": "Завантаження...",
+	"pandocultimateconverter-error-upload": "Не вдалося завантажити файл: $1",
+	"pandocultimateconverter-error-filetype-banned": "Тип файлу $1 не дозволений на цій вікі. Виправте це, додавши цей рядок до LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Завантаження файлів вимкнено на вікі. Увімкніть його, додавши '$wgEnableUploads = true;' до LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Завантажувати файли на цю вікі можуть лише авторизовані користувачі. Будь ласка, увійдіть у систему.",
+	"pandocultimateconverter-error-generic": "Не вдалося завантажити файл: $1"
+}

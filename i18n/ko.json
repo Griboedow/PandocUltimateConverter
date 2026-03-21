@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "업로드 과정에서 파일을 문서로 변환하는 옵션",
+	"pandocultimateconverter-summary": "업로드 과정에서 파일을 문서로 변환하는 옵션",
+	"pandocultimateconverter-warning-page-name-length": "문서 제목이 너무 짧거나 너무 깁니다. 길이는 $1자에서 $2자 사이여야 합니다.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "문서 제목에 유효하지 않은 문자가 포함되어 있습니다: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "업로드할 파일을 선택하세요",
+	"pandocultimateconverter-history-comment": "Pandoc 변환",
+	"pandocultimateconverter-conversion-complete-comment": "변환 완료, 파일이 자동으로 삭제되었습니다",
+	"pandocultimateconverter-special-upload-description": "파일과 대상 문서 이름을 지정하세요. 문서가 이미 존재하면 해당 내용을 덮어씁니다.",
+	"pandocultimateconverter-special-upload-file-section": "위키 문서로 변환할 대상을 선택하세요",
+	"pandocultimateconverter-special-upload-file": "파일:",
+	"pandocultimateconverter-special-source-type-label": "유형:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "문서:",
+	"pandocultimateconverter-special-page-placeholder": "생성할 문서의 제목을 입력하세요. 기존 문서는 덮어씌워집니다.",
+	"pandocultimateconverter-special-upload-target-page-section": "대상 문서 이름 (존재하면 덮어씌워집니다)",
+	"pandocultimateconverter-special-upload-button-label": "업로드 및 변환",
+	"pandocultimateconverter-loading": "불러오는 중...",
+	"pandocultimateconverter-error-upload": "파일 업로드 실패: $1",
+	"pandocultimateconverter-error-filetype-banned": "파일 형식 $1은(는) 이 위키에서 허용되지 않습니다. LocalSettings.php에 다음 줄을 추가하여 수정할 수 있습니다: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "이 위키에서는 파일 업로드가 비활성화되어 있습니다. LocalSettings.php에 '$wgEnableUploads = true;'를 추가하여 활성화하세요",
+	"pandocultimateconverter-error-mustbeloggedin": "이 위키에는 로그인한 사용자만 파일을 업로드할 수 있습니다. 계속하려면 로그인하세요.",
+	"pandocultimateconverter-error-generic": "파일 업로드 실패: $1"
+}

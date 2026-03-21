@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "خيار تحويل الملف إلى مقالة أثناء عملية الرفع",
+	"pandocultimateconverter-summary": "خيار تحويل الملف إلى مقالة أثناء عملية الرفع",
+	"pandocultimateconverter-warning-page-name-length": "عنوان المقالة قصير جداً أو طويل جداً. يجب أن يكون الطول بين $1 و$2 حرفاً.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "يحتوي عنوان المقالة على أحرف غير صالحة: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "يرجى تحديد ملف للرفع",
+	"pandocultimateconverter-history-comment": "تحويل Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "اكتمل التحويل، وتم حذف الملف تلقائياً",
+	"pandocultimateconverter-special-upload-description": "يرجى تحديد الملف واسم الصفحة المستهدفة. إذا كانت الصفحة موجودة بالفعل، فسيتم استبدال محتواها.",
+	"pandocultimateconverter-special-upload-file-section": "اختر ما تريد تحويله إلى صفحة ويكي",
+	"pandocultimateconverter-special-upload-file": "الملف:",
+	"pandocultimateconverter-special-source-type-label": "النوع:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "الصفحة:",
+	"pandocultimateconverter-special-page-placeholder": "اكتب عنوان المقالة التي ستُنشأ. ستُستبدل المقالة الحالية.",
+	"pandocultimateconverter-special-upload-target-page-section": "اسم الصفحة المستهدفة (سيتم الكتابة فوقها إن وُجدت)",
+	"pandocultimateconverter-special-upload-button-label": "رفع وتحويل",
+	"pandocultimateconverter-loading": "جارٍ التحميل...",
+	"pandocultimateconverter-error-upload": "فشل رفع الملف: $1",
+	"pandocultimateconverter-error-filetype-banned": "نوع الملف $1 غير مسموح به في هذه الويكي. يمكنك إصلاح ذلك بإضافة هذا السطر إلى LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "رفع الملفات معطّل في هذه الويكي. فعّله بإضافة '$wgEnableUploads = true;' إلى LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "يمكن للمستخدمين المسجّلين فقط رفع الملفات إلى هذه الويكي. يرجى تسجيل الدخول للمتابعة.",
+	"pandocultimateconverter-error-generic": "فشل رفع الملف: $1"
+}

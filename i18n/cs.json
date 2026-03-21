@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Možnost převodu souboru na článek při nahrávání",
+	"pandocultimateconverter-summary": "Možnost převodu souboru na článek při nahrávání",
+	"pandocultimateconverter-warning-page-name-length": "Název článku je příliš krátký nebo příliš dlouhý. Délka musí být mezi $1 a $2 znaky.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Název článku obsahuje neplatné znaky: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Prosím vyberte soubor k nahrání",
+	"pandocultimateconverter-history-comment": "Převod pomocí Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Převod dokončen, soubor byl automaticky smazán",
+	"pandocultimateconverter-special-upload-description": "Zadejte soubor a název cílové stránky. Pokud stránka již existuje, její obsah bude přepsán.",
+	"pandocultimateconverter-special-upload-file-section": "Vyberte, co chcete převést na stránku wiki",
+	"pandocultimateconverter-special-upload-file": "Soubor:",
+	"pandocultimateconverter-special-source-type-label": "Typ:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Stránka:",
+	"pandocultimateconverter-special-page-placeholder": "Zadejte název článku, který bude vytvořen. Existující článek bude přepsán.",
+	"pandocultimateconverter-special-upload-target-page-section": "Název cílové stránky (bude přepsána, pokud existuje)",
+	"pandocultimateconverter-special-upload-button-label": "Nahrát a převést",
+	"pandocultimateconverter-loading": "Načítám...",
+	"pandocultimateconverter-error-upload": "Soubor se nepodařilo nahrát: $1",
+	"pandocultimateconverter-error-filetype-banned": "Typ souboru $1 není v tomto wiki povolen. Opravte to přidáním tohoto řádku do LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Nahrávání souborů je v tomto wiki zakázáno. Povolte ho přidáním '$wgEnableUploads = true;' do LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Soubory do tohoto wiki mohou nahrávat pouze přihlášení uživatelé. Přihlaste se prosím.",
+	"pandocultimateconverter-error-generic": "Soubor se nepodařilo nahrát: $1"
+}

@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Opcja konwersji pliku na artykuł podczas przesyłania",
+	"pandocultimateconverter-summary": "Opcja konwersji pliku na artykuł podczas przesyłania",
+	"pandocultimateconverter-warning-page-name-length": "Tytuł artykułu jest zbyt krótki lub zbyt długi. Długość musi wynosić od $1 do $2 znaków.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Tytuł artykułu zawiera niedozwolone znaki: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Proszę wybrać plik do przesłania",
+	"pandocultimateconverter-history-comment": "Konwersja Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Konwersja zakończona, plik został automatycznie usunięty",
+	"pandocultimateconverter-special-upload-description": "Podaj plik i nazwę strony docelowej. Jeśli strona już istnieje, jej zawartość zostanie nadpisana.",
+	"pandocultimateconverter-special-upload-file-section": "Wybierz plik, który chcesz przekonwertować na stronę wiki",
+	"pandocultimateconverter-special-upload-file": "Plik:",
+	"pandocultimateconverter-special-source-type-label": "Typ:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Strona:",
+	"pandocultimateconverter-special-page-placeholder": "Wpisz tytuł tworzonego artykułu. Istniejący artykuł zostanie nadpisany.",
+	"pandocultimateconverter-special-upload-target-page-section": "Nazwa strony docelowej (zostanie nadpisana, jeśli istnieje)",
+	"pandocultimateconverter-special-upload-button-label": "Prześlij i konwertuj",
+	"pandocultimateconverter-loading": "Ładowanie...",
+	"pandocultimateconverter-error-upload": "Nie udało się przesłać pliku: $1",
+	"pandocultimateconverter-error-filetype-banned": "Typ pliku $1 nie jest dozwolony na tej wiki. Możesz to naprawić, dodając ten wiersz do LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Przesyłanie plików jest wyłączone na wiki. Włącz je, dodając '$wgEnableUploads = true;' do LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Pliki mogą przesyłać tylko zalogowani użytkownicy. Zaloguj się, aby kontynuować.",
+	"pandocultimateconverter-error-generic": "Nie udało się przesłać pliku: $1"
+}

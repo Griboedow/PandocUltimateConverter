@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Yükleme sürecinde dosyayı makaleye dönüştürme seçeneği",
+	"pandocultimateconverter-summary": "Yükleme sürecinde dosyayı makaleye dönüştürme seçeneği",
+	"pandocultimateconverter-warning-page-name-length": "Makale başlığı çok kısa veya çok uzun. Uzunluk $1 ile $2 karakter arasında olmalıdır.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Makale başlığı geçersiz karakterler içeriyor: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Lütfen yüklenecek dosyayı seçin",
+	"pandocultimateconverter-history-comment": "Pandoc dönüşümü",
+	"pandocultimateconverter-conversion-complete-comment": "Dönüşüm tamamlandı, dosya otomatik olarak silindi",
+	"pandocultimateconverter-special-upload-description": "Dosyayı ve hedef sayfa adını belirtin. Sayfa zaten mevcutsa, içeriği üzerine yazılacak.",
+	"pandocultimateconverter-special-upload-file-section": "Wiki sayfasına dönüştürmek istediğinizi seçin",
+	"pandocultimateconverter-special-upload-file": "Dosya:",
+	"pandocultimateconverter-special-source-type-label": "Tür:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Sayfa:",
+	"pandocultimateconverter-special-page-placeholder": "Oluşturulacak makalenin başlığını yazın. Mevcut makale üzerine yazılacak.",
+	"pandocultimateconverter-special-upload-target-page-section": "Hedef sayfa adı (mevcutsa üzerine yazılacak)",
+	"pandocultimateconverter-special-upload-button-label": "Yükle ve dönüştür",
+	"pandocultimateconverter-loading": "Yükleniyor...",
+	"pandocultimateconverter-error-upload": "Dosya yüklenemedi: $1",
+	"pandocultimateconverter-error-filetype-banned": "Bu wikide $1 dosya türüne izin verilmiyor. LocalSettings.php dosyasına şu satırı ekleyerek düzeltebilirsiniz: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Bu wikide dosya yükleme devre dışı bırakılmış. LocalSettings.php dosyasına '$wgEnableUploads = true;' ekleyerek etkinleştirin",
+	"pandocultimateconverter-error-mustbeloggedin": "Bu wikiye yalnızca oturum açmış kullanıcılar dosya yükleyebilir. Devam etmek için lütfen oturum açın.",
+	"pandocultimateconverter-error-generic": "Dosya yüklenemedi: $1"
+}

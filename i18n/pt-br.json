@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Opção de conversão de arquivo em artigo durante o processo de upload",
+	"pandocultimateconverter-summary": "Opção de conversão de arquivo em artigo durante o processo de upload",
+	"pandocultimateconverter-warning-page-name-length": "O título do artigo é muito curto ou muito longo. O comprimento deve ser entre $1 e $2 caracteres.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "O título do artigo contém caracteres inválidos: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Por favor, selecione um arquivo para enviar",
+	"pandocultimateconverter-history-comment": "Conversão com Pandoc",
+	"pandocultimateconverter-conversion-complete-comment": "Conversão concluída, o arquivo foi excluído automaticamente",
+	"pandocultimateconverter-special-upload-description": "Especifique o arquivo e o nome da página de destino. Se a página já existir, seu conteúdo será substituído.",
+	"pandocultimateconverter-special-upload-file-section": "Escolha o que deseja converter em uma página wiki",
+	"pandocultimateconverter-special-upload-file": "Arquivo:",
+	"pandocultimateconverter-special-source-type-label": "Tipo:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Página:",
+	"pandocultimateconverter-special-page-placeholder": "Digite o título do artigo a ser criado. O artigo existente será substituído.",
+	"pandocultimateconverter-special-upload-target-page-section": "Nome da página de destino (será substituída se existir)",
+	"pandocultimateconverter-special-upload-button-label": "Enviar e converter",
+	"pandocultimateconverter-loading": "Carregando...",
+	"pandocultimateconverter-error-upload": "Falha ao enviar o arquivo: $1",
+	"pandocultimateconverter-error-filetype-banned": "O tipo de arquivo $1 não é permitido neste wiki. Você pode corrigir isso adicionando esta linha ao LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "O envio de arquivos está desativado neste wiki. Ative-o adicionando '$wgEnableUploads = true;' ao LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Apenas usuários conectados podem enviar arquivos para este wiki. Por favor, faça login para continuar.",
+	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1"
+}

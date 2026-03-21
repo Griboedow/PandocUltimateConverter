@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "アップロード時にファイルを記事に変換するオプション",
+	"pandocultimateconverter-summary": "アップロード時にファイルを記事に変換するオプション",
+	"pandocultimateconverter-warning-page-name-length": "記事のタイトルが短すぎるか長すぎます。長さは $1 ～ $2 文字の範囲で指定してください。",
+	"pandocultimateconverter-warning-page-name-invalid-character": "記事のタイトルに無効な文字が含まれています: $1。",
+	"pandocultimateconverter-warning-file-not-selected": "アップロードするファイルを選択してください",
+	"pandocultimateconverter-history-comment": "Pandoc による変換",
+	"pandocultimateconverter-conversion-complete-comment": "変換が完了しました。ファイルは自動的に削除されました",
+	"pandocultimateconverter-special-upload-description": "ファイルとターゲットページ名を指定してください。ページが既に存在する場合、その内容は上書きされます。",
+	"pandocultimateconverter-special-upload-file-section": "Wikiページに変換するコンテンツを選択してください",
+	"pandocultimateconverter-special-upload-file": "ファイル:",
+	"pandocultimateconverter-special-source-type-label": "種類:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "ページ:",
+	"pandocultimateconverter-special-page-placeholder": "作成する記事のタイトルを入力してください。既存の記事は上書きされます。",
+	"pandocultimateconverter-special-upload-target-page-section": "ターゲットページ名（存在する場合は上書きされます）",
+	"pandocultimateconverter-special-upload-button-label": "アップロードして変換",
+	"pandocultimateconverter-loading": "読み込み中...",
+	"pandocultimateconverter-error-upload": "ファイルのアップロードに失敗しました: $1",
+	"pandocultimateconverter-error-filetype-banned": "ファイルタイプ $1 はこのWikiでは許可されていません。LocalSettings.php に次の行を追加することで修正できます: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "このWikiではファイルのアップロードが無効になっています。LocalSettings.php に '$wgEnableUploads = true;' を追加して有効にしてください",
+	"pandocultimateconverter-error-mustbeloggedin": "このWikiにファイルをアップロードできるのはログインユーザーのみです。続行するにはログインしてください。",
+	"pandocultimateconverter-error-generic": "ファイルのアップロードに失敗しました: $1"
+}

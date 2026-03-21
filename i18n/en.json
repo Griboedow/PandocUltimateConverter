@@ -1,7 +1,7 @@
 {
     "@metadata": {
         "authors": [
-            "Nikolai Kochkin"
+            "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
         ]
     },
     "pandocultimateconverter": "Pandoc Ultimate Converter",
@@ -13,10 +13,15 @@
     "pandocultimateconverter-history-comment": "Pandoc conversion",
     "pandocultimateconverter-conversion-complete-comment": "Conversion complete, file is automatically deleted",
     "pandocultimateconverter-special-upload-description": "Please specify file and target page name. If page already exists, its content will be overwritten.",
-    "pandocultimateconverter-special-upload-file-section": "Choose what do you want to conver to a wikipage",
-    "pandocultimateconverter-special-upload-file": "File: ",
+    "pandocultimateconverter-special-upload-file-section": "Choose what do you want to convert to a wiki page",
+    "pandocultimateconverter-special-upload-file": "File:",
+    "pandocultimateconverter-special-source-type-label": "Type:",
+    "pandocultimateconverter-special-url-label": "URL:",
+    "pandocultimateconverter-special-page-label": "Page:",
+    "pandocultimateconverter-special-page-placeholder": "Type in the title for the article created here. Existing article will be overwritten.",
     "pandocultimateconverter-special-upload-target-page-section": "Target page name (will be overwritten if exists)",
     "pandocultimateconverter-special-upload-button-label": "Upload and convert",
+    "pandocultimateconverter-loading": "Loading...",
     "pandocultimateconverter-error-upload": "Failed to upload file: $1",
     "pandocultimateconverter-error-filetype-banned": "The file type $1 is not allowed on this wiki. You can fix it via adding this line to LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
     "pandocultimateconverter-error-uploaddisabled": "Upload is disabled on wiki. Enable it by adding '$wgEnableUploads = true;' to LocalSettings.php",

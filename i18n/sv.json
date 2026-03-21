@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
+	"pandocultimateconverter-desc": "Alternativ för fil-till-artikel-konvertering vid uppladdning",
+	"pandocultimateconverter-summary": "Alternativ för fil-till-artikel-konvertering vid uppladdning",
+	"pandocultimateconverter-warning-page-name-length": "Artikelns titel är för kort eller för lång. Längden måste vara mellan $1 och $2 tecken.",
+	"pandocultimateconverter-warning-page-name-invalid-character": "Artikelns titel innehåller ogiltiga tecken: $1.",
+	"pandocultimateconverter-warning-file-not-selected": "Välj en fil att ladda upp",
+	"pandocultimateconverter-history-comment": "Pandoc-konvertering",
+	"pandocultimateconverter-conversion-complete-comment": "Konvertering klar, filen har raderats automatiskt",
+	"pandocultimateconverter-special-upload-description": "Ange fil och målsidans namn. Om sidan redan finns kommer dess innehåll att skrivas över.",
+	"pandocultimateconverter-special-upload-file-section": "Välj vad du vill konvertera till en wikisida",
+	"pandocultimateconverter-special-upload-file": "Fil:",
+	"pandocultimateconverter-special-source-type-label": "Typ:",
+	"pandocultimateconverter-special-url-label": "URL:",
+	"pandocultimateconverter-special-page-label": "Sida:",
+	"pandocultimateconverter-special-page-placeholder": "Ange titeln på artikeln som ska skapas. En befintlig artikel skrivs över.",
+	"pandocultimateconverter-special-upload-target-page-section": "Målsidans namn (skrivs över om den finns)",
+	"pandocultimateconverter-special-upload-button-label": "Ladda upp och konvertera",
+	"pandocultimateconverter-loading": "Läser in...",
+	"pandocultimateconverter-error-upload": "Det gick inte att ladda upp filen: $1",
+	"pandocultimateconverter-error-filetype-banned": "Filtypen $1 är inte tillåten på det här wikin. Du kan åtgärda detta genom att lägga till den här raden i LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
+	"pandocultimateconverter-error-uploaddisabled": "Filuppladdning är inaktiverad på det här wikin. Aktivera det genom att lägga till '$wgEnableUploads = true;' i LocalSettings.php",
+	"pandocultimateconverter-error-mustbeloggedin": "Endast inloggade användare kan ladda upp filer till det här wikin. Logga in för att fortsätta.",
+	"pandocultimateconverter-error-generic": "Det gick inte att ladda upp filen: $1"
+}
