@@ -1,0 +1,41 @@
+# Test files and temporary files
+test_*.php
+test_*.md
+test_*.json
+test_*.lua
+test_files/
+test_fils/
+
+# Development and debugging files
+debug_*.lua
+*debug*.lua
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Composer
+vendor/
+composer.lock
+
+# Node modules (if any)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+
+# Logs
+*.log

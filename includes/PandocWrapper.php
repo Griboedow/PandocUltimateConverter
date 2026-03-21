@@ -4,6 +4,8 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 
 function findFiles($dir, &$results = array())
 {
@@ -32,6 +34,7 @@ class PandocWrapper
 
     private $mwServices;
     private $user;
+    private $useColorProcessors;
 
 
     function __construct($config, $mwServices, $user)
@@ -39,6 +42,7 @@ class PandocWrapper
         // Legacy config from globals
         global $wgPandocExecutablePath;
         global $wgPandocTmpFolderPath;
+        global $wgPandocUltimateConverter_UseColorProcessors;
 
         // extension folder path
         global $wgExtensionDirectory;
@@ -49,6 +53,7 @@ class PandocWrapper
         $this->tempFolderPath = $wgPandocTmpFolderPath ?? $config->get('PandocUltimateConverter_TempFolderPath') ?? sys_get_temp_dir();
         $this->mediaFilesExtensionsToSkip = $config->get('PandocUltimateConverter_MediaFileExtensionsToSkip') ?? [];
         $this->customPandocFilters = $config->get('PandocUltimateConverter_FiltersToUse') ?? [];
+        $this->useColorProcessors = $wgPandocUltimateConverter_UseColorProcessors ?? $config->get('PandocUltimateConverter_UseColorProcessors') ?? false;
         $this->filtersFolderPath = ($wgExtensionDirectory ?? ($IP . DIRECTORY_SEPARATOR . 'extensions')) .
              DIRECTORY_SEPARATOR . 'PandocUltimateConverter' . DIRECTORY_SEPARATOR . 
             'filters' . DIRECTORY_SEPARATOR;
@@ -57,14 +62,63 @@ class PandocWrapper
         $this->user = $user;
     }
 
-    public function convertInternal($source, $base_name, $format = null)
+    public function convertInternal($source, $base_name, $format = null, $useColorProcessors = null)
     {
+        if ($useColorProcessors === null) {
+            $useColorProcessors = $this->useColorProcessors;
+        }
+        // Create media folder first (needed for both ODT/DOCX preprocessing and regular Pandoc)
         $subfolder_name = join(DIRECTORY_SEPARATOR, [$this->tempFolderPath, $base_name]);
         $subfolder_name = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $subfolder_name);
 
+        // Ensure the directory exists
+        if (!is_dir($subfolder_name)) {
+            mkdir($subfolder_name, 0755, true);
+        }
 
-        // Try to upload even if format is not in the list
-        // In the future we may want to extend list of formats.
+        wfDebugLog( 'PandocUltimateConverter', 'convertInternal called with source: ' . $source . ', base_name: ' . $base_name . ', format: ' . ($format ?? 'null') );
+
+        // Optional ODT/DOCX color preprocessing (default false)
+        $useODTColorPreprocessing = false;
+        $useDOCXColorPreprocessing = false;
+
+        $fileExtension = strtolower(pathinfo($source, PATHINFO_EXTENSION));
+        if ($useColorProcessors && ($format === 'odt' || $fileExtension === 'odt')) {
+            $useODTColorPreprocessing = true;
+        } elseif ($useColorProcessors && ($format === 'docx' || $fileExtension === 'docx')) {
+            $useDOCXColorPreprocessing = true;
+        }
+
+        wfDebugLog( 'PandocUltimateConverter', 'File extension: ' . $fileExtension . ', ODT: ' . ($useODTColorPreprocessing ? 'yes' : 'no') . ', DOCX: ' . ($useDOCXColorPreprocessing ? 'yes' : 'no') );
+
+        if ($useODTColorPreprocessing) {
+            // Use ODT color preprocessor
+            $preprocessor = new ODTColorPreprocessor();
+
+            $result = $preprocessor->processODTFile($source, 'mediawiki', $subfolder_name);
+
+            // Return with proper media folder
+            return [
+                "text" => $result,
+                "baseName" => $base_name,
+                "mediaFolder" => $subfolder_name
+            ];
+        } elseif ($useDOCXColorPreprocessing) {
+            // Use DOCX color preprocessor
+            wfDebugLog( 'PandocUltimateConverter', 'Using DOCX color preprocessor for file: ' . $source );
+            $preprocessor = new DOCXColorPreprocessor();
+
+            $result = $preprocessor->processDOCXFile($source, 'mediawiki', $subfolder_name);
+
+            // Return with proper media folder
+            return [
+                "text" => $result,
+                "baseName" => $base_name,
+                "mediaFolder" => $subfolder_name
+            ];
+        }
+
+        // Original Pandoc processing for other formats
         $commands = [
             $this->pandocExecutablePath,
             '--to=mediawiki',
