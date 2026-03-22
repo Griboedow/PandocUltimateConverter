@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Dönüştürme işlemi devam ediyor. Sayfadan ayrılmak istediğinizden emin misiniz?",
     "pandocultimateconverter-codex-invalid-url": "Geçersiz URL (yalnızca http ve https desteklenir)",
     "pandocultimateconverter-codex-convert-one": "Bu öğeyi dönüştür",
-    "pandocultimateconverter-codex-remove-item": "Kaldır"
+    "pandocultimateconverter-codex-remove-item": "Kaldır",
+    "pandocultimateconverter-codex-stop": "Durdur",
+    "pandocultimateconverter-codex-stop-requested": "Durduruluyor…"
 }

@@ -69,5 +69,7 @@
 	"pandocultimateconverter-codex-navigate-warning": "Confirmation message shown when the user tries to leave while conversion is in progress.",
 	"pandocultimateconverter-codex-invalid-url": "Error message shown when a URL is invalid or uses an unsupported scheme.",
 	"pandocultimateconverter-codex-convert-one": "Tooltip or label for the button that converts a single queued item.",
-	"pandocultimateconverter-codex-remove-item": "Label for the button that removes a single item from the queue."
+	"pandocultimateconverter-codex-remove-item": "Label for the button that removes a single item from the queue.",
+	"pandocultimateconverter-codex-stop": "Label for the button that stops mass conversion after the current item finishes.",
+	"pandocultimateconverter-codex-stop-requested": "Label shown on the stop button after it has been clicked, while waiting for the current item to finish."
 }

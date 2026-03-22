@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "変換が進行中です。このページを離れてもよろしいですか？",
     "pandocultimateconverter-codex-invalid-url": "無効なURL（httpとhttpsのみ対応）",
     "pandocultimateconverter-codex-convert-one": "このアイテムを変換",
-    "pandocultimateconverter-codex-remove-item": "削除"
+    "pandocultimateconverter-codex-remove-item": "削除",
+    "pandocultimateconverter-codex-stop": "停止",
+    "pandocultimateconverter-codex-stop-requested": "停止中…"
 }

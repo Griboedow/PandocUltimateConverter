@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Konwersja jest w toku. Czy na pewno chcesz opuścić stronę?",
     "pandocultimateconverter-codex-invalid-url": "Nieprawidłowy adres URL (obsługiwane są tylko http i https)",
     "pandocultimateconverter-codex-convert-one": "Konwertuj ten element",
-    "pandocultimateconverter-codex-remove-item": "Usuń"
+    "pandocultimateconverter-codex-remove-item": "Usuń",
+    "pandocultimateconverter-codex-stop": "Zatrzymaj",
+    "pandocultimateconverter-codex-stop-requested": "Zatrzymywanie…"
 }

@@ -39,5 +39,7 @@
     "apihelp-pandocconvert-param-url": "Remote http/https URL to fetch and convert. Mutually exclusive with 'filename'.",
     "apihelp-pandocconvert-param-forceoverwrite": "If set, overwrite the target page if it already exists.",
     "apihelp-pandocconvert-example-file": "Convert an already-uploaded file named Document.docx to the page MyArticle.",
-    "apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle."
+    "apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle.",
+    "pandocultimateconverter-codex-stop": "إيقاف",
+    "pandocultimateconverter-codex-stop-requested": "جارٍ الإيقاف…"
 }

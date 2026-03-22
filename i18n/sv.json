@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Konverteringen pågår. Är du säker på att du vill lämna sidan?",
     "pandocultimateconverter-codex-invalid-url": "Ogiltig URL (endast http och https stöds)",
     "pandocultimateconverter-codex-convert-one": "Konvertera detta objekt",
-    "pandocultimateconverter-codex-remove-item": "Ta bort"
+    "pandocultimateconverter-codex-remove-item": "Ta bort",
+    "pandocultimateconverter-codex-stop": "Stoppa",
+    "pandocultimateconverter-codex-stop-requested": "Stoppar…"
 }

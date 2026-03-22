@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Převod probíhá. Opravdu chcete opustit stránku?",
     "pandocultimateconverter-codex-invalid-url": "Neplatná URL adresa (podporovány jsou pouze http a https)",
     "pandocultimateconverter-codex-convert-one": "Převést tuto položku",
-    "pandocultimateconverter-codex-remove-item": "Odebrat"
+    "pandocultimateconverter-codex-remove-item": "Odebrat",
+    "pandocultimateconverter-codex-stop": "Zastavit",
+    "pandocultimateconverter-codex-stop-requested": "Zastavuje se…"
 }

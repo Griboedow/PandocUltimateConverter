@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Конвертація триває. Ви впевнені, що хочете покинути сторінку?",
     "pandocultimateconverter-codex-invalid-url": "Недійсна URL-адреса (підтримуються лише http та https)",
     "pandocultimateconverter-codex-convert-one": "Конвертувати цей елемент",
-    "pandocultimateconverter-codex-remove-item": "Видалити"
+    "pandocultimateconverter-codex-remove-item": "Видалити",
+    "pandocultimateconverter-codex-stop": "Зупинити",
+    "pandocultimateconverter-codex-stop-requested": "Зупиняється…"
 }

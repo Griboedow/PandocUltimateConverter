@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Konverzia prebieha. Naozaj chcete opustiť stránku?",
     "pandocultimateconverter-codex-invalid-url": "Neplatná URL adresa (podporované sú len http a https)",
     "pandocultimateconverter-codex-convert-one": "Konvertovať túto položku",
-    "pandocultimateconverter-codex-remove-item": "Odstrániť"
+    "pandocultimateconverter-codex-remove-item": "Odstrániť",
+    "pandocultimateconverter-codex-stop": "Zastaviť",
+    "pandocultimateconverter-codex-stop-requested": "Zastavuje sa…"
 }

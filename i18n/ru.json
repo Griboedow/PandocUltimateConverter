@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "Конвертация выполняется. Вы уверены, что хотите покинуть страницу?",
     "pandocultimateconverter-codex-invalid-url": "Недопустимый URL-адрес (поддерживаются только http и https)",
     "pandocultimateconverter-codex-convert-one": "Конвертировать этот элемент",
-    "pandocultimateconverter-codex-remove-item": "Удалить"
+    "pandocultimateconverter-codex-remove-item": "Удалить",
+    "pandocultimateconverter-codex-stop": "Остановить",
+    "pandocultimateconverter-codex-stop-requested": "Останавливается…"
 }

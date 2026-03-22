@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "A konvertálás folyamatban van. Biztosan el szeretné hagyni az oldalt?",
     "pandocultimateconverter-codex-invalid-url": "Érvénytelen URL (csak a http és https támogatott)",
     "pandocultimateconverter-codex-convert-one": "Elem konvertálása",
-    "pandocultimateconverter-codex-remove-item": "Eltávolítás"
+    "pandocultimateconverter-codex-remove-item": "Eltávolítás",
+    "pandocultimateconverter-codex-stop": "Leállítás",
+    "pandocultimateconverter-codex-stop-requested": "Leállítás folyamatban…"
 }

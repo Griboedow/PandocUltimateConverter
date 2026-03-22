@@ -68,5 +68,7 @@
     "pandocultimateconverter-codex-navigate-warning": "轉換正在進行中。您確定要離開嗎？",
     "pandocultimateconverter-codex-invalid-url": "無效的URL（僅支援http和https）",
     "pandocultimateconverter-codex-convert-one": "轉換此項目",
-    "pandocultimateconverter-codex-remove-item": "移除"
+    "pandocultimateconverter-codex-remove-item": "移除",
+    "pandocultimateconverter-codex-stop": "停止",
+    "pandocultimateconverter-codex-stop-requested": "正在停止…"
 }
