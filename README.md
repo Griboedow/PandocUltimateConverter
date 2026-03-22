@@ -36,7 +36,9 @@ wfLoadExtension( 'PandocUltimateConverter' );
 
 # Usage
 Follow these steps:
-1. Go to ```Special:PandocUltimateConverter``` page. ![PandocUltimateConverter-Extension-with-URL](https://github.com/user-attachments/assets/d935bc66-a7f8-4e1f-9d1f-4442c555570b)
+1. Go to ```Special:PandocUltimateConverter``` page. You can also open legacy page via Special:PandocUltimateConverter**&codex=0**
+<img width="1048" height="406" alt="image" src="https://github.com/user-attachments/assets/8ffe8a6c-92d1-4bec-bf43-e98c3fecb612" />
+
 
 2. Choose what to convert: file or webpage (URL).
 
@@ -58,11 +60,12 @@ Webpages can be imported as well. Pandoc does not work very well with webpages, 
 # Simple demo
 ## Convert file
 Simple gif to show how it works for files:
-![PandocConverterWordGif](https://github.com/user-attachments/assets/3c52a62c-5647-47a9-a941-37ac2ac3c192)
+![Pandoc-demo-file](https://github.com/user-attachments/assets/4339883c-913e-422c-b859-d8df55c80637)
+
 
 ## Convert webpage (URL)
 And another gif to show demo for importing a webpage:
-![PandocConverterUrlGif](https://github.com/user-attachments/assets/0c1a8855-a09b-42c8-9e94-003bd5487404)
+![Pandoc-demo-url](https://github.com/user-attachments/assets/928c1822-8913-4071-b5e1-9fdfa161575d)
 
 
 # Advanced configuration
