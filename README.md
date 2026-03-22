@@ -36,7 +36,7 @@ wfLoadExtension( 'PandocUltimateConverter' );
 
 # Usage
 Follow these steps:
-1. Go to ```Special:PandocUltimateConverter``` page. You can also open legacy page via Special:PandocUltimateConverter**&codex=0**
+1. Go to ```Special:PandocUltimateConverter``` page. You can also open legacy page via Special:PandocUltimateConverter&codex=0
 <img width="1048" height="406" alt="image" src="https://github.com/user-attachments/assets/8ffe8a6c-92d1-4bec-bf43-e98c3fecb612" />
 
 2. Choose what to convert: file or webpage (URL).
