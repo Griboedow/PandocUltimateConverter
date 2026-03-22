@@ -506,7 +506,11 @@ module.exports = exports = defineStore( 'converter', () => {
 			item.uploadedFileName = '';
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'error';
-			item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+			if ( code === 'http' && errorObj && errorObj.textStatus === 'timeout' ) {
+				item.errorMessage = 'Conversion timed out. The file may be too large. Try again or increase the server timeout.';
+			} else {
+				item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+			}
 		} );
 	}
 
@@ -533,7 +537,11 @@ module.exports = exports = defineStore( 'converter', () => {
 			item.resultPageUrl = title ? title.getUrl() : '';
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'error';
-			item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+			if ( code === 'http' && errorObj && errorObj.textStatus === 'timeout' ) {
+				item.errorMessage = 'Conversion timed out. The page may be too large. Try again or increase the server timeout.';
+			} else {
+				item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+			}
 		} );
 	}
 
