@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -11,7 +11,8 @@
     "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
   },
   "APIModules": {
-    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert"
+    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert",
+    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocUrlTitle"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
@@ -44,6 +45,60 @@
       ],
       "dependencies": [
         "mediawiki.jqueryMsg"
+      ]
+    },
+    "ext.PandocUltimateConverter.codex": {
+      "packageFiles": [
+        "codex/init.js",
+        "codex/App.vue",
+        "codex/stores/converter.js",
+        "codex/components/SourceSelector.vue",
+        "codex/components/ConversionQueue.vue",
+        "codex/components/PageNameInput.vue",
+        "codex/components/ConversionStatus.vue"
+      ],
+      "dependencies": [
+        "vue",
+        "@wikimedia/codex",
+        "pinia",
+        "mediawiki.api",
+        "mediawiki.jqueryMsg"
+      ],
+      "messages": [
+        "pandocultimateconverter-warning-page-name-length",
+        "pandocultimateconverter-warning-page-name-invalid-character",
+        "pandocultimateconverter-error-filetype-banned",
+        "pandocultimateconverter-error-uploaddisabled",
+        "pandocultimateconverter-error-mustbeloggedin",
+        "pandocultimateconverter-error-generic",
+        "pandocultimateconverter-codex-tab-files",
+        "pandocultimateconverter-codex-tab-urls",
+        "pandocultimateconverter-codex-dropzone-text",
+        "pandocultimateconverter-codex-dropzone-hint",
+        "pandocultimateconverter-codex-urls-placeholder",
+        "pandocultimateconverter-codex-urls-add",
+        "pandocultimateconverter-codex-urls-fetching",
+        "pandocultimateconverter-codex-queue-summary",
+        "pandocultimateconverter-codex-queue-overwrite-warning",
+        "pandocultimateconverter-codex-page-exists-warning",
+        "pandocultimateconverter-codex-convert-all",
+        "pandocultimateconverter-codex-clear-all",
+        "pandocultimateconverter-codex-overwrite-toggle",
+        "pandocultimateconverter-codex-status-uploading",
+        "pandocultimateconverter-codex-status-converting",
+        "pandocultimateconverter-codex-status-done",
+        "pandocultimateconverter-codex-status-error",
+        "pandocultimateconverter-codex-retry",
+        "pandocultimateconverter-codex-column-source",
+        "pandocultimateconverter-codex-column-target",
+        "pandocultimateconverter-codex-column-status",
+        "pandocultimateconverter-codex-column-actions",
+        "pandocultimateconverter-codex-navigate-warning",
+        "pandocultimateconverter-codex-invalid-url",
+        "pandocultimateconverter-codex-description",
+        "pandocultimateconverter-codex-remove-item",
+        "pandocultimateconverter-codex-convert-one",
+        "pandocultimateconverter-codex-switch-classic"
       ]
     }
   },

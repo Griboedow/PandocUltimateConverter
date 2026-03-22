@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\SlotRecord;
@@ -24,6 +25,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
     private $repoGroup;
     private Config $config;
     private PandocWrapper $pandocWrapper;
+    private bool $useCodex;
 
     public function __construct()
     {
@@ -39,6 +41,13 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $this->repoGroup    = $this->mwServices->getRepoGroup();
         $this->config       = $mwConfig;
         $this->pandocWrapper = new PandocWrapper( $this->config, $this->mwServices, $this->user );
+        // Codex UI is the default on MW 1.43+; use ?codex=0 to opt out
+        $request = $this->context->getRequest();
+        $mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
+        $defaultCodex = version_compare( $mwVersion, '1.43', '>=' );
+        $this->useCodex = $request->getRawVal( 'codex' ) !== null
+            ? $request->getBool( 'codex' )
+            : $defaultCodex;
     }
 
     protected function getGroupName(): string
@@ -52,6 +61,17 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $this->checkPermissions();
 
         $output = $this->getOutput();
+
+        if ( $this->useCodex ) {
+            $output->addModules( 'ext.PandocUltimateConverter.codex' );
+            $output->addJsConfigVars( [
+                'pandocCodexTitleMinLength' => self::TITLE_MIN_LENGTH,
+                'pandocCodexTitleMaxLength' => self::TITLE_MAX_LENGTH,
+            ] );
+            $output->addHTML( Html::element( 'div', [ 'class' => 'mw-pandoc-codex-root' ] ) );
+            return;
+        }
+
         $output->addModules( 'ext.PandocUltimateConverter' );
 
         $output->addWikiTextAsInterface( wfMessage( 'pandocultimateconverter-special-upload-description' ) );
