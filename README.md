@@ -53,7 +53,8 @@ Follow these steps:
    - All the images will be automatically uploaded to MediaWiki with a name ```Pandocultimateconverter-{guid}-{imageOriginalNameAndExtension}```
    - If the image is already present on wiki, the image duplicate will not be uploaded. We will just use the existing image.
    - All the images will be automatically removed from the temp folder
-   
+
+5. (Optional) Ask any LLM (chatGPT, Claude,etc) to cleanup page (you can copy-paste source code to it). Typicalyy they handle such tasks quite well and that would much cheaper than converting the whole page via LLM.
 
 # Supported formats
 Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested formats: **DOCX**, **ODT**, and **PDF**.
