@@ -55,6 +55,19 @@
 					{{ $i18n( 'pandocultimateconverter-codex-clear-all' ).text() }}
 				</cdx-button>
 				<cdx-button
+					v-if="store.isConverting"
+					weight="primary"
+					action="destructive"
+					:disabled="store.stopRequested"
+					@click="store.stopConversion()"
+				>
+					{{ $i18n( store.stopRequested
+						? 'pandocultimateconverter-codex-stop-requested'
+						: 'pandocultimateconverter-codex-stop'
+					).text() }}
+				</cdx-button>
+				<cdx-button
+					v-else
 					weight="primary"
 					action="progressive"
 					:disabled="!store.canConvert"

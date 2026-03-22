@@ -83,6 +83,7 @@ module.exports = exports = defineStore( 'converter', () => {
 
 	const items = ref( [] );
 	const isConverting = ref( false );
+	const stopRequested = ref( false );
 	const isFetchingTitles = ref( false );
 	const overwriteExisting = ref( false );
 	const globalErrors = ref( [] );
@@ -323,6 +324,7 @@ module.exports = exports = defineStore( 'converter', () => {
 	 */
 	function convertAll() {
 		isConverting.value = true;
+		stopRequested.value = false;
 		globalErrors.value = [];
 
 		// Install navigation guard
@@ -340,13 +342,26 @@ module.exports = exports = defineStore( 'converter', () => {
 		let chain = $.Deferred().resolve().promise();
 
 		for ( const item of itemsToProcess ) {
-			chain = chain.then( () => convertSingleItem( item ) );
+			chain = chain.then( () => {
+				if ( stopRequested.value ) {
+					return $.Deferred().resolve().promise();
+				}
+				return convertSingleItem( item );
+			} );
 		}
 
 		return chain.always( () => {
 			isConverting.value = false;
+			stopRequested.value = false;
 			window.removeEventListener( 'beforeunload', beforeUnload );
 		} );
+	}
+
+	/**
+	 * Request stopping the current mass conversion after the active item finishes.
+	 */
+	function stopConversion() {
+		stopRequested.value = true;
 	}
 
 	/**
@@ -525,6 +540,7 @@ module.exports = exports = defineStore( 'converter', () => {
 	return {
 		items,
 		isConverting,
+		stopRequested,
 		isFetchingTitles,
 		overwriteExisting,
 		globalErrors,
@@ -539,6 +555,7 @@ module.exports = exports = defineStore( 'converter', () => {
 		validatePageName,
 		schedulePageExistsCheck,
 		convertAll,
+		stopConversion,
 		retryItem,
 		TITLE_MIN,
 		TITLE_MAX

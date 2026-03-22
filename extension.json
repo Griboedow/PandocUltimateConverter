@@ -98,7 +98,9 @@
         "pandocultimateconverter-codex-description",
         "pandocultimateconverter-codex-remove-item",
         "pandocultimateconverter-codex-convert-one",
-        "pandocultimateconverter-codex-switch-classic"
+        "pandocultimateconverter-codex-switch-classic",
+        "pandocultimateconverter-codex-stop",
+        "pandocultimateconverter-codex-stop-requested"
       ]
     }
   },
