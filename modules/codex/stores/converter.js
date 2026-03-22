@@ -493,7 +493,7 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
-		return api.postWithEditToken( params ).then( ( result ) => {
+		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
 			item.status = 'done';
 			const title = mw.Title.newFromText( result.pandocconvert.pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
@@ -527,7 +527,7 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
-		return api.postWithEditToken( params ).then( ( result ) => {
+		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
 			item.status = 'done';
 			const title = mw.Title.newFromText( result.pandocconvert.pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
