@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -143,6 +143,12 @@
       "value": false,
       "path": false,
       "description": "When true, use the ODT/DOCX color preprocessors to preserve text and background colours during conversion.",
+      "public": true
+    },
+    "PandocUltimateConverter_PdfToHtmlExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
       "public": true
     }
   },

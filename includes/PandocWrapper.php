@@ -8,6 +8,7 @@ use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor;
 
 class PandocWrapper
 {
@@ -17,6 +18,7 @@ class PandocWrapper
     private array $customPandocFilters;
     private string $filtersFolderPath;
     private bool $useColorProcessors;
+    private string $pdfToHtmlExecutablePath;
 
     /** @var MediaWikiServices */
     private $mwServices;
@@ -44,6 +46,9 @@ class PandocWrapper
         $this->useColorProcessors = $wgPandocUltimateConverter_UseColorProcessors
             ?? $config->get( 'PandocUltimateConverter_UseColorProcessors' )
             ?? false;
+
+        $this->pdfToHtmlExecutablePath = $config->get( 'PandocUltimateConverter_PdfToHtmlExecutablePath' )
+            ?? 'pdftohtml';
 
         $extensionsDir = $wgExtensionDirectory ?? ( $IP . DIRECTORY_SEPARATOR . 'extensions' );
         $this->filtersFolderPath = $extensionsDir
@@ -108,13 +113,40 @@ class PandocWrapper
         $fileExtension = strtolower( pathinfo( $source, PATHINFO_EXTENSION ) );
         $isOdt  = $format === 'odt'  || $fileExtension === 'odt';
         $isDocx = $format === 'docx' || $fileExtension === 'docx';
+        $isPdf  = $format === 'pdf'  || $fileExtension === 'pdf';
 
-        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, ODT=" . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) );
+        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, ODT=" . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) . ', PDF=' . ( $isPdf ? 'yes' : 'no' ) );
 
         // Build lua filter args once — shared with colour preprocessors
         $luaFilterArgs = [];
         foreach ( $this->customPandocFilters as $filter ) {
             $luaFilterArgs[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
+        }
+
+        if ( $isPdf ) {
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: using PDF preprocessor for $source" );
+            $preprocessor = new PDFPreprocessor( $this->pdfToHtmlExecutablePath );
+            $htmlFile = $preprocessor->processPDFFile( $source, $mediaFolder );
+
+            // Convert the intermediate HTML to mediawiki wikitext via Pandoc.
+            // --resource-path tells Pandoc where to find the images referenced
+            // in the HTML (pdftohtml places them next to the HTML file).
+            $commands = array_merge(
+                [
+                    $this->pandocExecutablePath,
+                    '--from=html',
+                    '--to=mediawiki',
+                    '--extract-media=' . $mediaFolder,
+                    '--resource-path=' . $mediaFolder,
+                ],
+                $luaFilterArgs,
+                [ $htmlFile ]
+            );
+
+            wfDebugLog( 'PandocUltimateConverter', 'convertInternal (PDF→HTML→MW): running ' . implode( ' ', $commands ) );
+
+            $text = self::invokePandoc( $commands );
+            return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
         }
 
         if ( $useColorProcessors && $isOdt ) {

@@ -7,6 +7,8 @@ Tested on MediaWiki 1.39 - 1.43
 
 Requires pandoc to be installed.
 
+For **PDF import**: requires [poppler](https://poppler.freedesktop.org/) (specifically the `pdftohtml` utility).
+
 Tested on Windows and Linux (Ubuntu).
 
 # Installation
@@ -15,12 +17,14 @@ Installation is just a bit more complicated than usual:
 2. Download extension
 3. Load the extension in LocalSettings.php ```wfLoadExtension( 'PandocUltimateConverter' );```
 4. Configure path to pandoc binary ```$wgPandocUltimateConverter_PandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```. It will work without this param if pandoc is in the PATH env. variable
-6. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocUltimateConverter_TempFolderPath = 'D:\_TMP';```. IT will try to use default temp folder if not specified. 
+5. [Optional] **For PDF support**: install poppler and configure the path (see [Installing poppler for PDF support](#installing-poppler-for-pdf-support) below)
+6. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocUltimateConverter_TempFolderPath = 'D:\_TMP';```. It will try to use default temp folder if not specified. 
 7. Allow additional file extensions to be uploaded to MediaWiki
 ```php
 $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
-// You can specify other requried extensions as well
+$wgFileExtensions[] = 'pdf';
+// You can specify other required extensions as well
 ```
 
 TL;DR:
@@ -29,6 +33,7 @@ $wgEnableUploads = true;
 
 $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
+$wgFileExtensions[] = 'pdf';
 $wgPandocUltimateConverter_PandocExecutablePath = '/your/path/to/pandoc'; # For example, 'C:\Program Files\Pandoc\pandoc.exe'
 
 wfLoadExtension( 'PandocUltimateConverter' );
@@ -52,8 +57,9 @@ Follow these steps:
    
 
 # Supported formats
-Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). On practice, I've tested for docx and odt only. 
-PDF is not supported as input format of pandoc.
+Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested formats: **DOCX**, **ODT**, and **PDF**.
+
+**PDF support** works via a two-step pipeline: poppler's `pdftohtml` first converts the PDF to HTML with extracted images, then Pandoc converts that HTML to MediaWiki wikitext. Embedded images are automatically extracted and uploaded to the wiki. This works with text-based PDFs (not scanned documents that would require OCR).
 
 Webpages can be imported as well. Pandoc does not work very well with webpages, but it might be helpful if the webpage contains a lot of images and other files.
 
@@ -76,6 +82,34 @@ There are additional configs:
 4. You can specify custom user rights for the extensions: via ```$wgPandocUltimateConverter_PandocCustomUserRight``` where you can specify the [required permission](https://www.mediawiki.org/wiki/Manual:User_rights#List_of_permissions). For example: ```$wgPandocUltimateConverter_PandocCustomUserRight = 'nominornewtalk';``` should prohibit access for non-bots:
 
 ![image](https://github.com/user-attachments/assets/550ec70b-60fe-4074-b0aa-acb475aed9ab)
+
+## Installing poppler for PDF support
+PDF import requires [poppler](https://poppler.freedesktop.org/)'s `pdftohtml` utility. If `pdftohtml` is not installed, PDF files will fail to convert — all other formats will continue to work normally.
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo apt install poppler-utils
+```
+
+**Linux (RHEL/Fedora):**
+```bash
+sudo dnf install poppler-utils
+```
+
+**Windows (Chocolatey):**
+```powershell
+choco install poppler
+```
+
+**Windows (manual):**
+1. Download the latest release from https://github.com/oschwartz10612/poppler-windows/releases
+2. Extract to a folder (e.g. `C:\poppler`)
+3. Either add `C:\poppler\Library\bin` to your system PATH, or configure the path in `LocalSettings.php`:
+```php
+$wgPandocUltimateConverter_PdfToHtmlExecutablePath = 'C:\poppler\Library\bin\pdftohtml.exe';
+```
+
+If `pdftohtml` is already in your PATH, no additional configuration is needed — the extension will find it automatically.
 
 ## Specifying custom Pandoc filters
 You can specify custom [Pandoc filters](https://pandoc.org/filters.html) using ```$wgPandocUltimateConverter_FiltersToUse[] = 'filter_name.lua';``` (multiple filters can be specified). Filter must be located in a ```filters``` subfolder of an extension. We have a few pre-built filters you can use:
