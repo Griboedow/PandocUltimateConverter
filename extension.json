@@ -100,7 +100,8 @@
         "pandocultimateconverter-codex-convert-one",
         "pandocultimateconverter-codex-switch-classic",
         "pandocultimateconverter-codex-stop",
-        "pandocultimateconverter-codex-stop-requested"
+        "pandocultimateconverter-codex-stop-requested",
+        "pandocultimateconverter-codex-llm-polish-toggle"
       ]
     }
   },
@@ -150,6 +151,30 @@
       "path": false,
       "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
       "public": true
+    },
+    "PandocUltimateConverter_LlmProvider": {
+      "value": null,
+      "path": false,
+      "description": "LLM provider to use for optional wikitext cleanup. Supported values: 'openai' or 'claude'. Leave null to disable LLM polishing.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmApiKey": {
+      "value": null,
+      "path": false,
+      "description": "API key for the configured LLM provider. Required when LlmProvider is set.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmModel": {
+      "value": null,
+      "path": false,
+      "description": "Model name to use for LLM polishing. Defaults to 'gpt-4o-mini' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmPrompt": {
+      "value": null,
+      "path": false,
+      "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
+      "public": false
     }
   },
   "ConfigRegistry": {

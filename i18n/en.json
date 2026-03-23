@@ -57,6 +57,7 @@
     "pandocultimateconverter-codex-convert-all": "Convert all",
     "pandocultimateconverter-codex-clear-all": "Clear all",
     "pandocultimateconverter-codex-overwrite-toggle": "Allow overwriting existing pages",
+    "pandocultimateconverter-codex-llm-polish-toggle": "Polish with AI (LLM cleanup)",
     "pandocultimateconverter-codex-status-uploading": "Uploading…",
     "pandocultimateconverter-codex-status-converting": "Converting…",
     "pandocultimateconverter-codex-status-done": "Done",

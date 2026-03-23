@@ -44,6 +44,13 @@
 				>
 					{{ $i18n( 'pandocultimateconverter-codex-overwrite-toggle' ).text() }}
 				</cdx-toggle-switch>
+				<cdx-toggle-switch
+					v-if="store.LLM_AVAILABLE"
+					v-model="store.llmPolish"
+					:disabled="store.isConverting"
+				>
+					{{ $i18n( 'pandocultimateconverter-codex-llm-polish-toggle' ).text() }}
+				</cdx-toggle-switch>
 			</div>
 			<div class="mw-pandoc-codex-app__actions-right">
 				<cdx-button
@@ -152,6 +159,12 @@ module.exports = exports = defineComponent( {
 		margin-top: @spacing-100;
 		padding-top: @spacing-100;
 		border-top: @border-width-base @border-style-base @border-color-subtle;
+	}
+
+	&__actions-left {
+		display: flex;
+		flex-direction: column;
+		gap: @spacing-50;
 	}
 
 	&__actions-right {

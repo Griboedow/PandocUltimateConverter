@@ -64,9 +64,11 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
         if ( $this->useCodex ) {
             $output->addModules( 'ext.PandocUltimateConverter.codex' );
+            $llmAvailable = LlmPolishService::newFromConfig( $this->config ) !== null;
             $output->addJsConfigVars( [
                 'pandocCodexTitleMinLength' => self::TITLE_MIN_LENGTH,
                 'pandocCodexTitleMaxLength' => self::TITLE_MAX_LENGTH,
+                'pandocCodexLlmAvailable'   => $llmAvailable,
             ] );
             $output->addHTML( Html::element( 'div', [ 'class' => 'mw-pandoc-codex-root' ] ) );
             return;

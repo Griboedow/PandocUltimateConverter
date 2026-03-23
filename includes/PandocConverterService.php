@@ -46,12 +46,13 @@ class PandocConverterService {
 	 *
 	 * The caller is responsible for deleting the source file afterwards if desired.
 	 *
-	 * @param string $fileName  Name of an existing file in the wiki repo
-	 *                          (e.g. "Document.docx" or "File:Document.docx").
-	 * @param string $pageName  Target wiki page title.
+	 * @param string $fileName   Name of an existing file in the wiki repo
+	 *                           (e.g. "Document.docx" or "File:Document.docx").
+	 * @param string $pageName   Target wiki page title.
+	 * @param bool   $llmPolish  Whether to apply LLM cleanup after conversion.
 	 * @throws \RuntimeException If the file cannot be found or conversion fails.
 	 */
-	public function convertFileToPage( string $fileName, string $pageName ): void {
+	public function convertFileToPage( string $fileName, string $pageName, bool $llmPolish = false ): void {
 		$fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
 		$localFile = $this->repoGroup->findFile( $fileTitle );
 
@@ -61,7 +62,7 @@ class PandocConverterService {
 
 		$filePath    = $localFile->getLocalRefPath();
 		$pandocOutput = $this->pandocWrapper->convertFile( $filePath );
-		$this->savePandocOutput( $pandocOutput, $pageName );
+		$this->savePandocOutput( $pandocOutput, $pageName, $llmPolish );
 	}
 
 	/**
@@ -69,20 +70,23 @@ class PandocConverterService {
 	 *
 	 * @param string $sourceUrl  URL to fetch and convert.
 	 * @param string $pageName   Target wiki page title.
+	 * @param bool   $llmPolish  Whether to apply LLM cleanup after conversion.
 	 * @throws \RuntimeException If conversion fails.
 	 */
-	public function convertUrlToPage( string $sourceUrl, string $pageName ): void {
+	public function convertUrlToPage( string $sourceUrl, string $pageName, bool $llmPolish = false ): void {
 		$pandocOutput = $this->pandocWrapper->convertUrl( $sourceUrl );
-		$this->savePandocOutput( $pandocOutput, $pageName );
+		$this->savePandocOutput( $pandocOutput, $pageName, $llmPolish );
 	}
 
 	/**
-	 * Process Pandoc output: upload extracted media, post-process wikitext, save the page.
+	 * Process Pandoc output: upload extracted media, post-process wikitext, optionally polish
+	 * with an LLM, then save the page.
 	 *
 	 * @param array  $pandocOutput  Return value of PandocWrapper::convertFile / convertUrl.
 	 * @param string $pageName      Target wiki page title.
+	 * @param bool   $llmPolish     Whether to run the LLM polishing step.
 	 */
-	private function savePandocOutput( array $pandocOutput, string $pageName ): void {
+	private function savePandocOutput( array $pandocOutput, string $pageName, bool $llmPolish = false ): void {
 		try {
 			$imagesVocabulary = $this->pandocWrapper->processImages(
 				$pandocOutput['mediaFolder'],
@@ -96,6 +100,13 @@ class PandocConverterService {
 			$pandocOutput['text'],
 			$imagesVocabulary
 		);
+
+		if ( $llmPolish ) {
+			$llmService = LlmPolishService::newFromConfig( $this->config );
+			if ( $llmService !== null ) {
+				$postprocessedText = $llmService->polish( $postprocessedText );
+			}
+		}
 
 		$title       = \Title::newFromText( $pageName );
 		$pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );

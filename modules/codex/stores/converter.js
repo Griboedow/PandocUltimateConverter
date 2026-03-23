@@ -80,12 +80,14 @@ function getExtension( filename ) {
 module.exports = exports = defineStore( 'converter', () => {
 	const TITLE_MIN = mw.config.get( 'pandocCodexTitleMinLength' ) || 4;
 	const TITLE_MAX = mw.config.get( 'pandocCodexTitleMaxLength' ) || 255;
+	const LLM_AVAILABLE = !!mw.config.get( 'pandocCodexLlmAvailable' );
 
 	const items = ref( [] );
 	const isConverting = ref( false );
 	const stopRequested = ref( false );
 	const isFetchingTitles = ref( false );
 	const overwriteExisting = ref( false );
+	const llmPolish = ref( false );
 	const globalErrors = ref( [] );
 
 	// Debounce timers keyed by item id for page-existence checks
@@ -493,6 +495,9 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
+		if ( llmPolish.value ) {
+			params.llmpolish = 1;
+		}
 		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
 			item.status = 'done';
 			const title = mw.Title.newFromText( result.pandocconvert.pagename );
@@ -531,6 +536,9 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
+		if ( llmPolish.value ) {
+			params.llmpolish = 1;
+		}
 		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
 			item.status = 'done';
 			const title = mw.Title.newFromText( result.pandocconvert.pagename );
@@ -551,6 +559,8 @@ module.exports = exports = defineStore( 'converter', () => {
 		stopRequested,
 		isFetchingTitles,
 		overwriteExisting,
+		llmPolish,
+		LLM_AVAILABLE,
 		globalErrors,
 		queuedCount,
 		overwriteCount,

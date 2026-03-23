@@ -30,6 +30,7 @@ class ApiPandocConvert extends ApiBase {
 		$fileName = $params['filename'] ?? null;
 		$sourceUrl = $params['url'] ?? null;
 		$forceOverwrite = $params['forceoverwrite'];
+		$llmPolish = $params['llmpolish'];
 
 		// Exactly one source must be supplied
 		if ( $fileName === null && $sourceUrl === null ) {
@@ -70,9 +71,9 @@ class ApiPandocConvert extends ApiBase {
 
 		try {
 			if ( $fileName !== null ) {
-				$service->convertFileToPage( $fileName, $pageName );
+				$service->convertFileToPage( $fileName, $pageName, $llmPolish );
 			} else {
-				$service->convertUrlToPage( $sourceUrl, $pageName );
+				$service->convertUrlToPage( $sourceUrl, $pageName, $llmPolish );
 			}
 		} catch ( \RuntimeException $e ) {
 			$this->dieWithError( [ 'apierror-pandocultimateconverter-conversionfailed', $e->getMessage() ] );
@@ -102,6 +103,10 @@ class ApiPandocConvert extends ApiBase {
 				ParamValidator::PARAM_REQUIRED => false,
 			],
 			'forceoverwrite' => [
+				ParamValidator::PARAM_TYPE    => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false,
+			],
+			'llmpolish' => [
 				ParamValidator::PARAM_TYPE    => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false,
 			],
