@@ -14,7 +14,7 @@ use MediaWiki\Shell\Shell;
  *   PDF → pdftohtml → HTML + PNG images → Pandoc → mediawiki wikitext
  *
  * Scanned PDF pipeline:
- *   PDF → pdftoppm (page images) → tesseract OCR (per page) → HTML → Pandoc → mediawiki wikitext
+ *   PDF → pdftoppm (page images) → tesseract OCR (per page) → mediawiki wikitext
  */
 class PDFPreprocessor {
 
@@ -92,17 +92,19 @@ class PDFPreprocessor {
 		);
 
 		return $isScanned;
-	}	/**
+	}
+
+	/**
 	 * Process a scanned PDF using OCR via tesseract.
 	 *
 	 * Pipeline:
 	 *  1. pdftoppm converts each page to a high-resolution PNG image.
-	 *  2. tesseract runs OCR on every page image and outputs a text file.
-	 *  3. All per-page texts are combined into a single HTML file for Pandoc.
+	 *  2. tesseract runs OCR on every page image.
+	 *  3. Per-page texts are assembled into MediaWiki wikitext directly.
 	 *
 	 * @param string $pdfPath     Absolute path to the source PDF file.
 	 * @param string $mediaFolder Absolute path to a writable work directory.
-	 * @return string Absolute path to the generated HTML file.
+	 * @return string MediaWiki wikitext produced by OCR.
 	 * @throws \RuntimeException If pdftoppm or tesseract fails.
 	 */
 	public function processScannedPdfFile( string $pdfPath, string $mediaFolder ): string {
@@ -152,33 +154,33 @@ class PDFPreprocessor {
 			$allPageTexts[] = $this->ocrPageImage( $pageImage );
 		}
 
-		// Step 3: Build a simple HTML file that Pandoc can convert.
-		$htmlFile = $mediaFolder . DIRECTORY_SEPARATOR . 'ocr_output.html';
-		$htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' . "\n";
-		foreach ( $allPageTexts as $index => $pageText ) {
-			$pageNumber = $index + 1;
-			// Wrap each page in its own section so the structure is preserved.
-			$htmlContent .= '<div class="ocr-page" id="page-' . $pageNumber . '">' . "\n";
-			// Split by lines and encode each line for valid HTML.
+		// Step 3: Assemble plain-text OCR output into MediaWiki wikitext.
+		// Non-empty lines within each page are joined as paragraphs (separated by
+		// blank lines); pages are separated by a horizontal rule (----) so readers
+		// can tell where pages begin.
+		$wikitextParts = [];
+		foreach ( $allPageTexts as $pageText ) {
 			$lines = explode( "\n", $pageText );
+			$pageLines = [];
 			foreach ( $lines as $line ) {
 				$trimmed = trim( $line );
 				if ( $trimmed !== '' ) {
-					$htmlContent .= '<p>' . htmlspecialchars( $trimmed, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' ) . "</p>\n";
+					$pageLines[] = $trimmed;
 				}
 			}
-			$htmlContent .= "</div>\n";
+			if ( $pageLines !== [] ) {
+				$wikitextParts[] = implode( "\n\n", $pageLines );
+			}
 		}
-		$htmlContent .= '</body></html>' . "\n";
 
-		file_put_contents( $htmlFile, $htmlContent );
+		$wikitext = implode( "\n\n----\n\n", $wikitextParts );
 
 		wfDebugLog(
 			'PandocUltimateConverter',
-			'PDFPreprocessor::processScannedPdfFile: OCR HTML written to ' . $htmlFile
+			'PDFPreprocessor::processScannedPdfFile: OCR complete, wikitext length=' . strlen( $wikitext )
 		);
 
-		return $htmlFile;
+		return $wikitext;
 	}
 
 	/**
@@ -218,33 +220,19 @@ class PDFPreprocessor {
 	}
 
 	/**
-	 * Convert a PDF file to a single HTML file, extracting embedded images as PNGs
-	 * into the supplied media folder.
+	 * Convert a text-based PDF file to a single HTML file via pdftohtml, extracting
+	 * embedded images as PNGs into the supplied media folder.
 	 *
-	 * If the PDF appears to be a scanned document (no extractable text), OCR is
-	 * performed automatically using tesseract.
+	 * Call {@see isScannedPdf()} first; if the PDF is scanned, use
+	 * {@see processScannedPdfFile()} instead.
 	 *
 	 * @param string $pdfPath     Absolute path to the source PDF file.
 	 * @param string $mediaFolder Absolute path to the directory where extracted
 	 *                            images should be placed. Must already exist.
 	 * @return string Absolute path to the generated HTML file.
-	 * @throws \RuntimeException If pdftohtml (or OCR tools) fail or produce no output.
+	 * @throws \RuntimeException If pdftohtml fails or produces no output.
 	 */
 	public function processPDFFile( string $pdfPath, string $mediaFolder ): string {
-		// Detect scanned PDFs and route them through the OCR pipeline.
-		if ( $this->isScannedPdf( $pdfPath ) ) {
-			wfDebugLog(
-				'PandocUltimateConverter',
-				'PDFPreprocessor::processPDFFile: scanned PDF detected, using OCR pipeline for ' . $pdfPath
-			);
-			return $this->processScannedPdfFile( $pdfPath, $mediaFolder );
-		}
-
-		wfDebugLog(
-			'PandocUltimateConverter',
-			'PDFPreprocessor::processPDFFile: text-based PDF detected, using pdftohtml pipeline for ' . $pdfPath
-		);
-
 		$outputPrefix = $mediaFolder . DIRECTORY_SEPARATOR . 'pdf_output';
 
 		$cmd = [

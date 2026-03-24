@@ -69,7 +69,7 @@ Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL
 
 **PDF support** works via a two-step pipeline: poppler's `pdftohtml` first converts the PDF to HTML with extracted images, then Pandoc converts that HTML to MediaWiki wikitext. Embedded images are automatically extracted and uploaded to the wiki.
 
-**Scanned PDF (OCR) support**: The extension automatically detects whether a PDF contains extractable text or consists of scanned images. For scanned PDFs it falls back to an OCR pipeline: `pdftoppm` renders each page to a high-resolution PNG and `tesseract` extracts the text. The recognized text is then converted to MediaWiki wikitext by Pandoc. Tesseract must be installed separately (see [Installing Tesseract for scanned PDF (OCR) support](#installing-tesseract-for-scanned-pdf-ocr-support) below).
+**Scanned PDF (OCR) support**: The extension automatically detects whether a PDF contains extractable text or consists of scanned images. For scanned PDFs it falls back to an OCR pipeline: `pdftoppm` renders each page to a high-resolution PNG and `tesseract` extracts the text. The recognized text is assembled directly into MediaWiki wikitext — no extra Pandoc step is needed. Tesseract must be installed separately (see [Installing Tesseract for scanned PDF (OCR) support](#installing-tesseract-for-scanned-pdf-ocr-support) below).
 
 Webpages can be imported as well. Pandoc does not work very well with webpages, but it might be helpful if the webpage contains a lot of images and other files.
 

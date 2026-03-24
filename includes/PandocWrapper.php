@@ -164,6 +164,16 @@ class PandocWrapper
                 $this->tesseractExecutablePath,
                 $this->ocrLanguage
             );
+
+            if ( $preprocessor->isScannedPdf( $source ) ) {
+                // Scanned PDF: OCR produces wikitext directly — no Pandoc step needed.
+                wfDebugLog( 'PandocUltimateConverter', "convertInternal: scanned PDF detected, using OCR pipeline for $source" );
+                $text = $preprocessor->processScannedPdfFile( $source, $mediaFolder );
+                return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
+            }
+
+            // Text-based PDF: pdftohtml → HTML → Pandoc → mediawiki wikitext.
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: text-based PDF detected, using pdftohtml pipeline for $source" );
             $htmlFile = $preprocessor->processPDFFile( $source, $mediaFolder );
 
             // Convert the intermediate HTML to mediawiki wikitext via Pandoc.
