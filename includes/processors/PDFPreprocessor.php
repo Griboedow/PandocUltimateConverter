@@ -7,33 +7,244 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 use MediaWiki\Shell\Shell;
 
 /**
- * Preprocesses PDF files using poppler's pdftohtml before handing the
- * resulting HTML + images to Pandoc for conversion to MediaWiki wikitext.
+ * Preprocesses PDF files before handing off to Pandoc for conversion to
+ * MediaWiki wikitext.
  *
- * Pipeline: PDF → pdftohtml → HTML + PNG images → Pandoc → mediawiki wikitext
+ * Text-based PDF pipeline:
+ *   PDF → pdftohtml → HTML + PNG images → Pandoc → mediawiki wikitext
+ *
+ * Scanned PDF pipeline:
+ *   PDF → pdftoppm (page images) → tesseract OCR (per page) → HTML → Pandoc → mediawiki wikitext
  */
 class PDFPreprocessor {
 
 	private string $pdfToHtmlPath;
+	private string $pdfToTextPath;
+	private string $pdftoppmPath;
+	private string $tesseractPath;
+	private string $ocrLanguage;
+
+	/** Minimum number of non-whitespace characters per page to consider a PDF text-based. */
+	private const TEXT_CHARS_PER_PAGE_THRESHOLD = 50;
 
 	/**
-	 * @param string $pdfToHtmlPath Absolute path (or bare command name) for poppler's pdftohtml.
+	 * @param string $pdfToHtmlPath  Absolute path (or bare command name) for poppler's pdftohtml.
+	 * @param string $pdfToTextPath  Absolute path (or bare command name) for poppler's pdftotext.
+	 * @param string $pdftoppmPath   Absolute path (or bare command name) for poppler's pdftoppm.
+	 * @param string $tesseractPath  Absolute path (or bare command name) for tesseract OCR.
+	 * @param string $ocrLanguage    Tesseract language code(s), e.g. 'eng' or 'eng+deu'.
 	 */
-	public function __construct( string $pdfToHtmlPath = 'pdftohtml' ) {
+	public function __construct(
+		string $pdfToHtmlPath = 'pdftohtml',
+		string $pdfToTextPath = 'pdftotext',
+		string $pdftoppmPath = 'pdftoppm',
+		string $tesseractPath = 'tesseract',
+		string $ocrLanguage = 'eng'
+	) {
 		$this->pdfToHtmlPath = $pdfToHtmlPath;
+		$this->pdfToTextPath = $pdfToTextPath;
+		$this->pdftoppmPath  = $pdftoppmPath;
+		$this->tesseractPath = $tesseractPath;
+		$this->ocrLanguage   = $ocrLanguage;
+	}
+
+	/**
+	 * Determine whether a PDF contains extractable text or is a scanned image.
+	 *
+	 * Uses pdftotext to extract raw text and counts non-whitespace characters.
+	 * If the average falls below TEXT_CHARS_PER_PAGE_THRESHOLD per page the PDF
+	 * is classified as scanned.
+	 *
+	 * @param string $pdfPath Absolute path to the PDF file.
+	 * @return bool True if the PDF appears to be a scanned (image-only) document.
+	 */
+	public function isScannedPdf( string $pdfPath ): bool {
+		$cmd = [
+			$this->pdfToTextPath,
+			'-q',        // Suppress status/warning messages
+			$pdfPath,
+			'-',         // Output to stdout
+		];
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'PDFPreprocessor::isScannedPdf: running ' . implode( ' ', $cmd )
+		);
+
+		$result = Shell::command( $cmd )
+			->includeStderr()
+			->execute();
+
+		// pdftotext exits 0 even for scanned PDFs (just produces empty output)
+		$text = $result->getStdout();
+
+		// Derive page count from form-feed separators inserted between pages.
+		$formFeeds = substr_count( $text, "\f" );
+		$pageCount = $formFeeds + 1;
+
+		$nonWhitespace = strlen( preg_replace( '/\s+/', '', $text ) );
+		$threshold = self::TEXT_CHARS_PER_PAGE_THRESHOLD * $pageCount;
+		$isScanned = $nonWhitespace < $threshold;
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			"PDFPreprocessor::isScannedPdf: pages=$pageCount, chars=$nonWhitespace, threshold=$threshold, scanned=" . ( $isScanned ? 'yes' : 'no' )
+		);
+
+		return $isScanned;
+	}	/**
+	 * Process a scanned PDF using OCR via tesseract.
+	 *
+	 * Pipeline:
+	 *  1. pdftoppm converts each page to a high-resolution PNG image.
+	 *  2. tesseract runs OCR on every page image and outputs a text file.
+	 *  3. All per-page texts are combined into a single HTML file for Pandoc.
+	 *
+	 * @param string $pdfPath     Absolute path to the source PDF file.
+	 * @param string $mediaFolder Absolute path to a writable work directory.
+	 * @return string Absolute path to the generated HTML file.
+	 * @throws \RuntimeException If pdftoppm or tesseract fails.
+	 */
+	public function processScannedPdfFile( string $pdfPath, string $mediaFolder ): string {
+		// Step 1: Render PDF pages to images.
+		$pagePrefix = $mediaFolder . DIRECTORY_SEPARATOR . 'ocr_page';
+
+		$ppmCmd = [
+			$this->pdftoppmPath,
+			'-r', '300',      // 300 DPI gives good OCR accuracy
+			'-png',           // Output as PNG
+			$pdfPath,
+			$pagePrefix,
+		];
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'PDFPreprocessor::processScannedPdfFile: running ' . implode( ' ', $ppmCmd )
+		);
+
+		$ppmResult = Shell::command( $ppmCmd )
+			->includeStderr()
+			->execute();
+
+		if ( $ppmResult->getExitCode() !== 0 ) {
+			throw new \RuntimeException(
+				'pdftoppm failed (exit ' . $ppmResult->getExitCode() . '): '
+				. $ppmResult->getStdout()
+			);
+		}
+
+		// Collect the generated page images (sorted so pages are in order).
+		$pageImages = glob( $pagePrefix . '-*.png' );
+		if ( empty( $pageImages ) ) {
+			// Some pdftoppm versions omit the trailing dash when there is only one page.
+			$pageImages = glob( $pagePrefix . '.png' );
+		}
+		if ( empty( $pageImages ) ) {
+			throw new \RuntimeException(
+				'pdftoppm produced no PNG images for: ' . $pdfPath
+			);
+		}
+		sort( $pageImages );
+
+		// Step 2: Run tesseract on each page image and collect the text.
+		$allPageTexts = [];
+		foreach ( $pageImages as $pageImage ) {
+			$allPageTexts[] = $this->ocrPageImage( $pageImage );
+		}
+
+		// Step 3: Build a simple HTML file that Pandoc can convert.
+		$htmlFile = $mediaFolder . DIRECTORY_SEPARATOR . 'ocr_output.html';
+		$htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' . "\n";
+		foreach ( $allPageTexts as $index => $pageText ) {
+			$pageNumber = $index + 1;
+			// Wrap each page in its own section so the structure is preserved.
+			$htmlContent .= '<div class="ocr-page" id="page-' . $pageNumber . '">' . "\n";
+			// Split by lines and encode each line for valid HTML.
+			$lines = explode( "\n", $pageText );
+			foreach ( $lines as $line ) {
+				$trimmed = trim( $line );
+				if ( $trimmed !== '' ) {
+					$htmlContent .= '<p>' . htmlspecialchars( $trimmed, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' ) . "</p>\n";
+				}
+			}
+			$htmlContent .= "</div>\n";
+		}
+		$htmlContent .= '</body></html>' . "\n";
+
+		file_put_contents( $htmlFile, $htmlContent );
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'PDFPreprocessor::processScannedPdfFile: OCR HTML written to ' . $htmlFile
+		);
+
+		return $htmlFile;
+	}
+
+	/**
+	 * Run tesseract OCR on a single image file and return the recognized text.
+	 *
+	 * @param string $imagePath Absolute path to the image file.
+	 * @return string Plain text extracted by OCR.
+	 * @throws \RuntimeException If tesseract exits with a non-zero status.
+	 */
+	private function ocrPageImage( string $imagePath ): string {
+		// tesseract <input> stdout -l <lang> txt  → writes result to stdout
+		$cmd = [
+			$this->tesseractPath,
+			$imagePath,
+			'stdout',
+			'-l', $this->ocrLanguage,
+			'txt',
+		];
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'PDFPreprocessor::ocrPageImage: running ' . implode( ' ', $cmd )
+		);
+
+		$result = Shell::command( $cmd )
+			->includeStderr()
+			->execute();
+
+		if ( $result->getExitCode() !== 0 ) {
+			throw new \RuntimeException(
+				'tesseract OCR failed (exit ' . $result->getExitCode() . '): '
+				. $result->getStdout()
+			);
+		}
+
+		return $result->getStdout();
 	}
 
 	/**
 	 * Convert a PDF file to a single HTML file, extracting embedded images as PNGs
 	 * into the supplied media folder.
 	 *
+	 * If the PDF appears to be a scanned document (no extractable text), OCR is
+	 * performed automatically using tesseract.
+	 *
 	 * @param string $pdfPath     Absolute path to the source PDF file.
 	 * @param string $mediaFolder Absolute path to the directory where extracted
 	 *                            images should be placed. Must already exist.
 	 * @return string Absolute path to the generated HTML file.
-	 * @throws \RuntimeException If pdftohtml fails or produces no output.
+	 * @throws \RuntimeException If pdftohtml (or OCR tools) fail or produce no output.
 	 */
 	public function processPDFFile( string $pdfPath, string $mediaFolder ): string {
+		// Detect scanned PDFs and route them through the OCR pipeline.
+		if ( $this->isScannedPdf( $pdfPath ) ) {
+			wfDebugLog(
+				'PandocUltimateConverter',
+				'PDFPreprocessor::processPDFFile: scanned PDF detected, using OCR pipeline for ' . $pdfPath
+			);
+			return $this->processScannedPdfFile( $pdfPath, $mediaFolder );
+		}
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'PDFPreprocessor::processPDFFile: text-based PDF detected, using pdftohtml pipeline for ' . $pdfPath
+		);
+
 		$outputPrefix = $mediaFolder . DIRECTORY_SEPARATOR . 'pdf_output';
 
 		$cmd = [
