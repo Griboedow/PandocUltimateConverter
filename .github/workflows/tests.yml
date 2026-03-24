@@ -100,7 +100,8 @@ jobs:
           # PHP version is the highest supported by each MW release.
           # MW 1.39 and 1.41 are omitted: the extension uses MediaWiki\Context\RequestContext
           # (and MediaWiki\Html\Html), which only exist from MW 1.42 onward.
-          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }   # LTS
+          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
           - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
 
     steps:
