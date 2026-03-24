@@ -1,0 +1,32 @@
+{
+	"name": "griboedow/pandoc-ultimate-converter",
+	"description": "Pandoc converter extension for MediaWiki — converts files and webpages, importing text and images",
+	"type": "mediawiki-extension",
+	"license": "MIT",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^10.5 || ^11.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Processors\\": "includes/processors/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\": "tests/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Fixtures\\": "tests/fixtures/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Unit\\": "tests/unit/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Integration\\": "tests/integration/"
+		}
+	},
+	"scripts": {
+		"test": "phpunit"
+	},
+	"config": {
+		"sort-packages": true
+	}
+}

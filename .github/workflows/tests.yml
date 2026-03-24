@@ -1,0 +1,257 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+# Restrict the default GITHUB_TOKEN to read-only for all jobs in this workflow.
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Unit tests — PHPUnit 10/11 requires PHP >=8.1; drop EOL 7.4/8.0 from matrix
+  # ---------------------------------------------------------------------------
+  unit:
+    name: Unit tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.1"
+          - "8.2"
+          - "8.3"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run unit tests
+        run: ./vendor/bin/phpunit --testsuite unit
+
+  # ---------------------------------------------------------------------------
+  # Integration tests — require Pandoc; run on current PHP only
+  # ---------------------------------------------------------------------------
+  integration:
+    name: Integration tests (Pandoc ${{ matrix.pandoc }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        pandoc:
+          - "3.1.11"   # stable LTS
+          - "3.5"      # recent release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: dom, zip, mbstring
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install Pandoc ${{ matrix.pandoc }}
+        run: |
+          wget -q "https://github.com/jgm/pandoc/releases/download/${{ matrix.pandoc }}/pandoc-${{ matrix.pandoc }}-1-amd64.deb" \
+            -O /tmp/pandoc.deb
+          sudo dpkg -i /tmp/pandoc.deb
+          pandoc --version
+
+      - name: Run integration tests
+        run: ./vendor/bin/phpunit --testsuite integration
+
+  # ---------------------------------------------------------------------------
+  # MediaWiki extension tests — run against multiple MW versions
+  #
+  # A proper maintenance-script smoke test bootstraps the full MW environment
+  # and asserts:
+  #   1. Extension PHP classes are autoloadable
+  #   2. The special page instantiates without errors
+  #   3. A wiki page can be created via the MediaWiki internal API
+  # ---------------------------------------------------------------------------
+  mediawiki:
+    name: MW ${{ matrix.mw }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # MW branch names use underscores (REL1_XX).
+          # PHP version is the highest supported by each MW release.
+          # MW 1.39 and 1.41 are omitted: the extension uses MediaWiki\Context\RequestContext
+          # (and MediaWiki\Html\Html), which only exist from MW 1.42 onward.
+          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
+          - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: extensions/PandocUltimateConverter
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring, intl, fileinfo
+          coverage: none
+
+      - name: Clone MediaWiki ${{ matrix.mw }}
+        run: |
+          git clone --depth 1 \
+            --branch "${{ matrix.mw_branch }}" \
+            https://github.com/wikimedia/mediawiki.git mediawiki
+
+      - name: Install MediaWiki Composer dependencies
+        run: |
+          cd mediawiki
+          # Some MW releases (e.g. 1.41) pin phpunit in require (not require-dev),
+          # so --no-dev alone does not skip the security-advisory block.
+          # The flag name changed between Composer versions:
+          #   Composer 2.2–2.5  →  --no-security-blocking
+          #   Composer 2.6+     →  --no-audit
+          # Detect which flag is available and use it.
+          if composer install --help 2>&1 | grep -q -- '--no-audit'; then
+            AUDIT_FLAG="--no-audit"
+          elif composer install --help 2>&1 | grep -q -- '--no-security-blocking'; then
+            AUDIT_FLAG="--no-security-blocking"
+          else
+            AUDIT_FLAG=""
+          fi
+          composer install --no-interaction --prefer-dist --no-dev $AUDIT_FLAG
+
+      - name: Move extension into MW tree
+        run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
+
+      - name: Install extension Composer dependencies
+        run: |
+          cd mediawiki/extensions/PandocUltimateConverter
+          composer install --no-interaction --prefer-dist
+
+      - name: Set up MediaWiki database (SQLite)
+        run: |
+          cd mediawiki
+          php maintenance/install.php \
+            --dbtype sqlite \
+            --dbpath /tmp/mwdb \
+            --server http://localhost \
+            --scriptpath "" \
+            --lang en \
+            TestWiki admin \
+            --pass adminpassword
+
+      - name: Enable PandocUltimateConverter in LocalSettings.php
+        run: |
+          echo 'wfLoadExtension("PandocUltimateConverter");' >> mediawiki/LocalSettings.php
+          echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> mediawiki/LocalSettings.php
+
+      - name: Smoke test — classes, special page, page creation
+        run: |
+          export MW_INSTALL_PATH="${GITHUB_WORKSPACE}/mediawiki"
+          cat > /tmp/mw_smoke_test.php << 'PHPEOF'
+          <?php
+          /**
+           * CI smoke test for PandocUltimateConverter.
+           * Checks class autoloading, special-page instantiation, and page creation.
+           *
+           * Compatible with MediaWiki 1.42+ (the extension itself requires 1.42+ because
+           * it uses MediaWiki\Context\RequestContext and MediaWiki\Html\Html).
+           */
+          $IP = getenv( 'MW_INSTALL_PATH' );
+          if ( !$IP ) {
+              die( "MW_INSTALL_PATH not set\n" );
+          }
+          require_once "$IP/maintenance/Maintenance.php";
+
+          class PandocSmokeTest extends Maintenance {
+              public function __construct() {
+                  parent::__construct();
+                  $this->addDescription( 'CI smoke test for PandocUltimateConverter' );
+              }
+
+              public function execute() {
+                  $IP = getenv( 'MW_INSTALL_PATH' );
+
+                  // Load the extension's own composer autoloader so PSR-4 can find
+                  // classes in includes/processors/ (lowercase) on case-sensitive FS.
+                  $extAutoload = "$IP/extensions/PandocUltimateConverter/vendor/autoload.php";
+                  if ( file_exists( $extAutoload ) ) {
+                      require_once $extAutoload;
+                  }
+
+                  // Use MediaWikiServices::getInstance() — compatible with MW 1.35+.
+                  // Maintenance::getServiceContainer() was only added in MW 1.40.
+                  $services = \MediaWiki\MediaWikiServices::getInstance();
+
+                  // 1. Verify extension classes are autoloadable.
+                  $classes = [
+                      'MediaWiki\Extension\PandocUltimateConverter\PandocWrapper',
+                      'MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor',
+                  ];
+                  foreach ( $classes as $cls ) {
+                      if ( !class_exists( $cls ) ) {
+                          $this->fatalError( "MISSING: $cls" );
+                      }
+                      $this->output( "OK: $cls\n" );
+                  }
+
+                  // 2. Verify the special page is registered and instantiates without errors.
+                  $spFactory = $services->getSpecialPageFactory();
+                  if ( !$spFactory->exists( 'PandocUltimateConverter' ) ) {
+                      $this->fatalError( "Special page PandocUltimateConverter not registered" );
+                  }
+                  $sp = $spFactory->getPage( 'PandocUltimateConverter' );
+                  if ( !$sp ) {
+                      $this->fatalError( "Special page failed to instantiate" );
+                  }
+                  $this->output( "SPECIAL_PAGE_OK: " . get_class( $sp ) . "\n" );
+
+                  // 3. Create a test page via the MediaWiki internal API.
+                  //    This verifies the full MW stack (DB, content model, revision store).
+                  //
+                  // Version-safe notes:
+                  //   - \Title global alias removed in MW 1.45 → use TitleFactory service
+                  //   - UserFactory::newSystemUser() removed in MW 1.43 → use UserFactory::newFromName()
+                  //   - Maintenance::getUser() does not exist; use the 'admin' account created by install.php
+                  $title   = $services->getTitleFactory()->newFromText( 'CISmokeTestPage' );
+                  $page    = $services->getWikiPageFactory()->newFromTitle( $title );
+                  $user    = $services->getUserFactory()->newFromName( 'admin' );
+                  $updater = $page->newPageUpdater( $user );
+                  $updater->setContent(
+                      \MediaWiki\Revision\SlotRecord::MAIN,
+                      \ContentHandler::makeContent( 'Page created by CI smoke test.', $title )
+                  );
+                  $updater->saveRevision(
+                      \CommentStoreComment::newUnsavedComment( 'CI smoke test' )
+                  );
+                  if ( !$updater->wasSuccessful() ) {
+                      $this->fatalError( "Failed to create test page" );
+                  }
+                  $this->output( "PAGE_CREATED\n" );
+              }
+          }
+
+          $maintClass = PandocSmokeTest::class;
+          require_once RUN_MAINTENANCE_IF_MAIN;
+          PHPEOF
+          php /tmp/mw_smoke_test.php

@@ -39,3 +39,10 @@ dist/
 
 # Logs
 *.log
+
+# PHPUnit generated coverage and artifacts
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+coverage.xml
+coverage.html

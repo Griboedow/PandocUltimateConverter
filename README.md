@@ -3,7 +3,7 @@ PandocUltimateConverter is a Pandoc converter extension for MediaWiki which conv
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
 # Prerequisites
-Tested on MediaWiki 1.39 - 1.43
+Tested on MediaWiki 1.42 - 1.45
 
 Requires pandoc to be installed.
 
