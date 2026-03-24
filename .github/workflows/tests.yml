@@ -98,9 +98,9 @@ jobs:
         include:
           # MW branch names use underscores (REL1_XX).
           # PHP version is the highest supported by each MW release.
-          - { mw: "1.39", mw_branch: "REL1_39", php: "8.1" }   # LTS
-          - { mw: "1.41", mw_branch: "REL1_41", php: "8.2" }
-          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
+          # MW 1.39 and 1.41 are omitted: the extension uses MediaWiki\Context\RequestContext
+          # (and MediaWiki\Html\Html), which only exist from MW 1.42 onward.
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }   # LTS
           - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
 
     steps:
@@ -173,8 +173,8 @@ jobs:
            * CI smoke test for PandocUltimateConverter.
            * Checks class autoloading, special-page instantiation, and page creation.
            *
-           * Compatible with MediaWiki 1.39+ (getServiceContainer() was added in 1.40,
-           * so we use MediaWikiServices::getInstance() which works across all versions).
+           * Compatible with MediaWiki 1.42+ (the extension itself requires 1.42+ because
+           * it uses MediaWiki\Context\RequestContext and MediaWiki\Html\Html).
            */
           $IP = getenv( 'MW_INSTALL_PATH' );
           if ( !$IP ) {
@@ -227,11 +227,13 @@ jobs:
 
                   // 3. Create a test page via the MediaWiki internal API.
                   //    This verifies the full MW stack (DB, content model, revision store).
-                  $title   = \Title::newFromText( 'CISmokeTestPage' );
+                  //
+                  // Version-safe notes:
+                  //   - \Title global alias removed in MW 1.45 → use TitleFactory service
+                  //   - UserFactory::newSystemUser() removed in MW 1.43 → use getUser()
+                  $title   = $services->getTitleFactory()->newFromText( 'CISmokeTestPage' );
                   $page    = $services->getWikiPageFactory()->newFromTitle( $title );
-                  $user    = $services->getUserFactory()->newSystemUser(
-                      'Maintenance script', [ 'steal' => true ]
-                  );
+                  $user    = $this->getUser();
                   $updater = $page->newPageUpdater( $user );
                   $updater->setContent(
                       \MediaWiki\Revision\SlotRecord::MAIN,
