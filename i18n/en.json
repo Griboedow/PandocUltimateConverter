@@ -71,5 +71,19 @@
     "pandocultimateconverter-codex-convert-one": "Convert this item",
 	"pandocultimateconverter-codex-remove-item": "Remove",
 	"pandocultimateconverter-codex-stop": "Stop",
-	"pandocultimateconverter-codex-stop-requested": "Stopping…"
+	"pandocultimateconverter-codex-stop-requested": "Stopping…",
+
+	"pandocexport": "Pandoc Export",
+	"pandocexport-summary": "Export wiki pages to external document formats (DOCX, ODT, EPUB, and more) using Pandoc.",
+	"pandocultimateconverter-export-description": "Select one or more wiki pages and a target format, then click Export to download the converted document.",
+	"pandocultimateconverter-export-pages-label": "Pages to export",
+	"pandocultimateconverter-export-add-page": "Add another page",
+	"pandocultimateconverter-export-page-placeholder": "Search for a page…",
+	"pandocultimateconverter-export-format-label": "Export format",
+	"pandocultimateconverter-export-remove-page": "Remove",
+	"pandocultimateconverter-export-button": "Export",
+	"pandocultimateconverter-export-preparing": "Preparing download…",
+	"pandocultimateconverter-export-error-no-pages": "Please add at least one page to export.",
+	"pandocultimateconverter-export-error-invalid-format": "The requested export format is not supported.",
+	"pandocultimateconverter-export-error-failed": "Export failed: $1"
 }

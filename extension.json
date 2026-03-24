@@ -23,7 +23,8 @@
     ]
   },
   "SpecialPages": {
-    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter"
+    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter",
+    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocExport"
   },
   "ResourceModules": {
     "ext.PandocUltimateConverter": {
@@ -101,6 +102,32 @@
         "pandocultimateconverter-codex-switch-classic",
         "pandocultimateconverter-codex-stop",
         "pandocultimateconverter-codex-stop-requested"
+      ]
+    },
+    "ext.PandocUltimateConverter.export": {
+      "packageFiles": [
+        "export/init.js",
+        "export/App.vue",
+        "export/components/PageSearchInput.vue"
+      ],
+      "dependencies": [
+        "vue",
+        "@wikimedia/codex",
+        "mediawiki.api",
+        "mediawiki.jqueryMsg"
+      ],
+      "messages": [
+        "pandocultimateconverter-export-description",
+        "pandocultimateconverter-export-pages-label",
+        "pandocultimateconverter-export-add-page",
+        "pandocultimateconverter-export-page-placeholder",
+        "pandocultimateconverter-export-format-label",
+        "pandocultimateconverter-export-remove-page",
+        "pandocultimateconverter-export-button",
+        "pandocultimateconverter-export-preparing",
+        "pandocultimateconverter-export-error-no-pages",
+        "pandocultimateconverter-export-error-invalid-format",
+        "pandocultimateconverter-export-error-failed"
       ]
     }
   },
