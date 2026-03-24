@@ -124,10 +124,20 @@ jobs:
       - name: Install MediaWiki Composer dependencies
         run: |
           cd mediawiki
-          # --no-dev + --no-audit: some MW releases pin phpunit in require (not
-          # require-dev), which triggers a security-advisory block even with
-          # --no-dev.  We only need MW's autoloader/runtime, not its test tools.
-          composer install --no-interaction --prefer-dist --no-dev --no-audit
+          # Some MW releases (e.g. 1.41) pin phpunit in require (not require-dev),
+          # so --no-dev alone does not skip the security-advisory block.
+          # The flag name changed between Composer versions:
+          #   Composer 2.2–2.5  →  --no-security-blocking
+          #   Composer 2.6+     →  --no-audit
+          # Detect which flag is available and use it.
+          if composer install --help 2>&1 | grep -q -- '--no-audit'; then
+            AUDIT_FLAG="--no-audit"
+          elif composer install --help 2>&1 | grep -q -- '--no-security-blocking'; then
+            AUDIT_FLAG="--no-security-blocking"
+          else
+            AUDIT_FLAG=""
+          fi
+          composer install --no-interaction --prefer-dist --no-dev $AUDIT_FLAG
 
       - name: Move extension into MW tree
         run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
