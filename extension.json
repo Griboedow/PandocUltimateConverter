@@ -150,6 +150,12 @@
       "path": false,
       "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
       "public": true
+    },
+    "PandocUltimateConverter_LibreOfficeExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to the LibreOffice executable (soffice or libreoffice). No need to specify if LibreOffice is in PATH. Required for .doc import support.",
+      "public": true
     }
   },
   "ConfigRegistry": {
