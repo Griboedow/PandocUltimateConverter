@@ -63,7 +63,7 @@ XML
 XML
 		);
 
-		// word/document.xml — heading + paragraph + table
+		// word/document.xml — heading + paragraph + table with proper column/cell widths
 		file_put_contents( $tmpDir . DIRECTORY_SEPARATOR . 'word' . DIRECTORY_SEPARATOR . 'document.xml', <<<'XML'
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
@@ -77,13 +77,33 @@ XML
       <w:r><w:t>This is a test paragraph with some body text.</w:t></w:r>
     </w:p>
     <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid"/>
+        <w:tblW w:w="9360" w:type="dxa"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="4680"/>
+        <w:gridCol w:w="4680"/>
+      </w:tblGrid>
       <w:tr>
-        <w:tc><w:p><w:r><w:t>Column A</w:t></w:r></w:p></w:tc>
-        <w:tc><w:p><w:r><w:t>Column B</w:t></w:r></w:p></w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="4680" w:type="dxa"/></w:tcPr>
+          <w:p><w:r><w:t>Column A</w:t></w:r></w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="4680" w:type="dxa"/></w:tcPr>
+          <w:p><w:r><w:t>Column B</w:t></w:r></w:p>
+        </w:tc>
       </w:tr>
       <w:tr>
-        <w:tc><w:p><w:r><w:t>Value 1</w:t></w:r></w:p></w:tc>
-        <w:tc><w:p><w:r><w:t>Value 2</w:t></w:r></w:p></w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="4680" w:type="dxa"/></w:tcPr>
+          <w:p><w:r><w:t>Value 1</w:t></w:r></w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="4680" w:type="dxa"/></w:tcPr>
+          <w:p><w:r><w:t>Value 2</w:t></w:r></w:p>
+        </w:tc>
       </w:tr>
     </w:tbl>
     <w:sectPr/>

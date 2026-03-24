@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Unit tests — run on multiple PHP versions, no MediaWiki or Pandoc required
+  # Unit tests — PHPUnit 10/11 requires PHP >=8.1; drop EOL 7.4/8.0 from matrix
   # ---------------------------------------------------------------------------
   unit:
     name: Unit tests (PHP ${{ matrix.php }})
@@ -22,8 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         php:
-          - "7.4"
-          - "8.0"
           - "8.1"
           - "8.2"
           - "8.3"
@@ -96,10 +94,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # MediaWiki LTS releases and current stable
-          - { mw: "1.39", php: "8.1" }   # LTS
-          - { mw: "1.41", php: "8.2" }   # previous stable
-          - { mw: "1.43", php: "8.3" }   # current stable (REL1_43)
+          # MediaWiki LTS and recent stable releases.
+          # Branch names use underscores: REL1_39, REL1_41, REL1_42.
+          - { mw: "1.39", mw_branch: "REL1_39", php: "8.1" }   # LTS
+          - { mw: "1.41", mw_branch: "REL1_41", php: "8.2" }   # previous stable
+          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }   # current stable
 
     steps:
       - uses: actions/checkout@v4
@@ -116,7 +115,7 @@ jobs:
       - name: Clone MediaWiki ${{ matrix.mw }}
         run: |
           git clone --depth 1 \
-            --branch "REL${{ matrix.mw }}" \
+            --branch "${{ matrix.mw_branch }}" \
             https://github.com/wikimedia/mediawiki.git mediawiki
 
       - name: Install MediaWiki Composer dependencies
@@ -157,13 +156,12 @@ jobs:
           echo "Extension loaded OK\n";
           PHP
 
-      - name: Check special page is registered
+      - name: Check extension classes are autoloadable
         run: |
           cd mediawiki
           php -r "
             define('MEDIAWIKI', true);
             require 'LocalSettings.php';
-            // Verify that the extension class files are autoloadable
             \$classes = [
               'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\PandocWrapper',
               'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\Processors\\\\PandocTextPostprocessor',

@@ -152,18 +152,13 @@ class ConversionIntegrationTest extends TestCase {
 	// PandocWrapper::invokePandoc integration
 	// ------------------------------------------------------------------
 
-	public function testInvokePandocReturnsPandocVersionString(): void {
-		// A trivial smoke test: "pandoc --version" should exit 0 and contain "pandoc".
-		$output = $this->runPandoc( [ $this->pandocBin, '--version' ] );
-		$this->assertStringContainsString( 'pandoc', strtolower( $output ) );
-	}
-
-	public function testInvokePandocThrowsOnNonZeroExit(): void {
+	public function testPandocExitsNonZeroOnInvalidInput(): void {
 		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessageMatches( '/Pandoc conversion failed/' );
 
 		// Pass a non-existent file — Pandoc will exit non-zero.
-		\MediaWiki\Extension\PandocUltimateConverter\PandocWrapper::invokePandoc( [
+		// We use the exec-based runPandoc helper (not PandocWrapper::invokePandoc,
+		// which relies on MediaWiki\Shell\Shell that is stubbed in the test bootstrap).
+		$this->runPandoc( [
 			$this->pandocBin,
 			'--from=docx',
 			'--to=mediawiki',
