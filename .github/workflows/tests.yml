@@ -231,10 +231,11 @@ jobs:
                   //
                   // Version-safe notes:
                   //   - \Title global alias removed in MW 1.45 → use TitleFactory service
-                  //   - UserFactory::newSystemUser() removed in MW 1.43 → use getUser()
+                  //   - UserFactory::newSystemUser() removed in MW 1.43 → use UserFactory::newFromName()
+                  //   - Maintenance::getUser() does not exist; use the 'admin' account created by install.php
                   $title   = $services->getTitleFactory()->newFromText( 'CISmokeTestPage' );
                   $page    = $services->getWikiPageFactory()->newFromTitle( $title );
-                  $user    = $this->getUser();
+                  $user    = $services->getUserFactory()->newFromName( 'admin' );
                   $updater = $page->newPageUpdater( $user );
                   $updater->setContent(
                       \MediaWiki\Revision\SlotRecord::MAIN,
