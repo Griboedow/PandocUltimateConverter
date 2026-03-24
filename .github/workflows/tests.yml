@@ -82,9 +82,11 @@ jobs:
   # ---------------------------------------------------------------------------
   # MediaWiki extension tests — run against multiple MW versions
   #
-  # These verify the extension loads correctly and the special page/API are
-  # present inside a real MediaWiki installation. They are a lightweight
-  # smoke-test layer; deeper API/UI tests can be added here over time.
+  # A proper maintenance-script smoke test bootstraps the full MW environment
+  # and asserts:
+  #   1. Extension PHP classes are autoloadable
+  #   2. The special page instantiates without errors
+  #   3. A wiki page can be created via the MediaWiki internal API
   # ---------------------------------------------------------------------------
   mediawiki:
     name: MW ${{ matrix.mw }} / PHP ${{ matrix.php }}
@@ -94,11 +96,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # MediaWiki LTS and recent stable releases.
-          # Branch names use underscores: REL1_39, REL1_41, REL1_42.
+          # MW branch names use underscores (REL1_XX).
+          # PHP version is the highest supported by each MW release.
           - { mw: "1.39", mw_branch: "REL1_39", php: "8.1" }   # LTS
-          - { mw: "1.41", mw_branch: "REL1_41", php: "8.2" }   # previous stable
-          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }   # current stable
+          - { mw: "1.41", mw_branch: "REL1_41", php: "8.2" }
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
+          - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
 
     steps:
       - uses: actions/checkout@v4
@@ -121,7 +124,8 @@ jobs:
       - name: Install MediaWiki Composer dependencies
         run: |
           cd mediawiki
-          composer install --no-interaction --prefer-dist
+          # --no-dev avoids blocked security advisories on MW's pinned phpunit
+          composer install --no-interaction --prefer-dist --no-dev
 
       - name: Move extension into MW tree
         run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
@@ -148,29 +152,76 @@ jobs:
           echo 'wfLoadExtension("PandocUltimateConverter");' >> mediawiki/LocalSettings.php
           echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> mediawiki/LocalSettings.php
 
-      - name: Verify extension loads without errors
+      - name: Smoke test — classes, special page, page creation
         run: |
-          cd mediawiki
-          php maintenance/eval.php --quiet <<'PHP'
-          require_once 'extensions/PandocUltimateConverter/vendor/autoload.php';
-          echo "Extension loaded OK\n";
-          PHP
+          export MW_INSTALL_PATH="${GITHUB_WORKSPACE}/mediawiki"
+          cat > /tmp/mw_smoke_test.php << 'PHPEOF'
+          <?php
+          /**
+           * CI smoke test for PandocUltimateConverter.
+           * Checks class autoloading, special-page instantiation, and page creation.
+           */
+          $IP = getenv( 'MW_INSTALL_PATH' );
+          if ( !$IP ) {
+              die( "MW_INSTALL_PATH not set\n" );
+          }
+          require_once "$IP/maintenance/Maintenance.php";
 
-      - name: Check extension classes are autoloadable
-        run: |
-          cd mediawiki
-          php -r "
-            define('MEDIAWIKI', true);
-            require 'LocalSettings.php';
-            \$classes = [
-              'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\PandocWrapper',
-              'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\Processors\\\\PandocTextPostprocessor',
-            ];
-            foreach (\$classes as \$c) {
-              if (!class_exists(\$c)) {
-                echo \"MISSING: \$c\n\";
-                exit(1);
+          class PandocSmokeTest extends Maintenance {
+              public function __construct() {
+                  parent::__construct();
+                  $this->addDescription( 'CI smoke test for PandocUltimateConverter' );
               }
-              echo \"OK: \$c\n\";
-            }
-          " 2>&1 | grep -v Warning || true
+
+              public function execute() {
+                  $services = $this->getServiceContainer();
+
+                  // 1. Verify extension classes are autoloadable.
+                  $classes = [
+                      'MediaWiki\Extension\PandocUltimateConverter\PandocWrapper',
+                      'MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor',
+                  ];
+                  foreach ( $classes as $cls ) {
+                      if ( !class_exists( $cls ) ) {
+                          $this->fatalError( "MISSING: $cls" );
+                      }
+                      $this->output( "OK: $cls\n" );
+                  }
+
+                  // 2. Verify the special page is registered and instantiates without errors.
+                  $spFactory = $services->getSpecialPageFactory();
+                  if ( !$spFactory->exists( 'PandocUltimateConverter' ) ) {
+                      $this->fatalError( "Special page PandocUltimateConverter not registered" );
+                  }
+                  $sp = $spFactory->getPage( 'PandocUltimateConverter' );
+                  if ( !$sp ) {
+                      $this->fatalError( "Special page failed to instantiate" );
+                  }
+                  $this->output( "SPECIAL_PAGE_OK: " . get_class( $sp ) . "\n" );
+
+                  // 3. Create a test page via the MediaWiki internal API.
+                  //    This verifies the full MW stack (DB, content model, revision store).
+                  $title   = \Title::newFromText( 'CISmokeTestPage' );
+                  $page    = $services->getWikiPageFactory()->newFromTitle( $title );
+                  $user    = $services->getUserFactory()->newSystemUser(
+                      'Maintenance script', [ 'steal' => true ]
+                  );
+                  $updater = $page->newPageUpdater( $user );
+                  $updater->setContent(
+                      \MediaWiki\Revision\SlotRecord::MAIN,
+                      \ContentHandler::makeContent( 'Page created by CI smoke test.', $title )
+                  );
+                  $updater->saveRevision(
+                      \CommentStoreComment::newUnsavedComment( 'CI smoke test' )
+                  );
+                  if ( !$updater->wasSuccessful() ) {
+                      $this->fatalError( "Failed to create test page" );
+                  }
+                  $this->output( "PAGE_CREATED\n" );
+              }
+          }
+
+          $maintClass = PandocSmokeTest::class;
+          require_once RUN_MAINTENANCE_IF_MAIN;
+          PHPEOF
+          php /tmp/mw_smoke_test.php
