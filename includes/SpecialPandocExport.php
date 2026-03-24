@@ -290,24 +290,52 @@ class SpecialPandocExport extends \SpecialPage {
 	}
 
 	/**
-	 * Scan wikitext for [[File:…]] / [[Image:…]] references, look each up in the
-	 * local file repository, and copy it into $mediaDir so Pandoc can embed it.
+	 * Scan wikitext for file links and copy the referenced files into $mediaDir
+	 * so Pandoc can embed them in the output document.
+	 *
+	 * Handles all link forms that resolve to files:
+	 *  - Standard English:  [[File:…]], [[Image:…]]
+	 *  - Media pseudo-ns:   [[Media:…]]
+	 *  - Localized aliases: [[Datei:…]], [[Файл:…]], etc.
+	 *
+	 * Rather than maintaining a hard-coded list of prefixes, the full link target
+	 * (including namespace prefix) is passed to Title::newFromText() which uses
+	 * MediaWiki's own namespace registry (including all localized names and aliases).
+	 * Any title that resolves to NS_FILE or NS_MEDIA is treated as a file reference.
 	 *
 	 * @param string $wikitext
 	 * @param string $mediaDir Absolute path to the temp media directory.
 	 */
 	private function gatherImages( string $wikitext, string $mediaDir ): void {
-		if ( !preg_match_all( '/\[\[(?:File|Image):([^\|\[\]#]+)/iu', $wikitext, $matches ) ) {
+		// Capture the full link target (everything before the first |, ]], #, or newline).
+		// We cast a wide net and let Title::newFromText() do the namespace validation.
+		if ( !preg_match_all( '/\[\[([^\|\[\]#\n]+)/u', $wikitext, $matches ) ) {
 			return;
 		}
 
-		foreach ( array_unique( $matches[1] ) as $rawName ) {
-			$rawName = trim( $rawName );
-			if ( $rawName === '' ) {
+		foreach ( array_unique( $matches[1] ) as $rawLink ) {
+			$rawLink = trim( $rawLink );
+			// Skip plain [[PageName]] links that have no namespace prefix.
+			if ( $rawLink === '' || strpos( $rawLink, ':' ) === false ) {
 				continue;
 			}
 
-			$fileTitle = \Title::newFromText( $rawName, NS_FILE );
+			$title = \Title::newFromText( $rawLink );
+			if ( $title === null ) {
+				continue;
+			}
+
+			$ns = $title->getNamespace();
+			if ( $ns !== NS_FILE && $ns !== NS_MEDIA ) {
+				continue;
+			}
+
+			// Media: links point at the same underlying files as File: links.
+			// Convert to NS_FILE so RepoGroup::findFile() can locate the file.
+			$fileTitle = $ns === NS_MEDIA
+				? \Title::makeTitleSafe( NS_FILE, $title->getDBkey() )
+				: $title;
+
 			if ( $fileTitle === null ) {
 				continue;
 			}
@@ -322,9 +350,10 @@ class SpecialPandocExport extends \SpecialPage {
 				continue;
 			}
 
-			// Pandoc looks for the image by the exact name that appears after "File:"
-			// in the wikitext.  MediaWiki stores files with underscores, so we copy
-			// the file under both the space form and the underscore form.
+			// Pandoc resolves images by the name that follows the namespace prefix in
+			// the wikitext.  Copy the file under both the space-form and the
+			// underscore-form so Pandoc can find it regardless of normalisation.
+			$rawName         = $title->getText();
 			$nameSpaces      = $rawName;
 			$nameUnderscores = str_replace( ' ', '_', $rawName );
 
