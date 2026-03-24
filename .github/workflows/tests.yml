@@ -124,8 +124,10 @@ jobs:
       - name: Install MediaWiki Composer dependencies
         run: |
           cd mediawiki
-          # --no-dev avoids blocked security advisories on MW's pinned phpunit
-          composer install --no-interaction --prefer-dist --no-dev
+          # --no-dev + --no-audit: some MW releases pin phpunit in require (not
+          # require-dev), which triggers a security-advisory block even with
+          # --no-dev.  We only need MW's autoloader/runtime, not its test tools.
+          composer install --no-interaction --prefer-dist --no-dev --no-audit
 
       - name: Move extension into MW tree
         run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
@@ -160,6 +162,9 @@ jobs:
           /**
            * CI smoke test for PandocUltimateConverter.
            * Checks class autoloading, special-page instantiation, and page creation.
+           *
+           * Compatible with MediaWiki 1.39+ (getServiceContainer() was added in 1.40,
+           * so we use MediaWikiServices::getInstance() which works across all versions).
            */
           $IP = getenv( 'MW_INSTALL_PATH' );
           if ( !$IP ) {
@@ -174,7 +179,18 @@ jobs:
               }
 
               public function execute() {
-                  $services = $this->getServiceContainer();
+                  $IP = getenv( 'MW_INSTALL_PATH' );
+
+                  // Load the extension's own composer autoloader so PSR-4 can find
+                  // classes in includes/processors/ (lowercase) on case-sensitive FS.
+                  $extAutoload = "$IP/extensions/PandocUltimateConverter/vendor/autoload.php";
+                  if ( file_exists( $extAutoload ) ) {
+                      require_once $extAutoload;
+                  }
+
+                  // Use MediaWikiServices::getInstance() — compatible with MW 1.35+.
+                  // Maintenance::getServiceContainer() was only added in MW 1.40.
+                  $services = \MediaWiki\MediaWikiServices::getInstance();
 
                   // 1. Verify extension classes are autoloadable.
                   $classes = [
