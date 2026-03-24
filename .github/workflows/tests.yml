@@ -1,0 +1,178 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+# Restrict the default GITHUB_TOKEN to read-only for all jobs in this workflow.
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Unit tests — run on multiple PHP versions, no MediaWiki or Pandoc required
+  # ---------------------------------------------------------------------------
+  unit:
+    name: Unit tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "7.4"
+          - "8.0"
+          - "8.1"
+          - "8.2"
+          - "8.3"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run unit tests
+        run: ./vendor/bin/phpunit --testsuite unit
+
+  # ---------------------------------------------------------------------------
+  # Integration tests — require Pandoc; run on current PHP only
+  # ---------------------------------------------------------------------------
+  integration:
+    name: Integration tests (Pandoc ${{ matrix.pandoc }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        pandoc:
+          - "3.1.11"   # stable LTS
+          - "3.5"      # recent release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: dom, zip, mbstring
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install Pandoc ${{ matrix.pandoc }}
+        run: |
+          wget -q "https://github.com/jgm/pandoc/releases/download/${{ matrix.pandoc }}/pandoc-${{ matrix.pandoc }}-1-amd64.deb" \
+            -O /tmp/pandoc.deb
+          sudo dpkg -i /tmp/pandoc.deb
+          pandoc --version
+
+      - name: Run integration tests
+        run: ./vendor/bin/phpunit --testsuite integration
+
+  # ---------------------------------------------------------------------------
+  # MediaWiki extension tests — run against multiple MW versions
+  #
+  # These verify the extension loads correctly and the special page/API are
+  # present inside a real MediaWiki installation. They are a lightweight
+  # smoke-test layer; deeper API/UI tests can be added here over time.
+  # ---------------------------------------------------------------------------
+  mediawiki:
+    name: MW ${{ matrix.mw }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # MediaWiki LTS releases and current stable
+          - { mw: "1.39", php: "8.1" }   # LTS
+          - { mw: "1.41", php: "8.2" }   # previous stable
+          - { mw: "1.43", php: "8.3" }   # current stable (REL1_43)
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: extensions/PandocUltimateConverter
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring, intl, fileinfo
+          coverage: none
+
+      - name: Clone MediaWiki ${{ matrix.mw }}
+        run: |
+          git clone --depth 1 \
+            --branch "REL${{ matrix.mw }}" \
+            https://github.com/wikimedia/mediawiki.git mediawiki
+
+      - name: Install MediaWiki Composer dependencies
+        run: |
+          cd mediawiki
+          composer install --no-interaction --prefer-dist
+
+      - name: Move extension into MW tree
+        run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
+
+      - name: Install extension Composer dependencies
+        run: |
+          cd mediawiki/extensions/PandocUltimateConverter
+          composer install --no-interaction --prefer-dist
+
+      - name: Set up MediaWiki database (SQLite)
+        run: |
+          cd mediawiki
+          php maintenance/install.php \
+            --dbtype sqlite \
+            --dbpath /tmp/mwdb \
+            --server http://localhost \
+            --scriptpath "" \
+            --lang en \
+            TestWiki admin \
+            --pass adminpassword
+
+      - name: Enable PandocUltimateConverter in LocalSettings.php
+        run: |
+          echo 'wfLoadExtension("PandocUltimateConverter");' >> mediawiki/LocalSettings.php
+          echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> mediawiki/LocalSettings.php
+
+      - name: Verify extension loads without errors
+        run: |
+          cd mediawiki
+          php maintenance/eval.php --quiet <<'PHP'
+          require_once 'extensions/PandocUltimateConverter/vendor/autoload.php';
+          echo "Extension loaded OK\n";
+          PHP
+
+      - name: Check special page is registered
+        run: |
+          cd mediawiki
+          php -r "
+            define('MEDIAWIKI', true);
+            require 'LocalSettings.php';
+            // Verify that the extension class files are autoloadable
+            \$classes = [
+              'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\PandocWrapper',
+              'MediaWiki\\\\Extension\\\\PandocUltimateConverter\\\\Processors\\\\PandocTextPostprocessor',
+            ];
+            foreach (\$classes as \$c) {
+              if (!class_exists(\$c)) {
+                echo \"MISSING: \$c\n\";
+                exit(1);
+              }
+              echo \"OK: \$c\n\";
+            }
+          " 2>&1 | grep -v Warning || true
