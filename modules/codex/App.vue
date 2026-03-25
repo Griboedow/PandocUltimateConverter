@@ -38,12 +38,12 @@
 			class="mw-pandoc-codex-app__actions"
 		>
 			<div class="mw-pandoc-codex-app__actions-left">
-				<cdx-toggle-switch
+				<cdx-checkbox
 					v-model="store.overwriteExisting"
 					:disabled="store.isConverting"
 				>
 					{{ $i18n( 'pandocultimateconverter-codex-overwrite-toggle' ).text() }}
-				</cdx-toggle-switch>
+				</cdx-checkbox>
 				<cdx-toggle-switch
 					v-if="store.LLM_AVAILABLE"
 					v-model="store.llmPolish"
@@ -89,7 +89,7 @@
 
 <script>
 const { defineComponent, ref, computed } = require( 'vue' );
-const { CdxButton, CdxMessage, CdxToggleSwitch } = require( '@wikimedia/codex' );
+const { CdxButton, CdxMessage, CdxCheckbox, CdxToggleSwitch } = require( '@wikimedia/codex' );
 const useConverterStore = require( './stores/converter.js' );
 const SourceSelector = require( './components/SourceSelector.vue' );
 const ConversionQueue = require( './components/ConversionQueue.vue' );
@@ -100,6 +100,7 @@ module.exports = exports = defineComponent( {
 	components: {
 		CdxButton,
 		CdxMessage,
+		CdxCheckbox,
 		CdxToggleSwitch,
 		SourceSelector,
 		ConversionQueue

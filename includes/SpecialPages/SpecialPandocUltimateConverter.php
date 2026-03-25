@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MediaWiki\Extension\PandocUltimateConverter;
+namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
@@ -161,6 +163,13 @@ class SpecialPandocUltimateConverter extends \SpecialPage
             $fileName = (string)( $formData['UploadedFileName'] ?? '' );
             try {
                 $this->convertFileToPage( $fileName, $pageName );
+            } catch ( \Exception $e ) {
+                $this->getOutput()->showErrorPage(
+                    'pandocultimateconverter-error-title',
+                    'pandocultimateconverter-error-conversion',
+                    [ $e->getMessage() ]
+                );
+                return;
             } finally {
                 if ( $fileName !== '' ) {
                     $this->deleteFile( $fileName );
@@ -171,7 +180,16 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         }
 
         if ( $sourceType === 'url' ) {
-            $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
+            try {
+                $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
+            } catch ( \Exception $e ) {
+                $this->getOutput()->showErrorPage(
+                    'pandocultimateconverter-error-title',
+                    'pandocultimateconverter-error-conversion',
+                    [ $e->getMessage() ]
+                );
+                return;
+            }
             $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
         }
     }

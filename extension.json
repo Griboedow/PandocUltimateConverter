@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -10,9 +10,17 @@
   "AutoloadNamespaces": {
     "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
   },
+  "HookHandlers": {
+    "PandocHooks": {
+      "class": "MediaWiki\\Extension\\PandocUltimateConverter\\HookHandler"
+    }
+  },
+  "Hooks": {
+    "SkinTemplateNavigation::Universal": "PandocHooks"
+  },
   "APIModules": {
-    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert",
-    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocUrlTitle"
+    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
+    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
@@ -23,7 +31,8 @@
     ]
   },
   "SpecialPages": {
-    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter"
+    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocUltimateConverter",
+    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocExport"
   },
   "ResourceModules": {
     "ext.PandocUltimateConverter": {
@@ -103,6 +112,34 @@
         "pandocultimateconverter-codex-stop-requested",
         "pandocultimateconverter-codex-llm-polish-toggle"
       ]
+    },
+    "ext.PandocUltimateConverter.export": {
+      "packageFiles": [
+        "export/init.js",
+        "export/App.vue",
+        "export/components/PageSearchInput.vue"
+      ],
+      "dependencies": [
+        "vue",
+        "@wikimedia/codex",
+        "mediawiki.api",
+        "mediawiki.jqueryMsg"
+      ],
+      "messages": [
+        "pandocultimateconverter-export-description",
+        "pandocultimateconverter-export-items-label",
+        "pandocultimateconverter-export-add-item",
+        "pandocultimateconverter-export-page-placeholder",
+        "pandocultimateconverter-export-format-label",
+        "pandocultimateconverter-export-remove-page",
+        "pandocultimateconverter-export-button",
+        "pandocultimateconverter-export-preparing",
+        "pandocultimateconverter-export-error-no-pages",
+        "pandocultimateconverter-export-error-invalid-format",
+        "pandocultimateconverter-export-error-failed",
+        "pandocultimateconverter-export-separate-files",
+        "pandocultimateconverter-export-drag-hint"
+      ]
     }
   },
   "ResourceFileModulePaths": {
@@ -150,6 +187,30 @@
       "value": null,
       "path": false,
       "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
+      "public": true
+    },
+    "PandocUltimateConverter_LibreOfficeExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to the LibreOffice executable (soffice or libreoffice). No need to specify if LibreOffice is in PATH. Required for .doc import support.",
+      "public": true
+    },
+    "PandocUltimateConverter_TesseractExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to the tesseract OCR executable. No need to specify if tesseract is in PATH. Required for scanned PDF (OCR) support.",
+      "public": true
+    },
+    "PandocUltimateConverter_OcrLanguage": {
+      "value": "eng",
+      "path": false,
+      "description": "Tesseract language code(s) used for OCR of scanned PDFs. Use '+' to combine multiple languages, e.g. 'eng+deu'. Defaults to 'eng'.",
+      "public": true
+    },
+    "PandocUltimateConverter_ShowExportInPageTools": {
+      "value": true,
+      "path": false,
+      "description": "When true, show an 'Export' action in the page tools menu (Actions tab) on content pages.",
       "public": true
     },
     "PandocUltimateConverter_LlmProvider": {

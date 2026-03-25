@@ -28,6 +28,9 @@
     "pandocultimateconverter-error-mustbeloggedin": "Only logged in users can upload files on this wiki. Please login to proceed.",
     "pandocultimateconverter-error-generic": "Failed to upload file: $1",
 
+    "pandocultimateconverter-error-title": "Conversion error",
+    "pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
+
     "apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
     "apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
     "apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
@@ -72,5 +75,23 @@
     "pandocultimateconverter-codex-convert-one": "Convert this item",
 	"pandocultimateconverter-codex-remove-item": "Remove",
 	"pandocultimateconverter-codex-stop": "Stop",
-	"pandocultimateconverter-codex-stop-requested": "Stopping…"
+	"pandocultimateconverter-codex-stop-requested": "Stopping…",
+
+	"pandocexport": "Pandoc Export",
+	"pandocexport-summary": "Export wiki pages to external document formats (DOCX, ODT, EPUB, and more) using Pandoc.",
+	"pandocultimateconverter-export-description": "Add pages or categories to export, choose a format, then click Export. Categories will include all their pages and subcategories.",
+	"pandocultimateconverter-export-items-label": "Pages and categories to export",
+	"pandocultimateconverter-export-add-item": "Add another item",
+	"pandocultimateconverter-export-page-placeholder": "Search for a page or category\u2026",
+	"pandocultimateconverter-export-format-label": "Export format",
+	"pandocultimateconverter-export-remove-page": "Remove",
+	"pandocultimateconverter-export-button": "Export",
+	"pandocultimateconverter-export-preparing": "Preparing download…",
+	"pandocultimateconverter-export-error-no-pages": "Please add at least one page or category to export.",
+	"pandocultimateconverter-export-error-invalid-format": "The requested export format is not supported.",
+	"pandocultimateconverter-export-error-failed": "Export failed: $1",
+	"pandocultimateconverter-export-separate-files": "Download separate file for each page (ZIP archive)",
+	"pandocultimateconverter-export-drag-hint": "Drag to reorder",
+
+	"pandocultimateconverter-toolbox-export": "Export"
 }

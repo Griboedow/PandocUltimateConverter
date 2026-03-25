@@ -27,13 +27,11 @@
 	"pandocultimateconverter-error-uploaddisabled": "Error message shown when file uploads are disabled on the wiki. The PHP snippet '$wgEnableUploads = true;' is a code literal and must not be translated.",
 	"pandocultimateconverter-error-mustbeloggedin": "Error message shown when an anonymous user tries to upload a file.",
 	"pandocultimateconverter-error-generic": "Generic fallback error message when a file upload fails. $1 is the error detail returned by the server.",
-
 	"apierror-pandocultimateconverter-nosource": "API error shown when the caller omits both 'filename' and 'url' parameters.",
 	"apierror-pandocultimateconverter-multiplesource": "API error shown when the caller supplies both 'filename' and 'url' parameters simultaneously.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "API error shown when the provided URL uses a scheme other than http or https.",
 	"apierror-pandocultimateconverter-pageexists": "API error shown when the target page already exists and forceoverwrite was not set.",
 	"apierror-pandocultimateconverter-conversionfailed": "API error shown when Pandoc fails to convert the source. $1 is the error message from Pandoc.",
-
 	"apihelp-pandocconvert-summary": "One-line summary of the pandocconvert API module, shown in API help pages.",
 	"apihelp-pandocconvert-param-pagename": "Description of the 'pagename' parameter shown in API help.",
 	"apihelp-pandocconvert-param-filename": "Description of the 'filename' parameter shown in API help.",
@@ -41,7 +39,6 @@
 	"apihelp-pandocconvert-param-forceoverwrite": "Description of the 'forceoverwrite' parameter shown in API help.",
 	"apihelp-pandocconvert-example-file": "Label for the file-based example in the API help page.",
 	"apihelp-pandocconvert-example-url": "Label for the URL-based example in the API help page.",
-
 	"pandocultimateconverter-codex-description": "Introductory description shown at the top of the Codex-based special page.",
 	"pandocultimateconverter-codex-switch-classic": "Label for the link that switches from the Codex UI to the classic upload form.",
 	"pandocultimateconverter-codex-tab-files": "Label for the Files tab in the Codex interface.",
@@ -71,5 +68,23 @@
 	"pandocultimateconverter-codex-convert-one": "Tooltip or label for the button that converts a single queued item.",
 	"pandocultimateconverter-codex-remove-item": "Label for the button that removes a single item from the queue.",
 	"pandocultimateconverter-codex-stop": "Label for the button that stops mass conversion after the current item finishes.",
-	"pandocultimateconverter-codex-stop-requested": "Label shown on the stop button after it has been clicked, while waiting for the current item to finish."
+	"pandocultimateconverter-codex-stop-requested": "Label shown on the stop button after it has been clicked, while waiting for the current item to finish.",
+	"pandocexport": "Name of the Pandoc Export special page, shown as the page title.",
+	"pandocexport-summary": "Short description of the Pandoc Export special page, shown in the list of special pages.",
+	"pandocultimateconverter-export-description": "Introductory description shown at the top of the export special page.",
+	"pandocultimateconverter-export-items-label": "Label for the section where the user selects which pages and categories to export.",
+	"pandocultimateconverter-export-add-item": "Label for the button that adds another page or category input to the export form.",
+	"pandocultimateconverter-export-separate-files": "Label for the checkbox that makes each page export to its own file, bundled in a ZIP archive.",
+	"pandocultimateconverter-export-drag-hint": "Tooltip shown on the drag handle icon used to reorder pages in the export list.",
+	"pandocultimateconverter-export-pages-label": "Label for the section where the user selects which pages to export.",
+	"pandocultimateconverter-export-add-page": "Label for the button that adds another page name input to the export form.",
+	"pandocultimateconverter-export-page-placeholder": "Placeholder text inside a page name input field on the export form.",
+	"pandocultimateconverter-export-format-label": "Label for the format selector dropdown on the export form.",
+	"pandocultimateconverter-export-remove-page": "Accessible label for the button that removes a page from the export list.",
+	"pandocultimateconverter-export-button": "Label for the main Export submit button.",
+	"pandocultimateconverter-export-preparing": "Text shown on the Export button while the file is being prepared for download.",
+	"pandocultimateconverter-export-error-no-pages": "Error message shown when the user clicks Export without entering any page names.",
+	"pandocultimateconverter-export-error-invalid-format": "Error message shown when an unsupported export format is requested.",
+	"pandocultimateconverter-export-error-failed": "Error message shown when the server-side Pandoc export fails. $1 is the error detail.",
+	"pandocultimateconverter-toolbox-export": "Label for the Export link shown in the page toolbox (sidebar) that navigates to the Pandoc Export special page."
 }
