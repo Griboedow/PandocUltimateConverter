@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Příprava stahování…",
 	"pandocultimateconverter-export-error-no-pages": "Přidejte prosím alespoň jednu stránku k exportu.",
 	"pandocultimateconverter-export-error-invalid-format": "Požadovaný formát exportu není podporován.",
-	"pandocultimateconverter-export-error-failed": "Export se nezdařil: $1"
+	"pandocultimateconverter-export-error-failed": "Export se nezdařil: $1",
+	"pandocultimateconverter-toolbox-export": "Exportovat"
 }

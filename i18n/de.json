@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Download wird vorbereitet…",
 	"pandocultimateconverter-export-error-no-pages": "Bitte füge mindestens eine Seite zum Exportieren hinzu.",
 	"pandocultimateconverter-export-error-invalid-format": "Das angeforderte Exportformat wird nicht unterstützt.",
-	"pandocultimateconverter-export-error-failed": "Export fehlgeschlagen: $1"
+	"pandocultimateconverter-export-error-failed": "Export fehlgeschlagen: $1",
+	"pandocultimateconverter-toolbox-export": "Exportieren"
 }

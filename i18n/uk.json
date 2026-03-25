@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Підготовка завантаження…",
 	"pandocultimateconverter-export-error-no-pages": "Будь ласка, додайте принаймні одну сторінку для експорту.",
 	"pandocultimateconverter-export-error-invalid-format": "Запитаний формат експорту не підтримується.",
-	"pandocultimateconverter-export-error-failed": "Помилка експорту: $1"
+	"pandocultimateconverter-export-error-failed": "Помилка експорту: $1",
+	"pandocultimateconverter-toolbox-export": "Експорт"
 }

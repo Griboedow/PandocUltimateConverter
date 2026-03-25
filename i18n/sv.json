@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Förbereder nedladdning…",
 	"pandocultimateconverter-export-error-no-pages": "Lägg till minst en sida att exportera.",
 	"pandocultimateconverter-export-error-invalid-format": "Det begärda exportformatet stöds inte.",
-	"pandocultimateconverter-export-error-failed": "Export misslyckades: $1"
+	"pandocultimateconverter-export-error-failed": "Export misslyckades: $1",
+	"pandocultimateconverter-toolbox-export": "Exportera"
 }

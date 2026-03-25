@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Letöltés előkészítése…",
 	"pandocultimateconverter-export-error-no-pages": "Kérjük, adjon hozzá legalább egy exportálandó oldalt.",
 	"pandocultimateconverter-export-error-invalid-format": "A kért exportformátum nem támogatott.",
-	"pandocultimateconverter-export-error-failed": "Az exportálás meghiúsult: $1"
+	"pandocultimateconverter-export-error-failed": "Az exportálás meghiúsult: $1",
+	"pandocultimateconverter-toolbox-export": "Exportálás"
 }
