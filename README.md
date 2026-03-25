@@ -50,14 +50,6 @@ What happens during conversion:
 
 A legacy (non-Codex) form is available at `Special:PandocUltimateConverter?codex=0`.
 
-### Demos
-
-**File import:**
-![Pandoc-demo-file](https://github.com/user-attachments/assets/4339883c-913e-422c-b859-d8df55c80637)
-
-**URL import:**
-![Pandoc-demo-url](https://github.com/user-attachments/assets/928c1822-8913-4071-b5e1-9fdfa161575d)
-
 ## Export (Special:PandocExport)
 
 Export one or more wiki pages to an external document format.
@@ -72,6 +64,18 @@ Features:
 - "Separate files" option bundles each page as an individual file in a ZIP archive
 - Images referenced in wikitext are embedded into the output document
 - PDF export uses a Pandoc → DOCX → LibreOffice pipeline (no LaTeX required)
+
+### Demos
+
+**File import:**
+![Pandoc-demo-file](https://github.com/user-attachments/assets/4339883c-913e-422c-b859-d8df55c80637)
+
+**URL import:**
+![Pandoc-demo-url](https://github.com/user-attachments/assets/928c1822-8913-4071-b5e1-9fdfa161575d)
+
+**Export to file**
+![Pandoc-demo-export](https://github.com/user-attachments/assets/d06859b3-2851-41be-afb1-04724115d01f)
+
 
 ## Supported import formats
 
