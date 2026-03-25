@@ -157,22 +157,45 @@ module.exports = exports = defineComponent( {
 			isExporting.value = true;
 			errorMsg.value = '';
 
-			// Use a hidden iframe so the current page is not navigated away from.
-			// The browser triggers the file download because the server responds
-			// with Content-Disposition: attachment.  We append first, then set src,
-			// to ensure the element is in the DOM before navigation begins.
-			const iframe = document.createElement( 'iframe' );
-			iframe.style.display = 'none';
-			document.body.appendChild( iframe );
-			iframe.src = url;
-
-			// Re-enable the button after a fixed delay.  We have no reliable cross-browser
-			// way to detect when the download has finished; the delay ensures the button
-			// isn't re-enabled before the server has had a chance to begin streaming.
-			setTimeout( () => {
+			// Use fetch so we can detect server-side errors (e.g. Pandoc failure)
+			// and surface them to the user instead of silently swallowing them
+			// inside a hidden iframe.
+			fetch( url ).then( ( response ) => {
+				const contentType = response.headers.get( 'Content-Type' ) || '';
+				if ( !response.ok || contentType.indexOf( 'application/json' ) !== -1 ) {
+					return response.json().then( ( data ) => {
+						throw new Error( data.error || ( 'Export failed (HTTP ' + response.status + ')' ) );
+					} ).catch( ( jsonErr ) => {
+						if ( jsonErr instanceof SyntaxError ) {
+							throw new Error( 'Export failed (HTTP ' + response.status + ')' );
+						}
+						throw jsonErr;
+					} );
+				}
+				return response.blob().then( ( blob ) => {
+					// Determine filename from Content-Disposition header, fall back to generic.
+					let filename = 'export';
+					const cd = response.headers.get( 'Content-Disposition' ) || '';
+					const match = cd.match( /filename\*?=(?:UTF-8'')?["']?([^"';\s]+)/i );
+					if ( match ) {
+						filename = decodeURIComponent( match[ 1 ] );
+					}
+					// Trigger browser download via object URL.
+					const a = document.createElement( 'a' );
+					a.href = URL.createObjectURL( blob );
+					a.download = filename;
+					document.body.appendChild( a );
+					a.click();
+					setTimeout( () => {
+						URL.revokeObjectURL( a.href );
+						document.body.removeChild( a );
+					}, 100 );
+				} );
+			} ).catch( ( err ) => {
+				errorMsg.value = err.message || String( err );
+			} ).finally( () => {
 				isExporting.value = false;
-				document.body.removeChild( iframe );
-			}, EXPORT_LOADING_DURATION_MS );
+			} );
 		}
 
 		return {

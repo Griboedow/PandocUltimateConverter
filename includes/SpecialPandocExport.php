@@ -130,7 +130,8 @@ class SpecialPandocExport extends \SpecialPage {
 	private function handleExportRequest( \WebRequest $request, \OutputPage $output ): void {
 		$format = $request->getVal( 'format', 'docx' );
 		if ( !array_key_exists( $format, self::SUPPORTED_FORMATS ) ) {
-			$output->addWikiTextAsInterface(
+			$this->sendJsonError(
+				$output,
 				wfMessage( 'pandocultimateconverter-export-error-invalid-format' )->text()
 			);
 			return;
@@ -145,7 +146,8 @@ class SpecialPandocExport extends \SpecialPage {
 		) );
 
 		if ( $pages === [] ) {
-			$output->addWikiTextAsInterface(
+			$this->sendJsonError(
+				$output,
 				wfMessage( 'pandocultimateconverter-export-error-no-pages' )->text()
 			);
 			return;
@@ -160,13 +162,26 @@ class SpecialPandocExport extends \SpecialPage {
 		try {
 			$outputFile = $this->doExport( $pages, $format );
 		} catch ( \RuntimeException $e ) {
-			$output->addWikiTextAsInterface(
-				wfMessage( 'pandocultimateconverter-export-error-failed', $e->getMessage() )->text()
-			);
+			$this->sendJsonError( $output, $e->getMessage() );
 			return;
 		}
 
 		$this->streamDownload( $outputFile, $downloadName, $formatInfo['mime'] );
+	}
+
+	/**
+	 * Send a JSON error response so the fetch()-based JS client can parse it cleanly,
+	 * instead of returning a full MediaWiki HTML page.
+	 */
+	private function sendJsonError( \OutputPage $output, string $message ): void {
+		$output->disable();
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
+		http_response_code( 500 );
+		header( 'Content-Type: application/json; charset=UTF-8' );
+		echo json_encode( [ 'error' => $message ], JSON_UNESCAPED_UNICODE );
+		exit;
 	}
 
 	// -----------------------------------------------------------------------
@@ -293,10 +308,16 @@ class SpecialPandocExport extends \SpecialPage {
 		$inputFile = $workDir . DIRECTORY_SEPARATOR . 'input.mediawiki';
 		file_put_contents( $inputFile, $combinedWikitext );
 
+		$pandocPath = $this->config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
+
+		// PDF: Pandoc needs a LaTeX engine for --to=pdf which is often absent.
+		// Use a two-step pipeline instead: mediawiki → docx (Pandoc) → pdf (LibreOffice).
+		if ( $format === 'pdf' ) {
+			return $this->exportPdfViaLibreOffice( $pages, $inputFile, $mediaDir, $workDir, $pandocPath );
+		}
+
 		$formatInfo = self::SUPPORTED_FORMATS[$format];
 		$outputFile = $workDir . DIRECTORY_SEPARATOR . 'output.' . $formatInfo['ext'];
-
-		$pandocPath = $this->config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
 
 		$cmd = [
 			$pandocPath,
@@ -322,6 +343,117 @@ class SpecialPandocExport extends \SpecialPage {
 		PandocWrapper::invokePandoc( $cmd );
 
 		return $outputFile;
+	}
+
+	/**
+	 * Export to PDF using a two-step pipeline: mediawiki → docx (Pandoc) → pdf (LibreOffice).
+	 *
+	 * This avoids requiring a LaTeX engine, which is rarely available on Windows.
+	 *
+	 * @param string[] $pages
+	 * @param string   $inputFile  Path to the mediawiki input file.
+	 * @param string   $mediaDir   Path to the media directory.
+	 * @param string   $workDir    Working temporary directory.
+	 * @param string   $pandocPath Path to the Pandoc executable.
+	 * @return string Absolute path to the generated PDF file.
+	 * @throws \RuntimeException On conversion failure.
+	 */
+	private function exportPdfViaLibreOffice(
+		array $pages, string $inputFile, string $mediaDir,
+		string $workDir, string $pandocPath
+	): string {
+		// Step 1: mediawiki → docx via Pandoc
+		$docxFile = $workDir . DIRECTORY_SEPARATOR . 'output.docx';
+		$cmd = [
+			$pandocPath,
+			'--from=mediawiki',
+			'--to=docx',
+			'--resource-path=' . $mediaDir,
+			'--output=' . $docxFile,
+			'--standalone',
+		];
+
+		if ( count( $pages ) === 1 ) {
+			$cmd[] = '--metadata';
+			$cmd[] = 'title:' . $pages[0];
+		} else {
+			$cmd[] = '--metadata';
+			$cmd[] = 'title:Export';
+		}
+
+		$cmd[] = $inputFile;
+		PandocWrapper::invokePandoc( $cmd );
+
+		if ( !file_exists( $docxFile ) ) {
+			throw new \RuntimeException(
+				'Pandoc did not produce the intermediate DOCX file: ' . $docxFile
+			);
+		}
+
+		// Step 2: docx → pdf via LibreOffice
+		$libreofficePath = $this->config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
+			?? 'libreoffice';
+
+		$loCmd = [
+			$libreofficePath,
+			'-env:UserInstallation=file:///' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
+			'--headless',
+			'--convert-to', 'pdf',
+			'--outdir', $workDir,
+			$docxFile,
+		];
+
+		$loProfileDir = $workDir . DIRECTORY_SEPARATOR . '.lo_profile';
+		if ( !is_dir( $loProfileDir ) ) {
+			mkdir( $loProfileDir, 0755, true );
+		}
+
+		wfDebugLog( 'PandocUltimateConverter', 'exportPdfViaLibreOffice: running ' . implode( ' ', $loCmd ) );
+
+		// Pass through environment so LibreOffice gets TEMP, PATH, etc.
+		$envArr = getenv();
+		$result = \MediaWiki\Shell\Shell::command( $loCmd )
+			->includeStderr()
+			->environment( is_array( $envArr ) ? $envArr : [] )
+			->execute();
+
+		wfDebugLog( 'PandocUltimateConverter',
+			'exportPdfViaLibreOffice: exit=' . $result->getExitCode()
+			. ' stdout=' . $result->getStdout()
+		);
+
+		// LibreOffice places the output file in --outdir with the same base name
+		// but a .pdf extension. It may exit non-zero (e.g. crash during cleanup)
+		// yet still produce the file, so check for the file first.
+		$pdfFile = $workDir . DIRECTORY_SEPARATOR . 'output.pdf';
+
+		if ( !file_exists( $pdfFile ) ) {
+			// Scan for any .pdf in workDir — LibreOffice might use a slightly different name
+			$foundPdf = null;
+			foreach ( scandir( $workDir ) as $entry ) {
+				if ( strtolower( pathinfo( $entry, PATHINFO_EXTENSION ) ) === 'pdf' ) {
+					$foundPdf = $workDir . DIRECTORY_SEPARATOR . $entry;
+					break;
+				}
+			}
+			if ( $foundPdf !== null ) {
+				$pdfFile = $foundPdf;
+			}
+		}
+
+		if ( !file_exists( $pdfFile ) ) {
+			// List what LibreOffice actually produced for debugging
+			$files = implode( ', ', array_diff( scandir( $workDir ), [ '.', '..' ] ) );
+			$output = trim( $result->getStdout() );
+			$detail = $output !== '' ? $output : 'No output from LibreOffice';
+			throw new \RuntimeException(
+				'LibreOffice docx→pdf conversion failed (exit '
+				. $result->getExitCode() . '): ' . $detail
+				. ' | Files in workDir: ' . $files
+			);
+		}
+
+		return $pdfFile;
 	}
 
 	// -----------------------------------------------------------------------
