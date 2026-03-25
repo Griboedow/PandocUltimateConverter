@@ -32,8 +32,18 @@ class DOCPreprocessor {
 	 * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
 	 */
 	public function convertToDocx( string $docFilePath, string $outDir ): string {
+		// LibreOffice needs a writable user profile. Under Apache, environment
+		// variables like HOME/USERPROFILE are not passed through, so we
+		// point it at a temp directory via -env:UserInstallation.
+		$profileDir = $outDir . DIRECTORY_SEPARATOR . '.lo_profile';
+		if ( !is_dir( $profileDir ) ) {
+			mkdir( $profileDir, 0755, true );
+		}
+		$profileUrl = 'file:///' . str_replace( '\\', '/', $profileDir );
+
 		$cmd = [
 			$this->libreofficePath,
+			'-env:UserInstallation=' . $profileUrl,
 			'--headless',
 			'--convert-to', 'docx',
 			'--outdir', $outDir,
@@ -47,6 +57,7 @@ class DOCPreprocessor {
 
 		$result = Shell::command( $cmd )
 			->includeStderr()
+			->environment( self::getLibreOfficeEnv() )
 			->execute();
 
 		$baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
@@ -75,5 +86,17 @@ class DOCPreprocessor {
 		}
 
 		return $docxPath;
+	}
+
+	/**
+	 * Build an environment array suitable for running LibreOffice under Apache.
+	 * Under non-CLI SAPIs the parent environment is mostly empty, so we pass
+	 * through the current process env to ensure PATH, TEMP, etc. are available.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function getLibreOfficeEnv(): array {
+		$env = getenv();
+		return is_array( $env ) ? $env : [];
 	}
 }

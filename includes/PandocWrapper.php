@@ -277,8 +277,15 @@ class PandocWrapper
                 continue;
             }
 
-            $extension = pathinfo( $file, PATHINFO_EXTENSION );
-            if ( in_array( strtolower( $extension ), array_map( 'strtolower', $this->mediaFilesExtensionsToSkip ) ) ) {
+            $extension = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
+
+            // Always skip LibreOffice/ODF internal files that Pandoc may extract.
+            static $internalExtensions = [ 'xcu', 'rels', 'xml', 'rdf' ];
+            if ( in_array( $extension, $internalExtensions, true ) ) {
+                continue;
+            }
+
+            if ( in_array( $extension, array_map( 'strtolower', $this->mediaFilesExtensionsToSkip ), true ) ) {
                 continue;
             }
 
@@ -308,6 +315,12 @@ class PandocWrapper
         if ( $dupes ) {
             // Reuse existing identical file instead of uploading a duplicate
             return $dupes[0]->getName();
+        }
+
+        // If a file with the same title already exists (e.g. from a previous
+        // import attempt), reuse it to avoid archive-path collisions.
+        if ( $image->exists() ) {
+            return $filePageName;
         }
 
         $archive = $image->publish( $file, 0, [] );
