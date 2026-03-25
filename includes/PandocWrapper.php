@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor;
@@ -125,7 +126,8 @@ class PandocWrapper
         // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
         if ( $isDoc ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .doc to .docx via LibreOffice for $source" );
-            $source = $this->convertDocToDocx( $source, $mediaFolder );
+            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
+            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
             $isDocx = true;
             $format = 'docx';
         }
@@ -291,40 +293,6 @@ class PandocWrapper
         }
 
         return $filePageName;
-    }
-
-    /**
-     * Convert a legacy .doc file to .docx using LibreOffice's headless converter.
-     *
-     * @param string $docFilePath  Absolute path to the source .doc file.
-     * @param string $outDir       Directory where the resulting .docx will be written.
-     * @return string Absolute path to the converted .docx file.
-     * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
-     */
-    private function convertDocToDocx( string $docFilePath, string $outDir ): string
-    {
-        $cmd = [
-            $this->libreofficeExecutablePath,
-            '--headless',
-            '--convert-to', 'docx',
-            '--outdir', $outDir,
-            $docFilePath,
-        ];
-
-        wfDebugLog( 'PandocUltimateConverter', 'convertDocToDocx: running ' . implode( ' ', $cmd ) );
-
-        $result = Shell::command( $cmd )->includeStderr()->execute();
-        if ( $result->getExitCode() !== 0 ) {
-            throw new \RuntimeException( 'LibreOffice .doc→.docx conversion failed: ' . $result->getStdout() );
-        }
-
-        $baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
-        $docxPath = $outDir . DIRECTORY_SEPARATOR . $baseName . '.docx';
-        if ( !file_exists( $docxPath ) ) {
-            throw new \RuntimeException( 'LibreOffice conversion did not produce expected file: ' . $docxPath );
-        }
-
-        return $docxPath;
     }
 
     /**

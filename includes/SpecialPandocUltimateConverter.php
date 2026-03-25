@@ -159,6 +159,13 @@ class SpecialPandocUltimateConverter extends \SpecialPage
             $fileName = (string)( $formData['UploadedFileName'] ?? '' );
             try {
                 $this->convertFileToPage( $fileName, $pageName );
+            } catch ( \Exception $e ) {
+                $this->getOutput()->showErrorPage(
+                    'pandocultimateconverter-error-title',
+                    'pandocultimateconverter-error-conversion',
+                    [ $e->getMessage() ]
+                );
+                return;
             } finally {
                 if ( $fileName !== '' ) {
                     $this->deleteFile( $fileName );
@@ -169,7 +176,16 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         }
 
         if ( $sourceType === 'url' ) {
-            $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
+            try {
+                $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
+            } catch ( \Exception $e ) {
+                $this->getOutput()->showErrorPage(
+                    'pandocultimateconverter-error-title',
+                    'pandocultimateconverter-error-conversion',
+                    [ $e->getMessage() ]
+                );
+                return;
+            }
             $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
         }
     }
