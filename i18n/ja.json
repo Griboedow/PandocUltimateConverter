@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "エクスポートに失敗しました: $1",
 	"pandocultimateconverter-export-drag-hint": "ドラッグして並べ替え",
 	"pandocultimateconverter-toolbox-export": "エクスポート",
-
 	"confluencemigration": "Confluenceマイグレーション",
 	"confluencemigration-summary": "ConfluenceスペースのすべてのページをこのWikiに移行します。",
 	"confluencemigration-desc": "ConfluenceのURL、スペースキー、認証情報を入力して、ConfluenceスペースのすべてのページをこのWikiに一括移行します。Confluence CloudとConfluence Serverの両方をサポートしています。移行はバックグラウンドジョブとして実行され、完了すると通知が届きます。",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "https://で始まる有効なConfluence URLを入力してください。",
 	"confluencemigration-error-empty-spacekey": "Confluenceのスペースキーを入力してください。",
 	"confluencemigration-error-empty-credentials": "メールアドレス/ユーザー名とAPIトークン/パスワードを入力してください。",
-	"confluencemigration-notify-done": "スペース $1 のConfluence移行が完了しました：$2 ページが移行されました。"
+	"confluencemigration-notify-done": "スペース $1 のConfluence移行が完了しました：$2 ページが移行されました。",
+	"confluencemigration-submitting": "移行を開始中…",
+	"apierror-pandocconfluencemigrate-disabled": "このWikiではConfluence移行機能が無効になっています。",
+	"apierror-pandocconfluencemigrate-invalidurl": "https://で始まる有効なConfluence URLを入力してください。",
+	"apihelp-pandocconfluencemigrate-summary": "ConfluenceスペースのすべてのページをこのWikiにインポートするバックグラウンドジョブをキューに追加します。"
 }

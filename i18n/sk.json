@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Export zlyhal: $1",
 	"pandocultimateconverter-export-drag-hint": "Potiahnutím zmeníte poradie",
 	"pandocultimateconverter-toolbox-export": "Exportovať",
-
 	"confluencemigration": "Migrácia Confluence",
 	"confluencemigration-summary": "Migrujte všetky stránky z priestoru Confluence do tejto wiki.",
 	"confluencemigration-desc": "Zadajte URL adresu Confluence, kľúč priestoru a prihlasovacie údaje pre migráciu všetkých stránok do tejto wiki. Podporovaný je Confluence Cloud aj Confluence Server. Úloha beží na pozadí; po dokončení dostanete upozornenie.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Zadajte platnú URL adresu Confluence začínajúcu https://.",
 	"confluencemigration-error-empty-spacekey": "Zadajte kľúč priestoru Confluence.",
 	"confluencemigration-error-empty-credentials": "Zadajte svoj e-mail/používateľské meno a API token/heslo.",
-	"confluencemigration-notify-done": "Migrácia Confluence priestoru $1 je dokončená: migrovaných $2 {{PLURAL:$2|stránka|stránky|stránok}}."
+	"confluencemigration-notify-done": "Migrácia Confluence priestoru $1 je dokončená: migrovaných $2 {{PLURAL:$2|stránka|stránky|stránok}}.",
+	"confluencemigration-submitting": "Spúšťanie migrácie…",
+	"apierror-pandocconfluencemigrate-disabled": "Funkcia migrácie Confluence je na tejto wiki zakázaná.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Zadajte platnú URL adresu Confluence začínajúcu https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Zaradí do frontu úlohu na pozadí, ktorá importuje všetky stránky z priestoru Confluence do tejto wiki."
 }

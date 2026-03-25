@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Ошибка экспорта: $1",
 	"pandocultimateconverter-export-drag-hint": "Перетащите для изменения порядка",
 	"pandocultimateconverter-toolbox-export": "Экспорт",
-
 	"confluencemigration": "Миграция Confluence",
 	"confluencemigration-summary": "Миграция всех страниц из пространства Confluence в эту вики.",
 	"confluencemigration-desc": "Введите URL Confluence, ключ пространства и учётные данные для переноса всех страниц в эту вики. Поддерживаются Confluence Cloud и Confluence Server. Задание выполняется в фоновом режиме; по завершении вы получите уведомление.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Введите корректный URL Confluence, начинающийся с https://.",
 	"confluencemigration-error-empty-spacekey": "Введите ключ пространства Confluence.",
 	"confluencemigration-error-empty-credentials": "Введите вашу электронную почту/имя пользователя и API-токен/пароль.",
-	"confluencemigration-notify-done": "Миграция Confluence пространства $1 завершена: перенесено $2 {{PLURAL:$2|страница|страницы|страниц}}."
+	"confluencemigration-notify-done": "Миграция Confluence пространства $1 завершена: перенесено $2 {{PLURAL:$2|страница|страницы|страниц}}.",
+	"confluencemigration-submitting": "Запуск миграции…",
+	"apierror-pandocconfluencemigrate-disabled": "Функция миграции Confluence отключена в этой вики.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Введите корректный URL Confluence, начинающийся с https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Добавляет в очередь фоновое задание, которое импортирует все страницы из пространства Confluence в эту вики."
 }

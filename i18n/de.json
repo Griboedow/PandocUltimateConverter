@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Export fehlgeschlagen: $1",
 	"pandocultimateconverter-export-drag-hint": "Ziehen zum Umsortieren",
 	"pandocultimateconverter-toolbox-export": "Exportieren",
-
 	"confluencemigration": "Confluence-Migration",
 	"confluencemigration-summary": "Alle Seiten eines Confluence-Bereichs in dieses Wiki migrieren.",
 	"confluencemigration-desc": "Gib die Confluence-URL, den Bereichsschlüssel und deine Anmeldedaten ein, um alle Seiten eines Confluence-Bereichs in dieses Wiki zu migrieren. Confluence Cloud (https://*.atlassian.net) und Confluence Server / Data Center werden unterstützt. Die Migration läuft im Hintergrund; du erhältst eine Benachrichtigung, wenn sie abgeschlossen ist.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Bitte gib eine gültige Confluence-URL ein, die mit https:// beginnt.",
 	"confluencemigration-error-empty-spacekey": "Bitte gib den Confluence-Bereichsschlüssel ein.",
 	"confluencemigration-error-empty-credentials": "Bitte gib deine E-Mail/deinen Benutzernamen und deinen API-Token/dein Passwort ein.",
-	"confluencemigration-notify-done": "Die Confluence-Migration des Bereichs $1 ist abgeschlossen: $2 {{PLURAL:$2|Seite|Seiten}} migriert."
+	"confluencemigration-notify-done": "Die Confluence-Migration des Bereichs $1 ist abgeschlossen: $2 {{PLURAL:$2|Seite|Seiten}} migriert.",
+	"confluencemigration-submitting": "Migration wird gestartet…",
+	"apierror-pandocconfluencemigrate-disabled": "Die Confluence-Migrationsfunktion ist in diesem Wiki deaktiviert.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Bitte gib eine gültige Confluence-URL ein, die mit https:// beginnt.",
+	"apihelp-pandocconfluencemigrate-summary": "Reiht einen Hintergrundauftrag ein, der alle Seiten eines Confluence-Bereichs in dieses Wiki importiert."
 }

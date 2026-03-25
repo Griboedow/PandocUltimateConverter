@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "فشل التصدير: $1",
 	"pandocultimateconverter-export-drag-hint": "اسحب لتغيير الترتيب",
 	"pandocultimateconverter-toolbox-export": "تصدير",
-
 	"confluencemigration": "هجرة Confluence",
 	"confluencemigration-summary": "ترحيل جميع صفحات مساحة Confluence إلى هذه الويكي.",
 	"confluencemigration-desc": "أدخل عنوان URL الخاص بـ Confluence ومفتاح المساحة وبيانات الاعتماد لترحيل جميع الصفحات إلى هذه الويكي. يُدعم كل من Confluence Cloud وConfluence Server. تعمل المهمة في الخلفية وستتلقى إشعارًا عند اكتمالها.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "يرجى إدخال عنوان URL صالح لـ Confluence يبدأ بـ https://.",
 	"confluencemigration-error-empty-spacekey": "يرجى إدخال مفتاح مساحة Confluence.",
 	"confluencemigration-error-empty-credentials": "يرجى إدخال بريدك الإلكتروني/اسم المستخدم ورمز API/كلمة المرور.",
-	"confluencemigration-notify-done": "اكتملت هجرة Confluence للمساحة $1: تم ترحيل $2 صفحة."
+	"confluencemigration-notify-done": "اكتملت هجرة Confluence للمساحة $1: تم ترحيل $2 صفحة.",
+	"confluencemigration-submitting": "جارٍ بدء الترحيل…",
+	"apierror-pandocconfluencemigrate-disabled": "ميزة ترحيل Confluence معطلة في هذه الويكي.",
+	"apierror-pandocconfluencemigrate-invalidurl": "يرجى إدخال عنوان URL صالح لـ Confluence يبدأ بـ https://.",
+	"apihelp-pandocconfluencemigrate-summary": "إضافة مهمة خلفية لاستيراد جميع صفحات مساحة Confluence إلى هذه الويكي."
 }

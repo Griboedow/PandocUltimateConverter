@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "匯出失敗：$1",
 	"pandocultimateconverter-export-drag-hint": "拖曳以重新排序",
 	"pandocultimateconverter-toolbox-export": "匯出",
-
 	"confluencemigration": "Confluence 遷移",
 	"confluencemigration-summary": "將 Confluence 空間中的所有頁面遷移至本 wiki。",
 	"confluencemigration-desc": "輸入 Confluence URL、空間金鑰及憑證，將 Confluence 空間的所有頁面批次遷移至本 wiki。支援 Confluence Cloud 與 Confluence Server。遷移任務在背景執行，完成後您將收到通知。",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "請輸入以 https:// 開頭的有效 Confluence URL。",
 	"confluencemigration-error-empty-spacekey": "請輸入 Confluence 空間金鑰。",
 	"confluencemigration-error-empty-credentials": "請輸入您的電子郵件/使用者名稱以及 API 金鑰/密碼。",
-	"confluencemigration-notify-done": "Confluence 空間 $1 的遷移已完成：已遷移 $2 個頁面。"
+	"confluencemigration-notify-done": "Confluence 空間 $1 的遷移已完成：已遷移 $2 個頁面。",
+	"confluencemigration-submitting": "正在啟動遷移…",
+	"apierror-pandocconfluencemigrate-disabled": "本 wiki 已停用 Confluence 遷移功能。",
+	"apierror-pandocconfluencemigrate-invalidurl": "請輸入以 https:// 開頭的有效 Confluence URL。",
+	"apihelp-pandocconfluencemigrate-summary": "將背景任務排入佇列，以將 Confluence 空間的所有頁面匯入本 wiki。"
 }

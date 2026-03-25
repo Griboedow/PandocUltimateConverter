@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Az exportálás meghiúsult: $1",
 	"pandocultimateconverter-export-drag-hint": "Húzza az átrendezéshez",
 	"pandocultimateconverter-toolbox-export": "Exportálás",
-
 	"confluencemigration": "Confluence-migráció",
 	"confluencemigration-summary": "Az összes oldal áttelepítése egy Confluence-területről ebbe a wikibe.",
 	"confluencemigration-desc": "Add meg a Confluence URL-jét, a terület kulcsát és a hitelesítő adatokat az összes oldal áttelepítéséhez ebbe a wikibe. Confluence Cloud és Confluence Server egyaránt támogatott. A feladat a háttérben fut; értesítést kapsz, ha elkészült.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Kérjük, adj meg egy érvényes, https://-vel kezdődő Confluence URL-t.",
 	"confluencemigration-error-empty-spacekey": "Kérjük, add meg a Confluence terület kulcsát.",
 	"confluencemigration-error-empty-credentials": "Kérjük, add meg az e-mail-címed/felhasználóneved és az API tokened/jelszavad.",
-	"confluencemigration-notify-done": "A Confluence $1 területének migrálása kész: $2 oldal áttelepítve."
+	"confluencemigration-notify-done": "A Confluence $1 területének migrálása kész: $2 oldal áttelepítve.",
+	"confluencemigration-submitting": "Migráció indítása…",
+	"apierror-pandocconfluencemigrate-disabled": "A Confluence-migrálási funkció le van tiltva ezen a wikin.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Kérjük, adj meg egy érvényes, https://-vel kezdődő Confluence URL-t.",
+	"apihelp-pandocconfluencemigrate-summary": "Háttérfeladatot állít sorba, amely importálja a Confluence-tér összes oldalát ebbe a wikibe."
 }

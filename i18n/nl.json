@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Export mislukt: $1",
 	"pandocultimateconverter-export-drag-hint": "Slepen om te herordenen",
 	"pandocultimateconverter-toolbox-export": "Exporteren",
-
 	"confluencemigration": "Confluence-migratie",
 	"confluencemigration-summary": "Migreer alle pagina's van een Confluence-ruimte naar deze wiki.",
 	"confluencemigration-desc": "Geef de Confluence-URL, de ruimtesleutel en je inloggegevens op om alle pagina's van een Confluence-ruimte naar deze wiki te migreren. Confluence Cloud en Confluence Server worden beide ondersteund. De taak wordt op de achtergrond uitgevoerd; je ontvangt een melding wanneer deze is voltooid.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Voer een geldige Confluence-URL in die begint met https://.",
 	"confluencemigration-error-empty-spacekey": "Voer de Confluence-ruimtesleutel in.",
 	"confluencemigration-error-empty-credentials": "Voer je e-mailadres/gebruikersnaam en API-token/wachtwoord in.",
-	"confluencemigration-notify-done": "Confluence-migratie van ruimte $1 is voltooid: $2 {{PLURAL:$2|pagina|pagina's}} gemigreerd."
+	"confluencemigration-notify-done": "Confluence-migratie van ruimte $1 is voltooid: $2 {{PLURAL:$2|pagina|pagina's}} gemigreerd.",
+	"confluencemigration-submitting": "Migratie starten…",
+	"apierror-pandocconfluencemigrate-disabled": "De Confluence-migratiefunctie is uitgeschakeld op deze wiki.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Voer een geldige Confluence-URL in die begint met https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Plaatst een achtergrondtaak in de wachtrij die alle pagina's van een Confluence-ruimte importeert naar deze wiki."
 }

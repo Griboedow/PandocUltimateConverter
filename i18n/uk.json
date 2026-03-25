@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Помилка експорту: $1",
 	"pandocultimateconverter-export-drag-hint": "Перетягніть для зміни порядку",
 	"pandocultimateconverter-toolbox-export": "Експорт",
-
 	"confluencemigration": "Міграція Confluence",
 	"confluencemigration-summary": "Міграція всіх сторінок із простору Confluence до цієї вікі.",
 	"confluencemigration-desc": "Введіть URL Confluence, ключ простору та облікові дані для перенесення всіх сторінок до цієї вікі. Підтримуються Confluence Cloud та Confluence Server. Завдання виконується у фоновому режимі; після завершення ви отримаєте сповіщення.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Введіть коректний URL Confluence, що починається з https://.",
 	"confluencemigration-error-empty-spacekey": "Введіть ключ простору Confluence.",
 	"confluencemigration-error-empty-credentials": "Введіть вашу електронну пошту/ім'я користувача та API-токен/пароль.",
-	"confluencemigration-notify-done": "Міграцію Confluence простору $1 завершено: перенесено $2 {{PLURAL:$2|сторінку|сторінки|сторінок}}."
+	"confluencemigration-notify-done": "Міграцію Confluence простору $1 завершено: перенесено $2 {{PLURAL:$2|сторінку|сторінки|сторінок}}.",
+	"confluencemigration-submitting": "Запуск міграції…",
+	"apierror-pandocconfluencemigrate-disabled": "Функцію міграції Confluence вимкнено в цій вікі.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Введіть коректний URL Confluence, що починається з https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Додає до черги фонове завдання, яке імпортує всі сторінки з простору Confluence до цієї вікі."
 }

@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Esportazione non riuscita: $1",
 	"pandocultimateconverter-export-drag-hint": "Trascina per riordinare",
 	"pandocultimateconverter-toolbox-export": "Esporta",
-
 	"confluencemigration": "Migrazione Confluence",
 	"confluencemigration-summary": "Migra tutte le pagine di uno spazio Confluence in questa wiki.",
 	"confluencemigration-desc": "Inserisci l'URL di Confluence, la chiave dello spazio e le tue credenziali per migrare tutte le pagine in questa wiki. Sono supportati sia Confluence Cloud che Confluence Server. L'operazione viene eseguita in background; riceverai una notifica al completamento.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Inserisci un URL Confluence valido che inizi con https://.",
 	"confluencemigration-error-empty-spacekey": "Inserisci la chiave dello spazio Confluence.",
 	"confluencemigration-error-empty-credentials": "Inserisci la tua email/nome utente e il token API/password.",
-	"confluencemigration-notify-done": "La migrazione Confluence dello spazio $1 è completata: $2 {{PLURAL:$2|pagina migrata|pagine migrate}}."
+	"confluencemigration-notify-done": "La migrazione Confluence dello spazio $1 è completata: $2 {{PLURAL:$2|pagina migrata|pagine migrate}}.",
+	"confluencemigration-submitting": "Avvio migrazione…",
+	"apierror-pandocconfluencemigrate-disabled": "La funzione di migrazione Confluence è disabilitata su questa wiki.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Inserisci un URL Confluence valido che inizi con https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Mette in coda un'attività in background che importa tutte le pagine di uno spazio Confluence in questa wiki."
 }

@@ -21,7 +21,8 @@
   "APIModules": {
     "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
     "pandocllmpolish": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocLlmPolish",
-    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
+    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle",
+    "pandocconfluencemigrate": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiConfluenceMigrate"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
@@ -149,6 +150,34 @@
         "pandocultimateconverter-export-error-failed",
         "pandocultimateconverter-export-separate-files",
         "pandocultimateconverter-export-drag-hint"
+      ]
+    }
+    "ext.PandocUltimateConverter.confluence": {
+      "packageFiles": [
+        "confluence/init.js",
+        "confluence/App.vue"
+      ],
+      "dependencies": [
+        "vue",
+        "@wikimedia/codex",
+        "mediawiki.api",
+        "mediawiki.jqueryMsg"
+      ],
+      "messages": [
+        "confluencemigration-desc",
+        "confluencemigration-url-label",
+        "confluencemigration-url-help",
+        "confluencemigration-spacekey-label",
+        "confluencemigration-user-label",
+        "confluencemigration-token-label",
+        "confluencemigration-prefix-label",
+        "confluencemigration-overwrite-label",
+        "confluencemigration-submit",
+        "confluencemigration-submitting",
+        "confluencemigration-queued",
+        "confluencemigration-error-invalid-url",
+        "confluencemigration-error-empty-spacekey",
+        "confluencemigration-error-empty-credentials"
       ]
     }
   },

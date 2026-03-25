@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Dışa aktarma başarısız oldu: $1",
 	"pandocultimateconverter-export-drag-hint": "Sıralamayı değiştirmek için sürükleyin",
 	"pandocultimateconverter-toolbox-export": "Dışa Aktar",
-
 	"confluencemigration": "Confluence Taşıma",
 	"confluencemigration-summary": "Bir Confluence alanındaki tüm sayfaları bu wikiye taşıyın.",
 	"confluencemigration-desc": "Bir Confluence alanındaki tüm sayfaları bu wikiye taşımak için Confluence URL'sini, alan anahtarını ve kimlik bilgilerinizi girin. Confluence Cloud ve Confluence Server desteklenmektedir. Görev arka planda çalışır; tamamlandığında bir bildirim alacaksınız.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Lütfen https:// ile başlayan geçerli bir Confluence URL'si girin.",
 	"confluencemigration-error-empty-spacekey": "Lütfen Confluence alan anahtarını girin.",
 	"confluencemigration-error-empty-credentials": "Lütfen e-posta adresinizi/kullanıcı adınızı ve API belirtecinizi/parolanızı girin.",
-	"confluencemigration-notify-done": "$1 alanının Confluence taşıması tamamlandı: $2 sayfa taşındı."
+	"confluencemigration-notify-done": "$1 alanının Confluence taşıması tamamlandı: $2 sayfa taşındı.",
+	"confluencemigration-submitting": "Taşıma başlatılıyor…",
+	"apierror-pandocconfluencemigrate-disabled": "Confluence taşıma özelliği bu wikide devre dışı bırakılmıştır.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Lütfen https:// ile başlayan geçerli bir Confluence URL'si girin.",
+	"apihelp-pandocconfluencemigrate-summary": "Bir Confluence alanındaki tüm sayfaları bu wikiye aktaran bir arka plan işini sıraya ekler."
 }

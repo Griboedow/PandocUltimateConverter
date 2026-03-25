@@ -100,7 +100,6 @@
 	"pandocultimateconverter-export-error-failed": "Export misslyckades: $1",
 	"pandocultimateconverter-export-drag-hint": "Dra för att ändra ordning",
 	"pandocultimateconverter-toolbox-export": "Exportera",
-
 	"confluencemigration": "Confluence-migrering",
 	"confluencemigration-summary": "Migrera alla sidor från ett Confluence-utrymme till denna wiki.",
 	"confluencemigration-desc": "Ange Confluence-URL, utrymmesnyckel och dina inloggningsuppgifter för att migrera alla sidor till denna wiki. Confluence Cloud och Confluence Server stöds båda. Uppgiften körs i bakgrunden; du får ett meddelande när den är klar.",
@@ -118,5 +117,9 @@
 	"confluencemigration-error-invalid-url": "Ange en giltig Confluence-URL som börjar med https://.",
 	"confluencemigration-error-empty-spacekey": "Ange Confluence-utrymmesnyckeln.",
 	"confluencemigration-error-empty-credentials": "Ange din e-postadress/ditt användarnamn och din API-token/ditt lösenord.",
-	"confluencemigration-notify-done": "Confluence-migrering av utrymme $1 är klar: $2 {{PLURAL:$2|sida|sidor}} migrerade."
+	"confluencemigration-notify-done": "Confluence-migrering av utrymme $1 är klar: $2 {{PLURAL:$2|sida|sidor}} migrerade.",
+	"confluencemigration-submitting": "Startar migrering…",
+	"apierror-pandocconfluencemigrate-disabled": "Confluence-migreringsfunktionen är inaktiverad på denna wiki.",
+	"apierror-pandocconfluencemigrate-invalidurl": "Ange en giltig Confluence-URL som börjar med https://.",
+	"apihelp-pandocconfluencemigrate-summary": "Lägger ett bakgrundsjobb i kö som importerar alla sidor från ett Confluence-utrymme till denna wiki."
 }
