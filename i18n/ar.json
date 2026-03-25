@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "رفع الملفات معطّل في هذه الويكي. فعّله بإضافة '$wgEnableUploads = true;' إلى LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "يمكن للمستخدمين المسجّلين فقط رفع الملفات إلى هذه الويكي. يرجى تسجيل الدخول للمتابعة.",
 	"pandocultimateconverter-error-generic": "فشل رفع الملف: $1",
+	"pandocultimateconverter-error-title": "خطأ في التحويل",
+	"pandocultimateconverter-error-conversion": "فشل تحويل Pandoc: $1",
 	"apierror-pandocultimateconverter-nosource": "يجب توفير إما 'filename' أو 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "وفّر إما 'filename' أو 'url'، وليس كليهما.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "يُدعم فقط عناوين URL من نوع http وhttps.",

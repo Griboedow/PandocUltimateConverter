@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "此維基已停用檔案上傳。請在 LocalSettings.php 中新增 '$wgEnableUploads = true;' 來啟用。",
 	"pandocultimateconverter-error-mustbeloggedin": "只有已登入的使用者才能在此維基上傳檔案。請登入後繼續。",
 	"pandocultimateconverter-error-generic": "檔案上傳失敗：$1",
+	"pandocultimateconverter-error-title": "轉換錯誤",
+	"pandocultimateconverter-error-conversion": "Pandoc 轉換失敗：$1",
 	"apierror-pandocultimateconverter-nosource": "必須提供 'filename' 或 'url'。",
 	"apierror-pandocultimateconverter-multiplesource": "只能提供 'filename' 或 'url' 其中之一，不能同時提供。",
 	"apierror-pandocultimateconverter-invalidurlscheme": "僅支援 http 和 https URL。",

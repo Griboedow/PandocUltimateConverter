@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Завантаження файлів вимкнено на вікі. Увімкніть його, додавши '$wgEnableUploads = true;' до LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Завантажувати файли на цю вікі можуть лише авторизовані користувачі. Будь ласка, увійдіть у систему.",
 	"pandocultimateconverter-error-generic": "Не вдалося завантажити файл: $1",
+	"pandocultimateconverter-error-title": "Помилка конвертації",
+	"pandocultimateconverter-error-conversion": "Конвертація Pandoc завершилася з помилкою: $1",
 	"apierror-pandocultimateconverter-nosource": "Необхідно вказати або 'filename', або 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Вкажіть або 'filename', або 'url', але не обидва.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Підтримуються лише URL-адреси http та https.",

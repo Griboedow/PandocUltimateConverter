@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "O envio de arquivos está desativado neste wiki. Ative-o adicionando '$wgEnableUploads = true;' ao LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Apenas usuários conectados podem enviar arquivos para este wiki. Por favor, faça login para continuar.",
 	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1",
+	"pandocultimateconverter-error-title": "Erro de conversão",
+	"pandocultimateconverter-error-conversion": "A conversão com Pandoc falhou: $1",
 	"apierror-pandocultimateconverter-nosource": "Você deve fornecer 'filename' ou 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Forneça 'filename' ou 'url', não ambos.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Apenas URLs http e https são suportadas.",

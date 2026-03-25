@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor;
@@ -20,6 +21,8 @@ class PandocWrapper
     private bool $useColorProcessors;
     private string $pdfToHtmlExecutablePath;
     private string $libreofficeExecutablePath;
+    private string $tesseractExecutablePath;
+    private string $ocrLanguage;
 
     /** @var MediaWikiServices */
     private $mwServices;
@@ -53,6 +56,12 @@ class PandocWrapper
 
         $this->libreofficeExecutablePath = $config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
             ?? 'libreoffice';
+
+        $this->tesseractExecutablePath = $config->get( 'PandocUltimateConverter_TesseractExecutablePath' )
+            ?? 'tesseract';
+
+        $this->ocrLanguage = $config->get( 'PandocUltimateConverter_OcrLanguage' )
+            ?? 'eng';
 
         $extensionsDir = $wgExtensionDirectory ?? ( $IP . DIRECTORY_SEPARATOR . 'extensions' );
         $this->filtersFolderPath = $extensionsDir
@@ -125,7 +134,8 @@ class PandocWrapper
         // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
         if ( $isDoc ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .doc to .docx via LibreOffice for $source" );
-            $source = $this->convertDocToDocx( $source, $mediaFolder );
+            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
+            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
             $isDocx = true;
             $format = 'docx';
         }
@@ -138,7 +148,34 @@ class PandocWrapper
 
         if ( $isPdf ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: using PDF preprocessor for $source" );
-            $preprocessor = new PDFPreprocessor( $this->pdfToHtmlExecutablePath );
+            // pdftotext and pdftoppm are part of the same poppler-utils package as pdftohtml.
+            // If pdftohtml is configured with a full path, derive sibling executables from
+            // the same directory; otherwise fall back to bare names (rely on PATH).
+            $pdfToHtmlDir = dirname( $this->pdfToHtmlExecutablePath );
+            if ( $pdfToHtmlDir !== '.' ) {
+                $pdfToTextPath = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftotext';
+                $pdftoppmPath  = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftoppm';
+            } else {
+                $pdfToTextPath = 'pdftotext';
+                $pdftoppmPath  = 'pdftoppm';
+            }
+            $preprocessor = new PDFPreprocessor(
+                $this->pdfToHtmlExecutablePath,
+                $pdfToTextPath,
+                $pdftoppmPath,
+                $this->tesseractExecutablePath,
+                $this->ocrLanguage
+            );
+
+            if ( $preprocessor->isScannedPdf( $source ) ) {
+                // Scanned PDF: OCR produces wikitext directly — no Pandoc step needed.
+                wfDebugLog( 'PandocUltimateConverter', "convertInternal: scanned PDF detected, using OCR pipeline for $source" );
+                $text = $preprocessor->processScannedPdfFile( $source, $mediaFolder );
+                return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
+            }
+
+            // Text-based PDF: pdftohtml → HTML → Pandoc → mediawiki wikitext.
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: text-based PDF detected, using pdftohtml pipeline for $source" );
             $htmlFile = $preprocessor->processPDFFile( $source, $mediaFolder );
 
             // Convert the intermediate HTML to mediawiki wikitext via Pandoc.
@@ -291,40 +328,6 @@ class PandocWrapper
         }
 
         return $filePageName;
-    }
-
-    /**
-     * Convert a legacy .doc file to .docx using LibreOffice's headless converter.
-     *
-     * @param string $docFilePath  Absolute path to the source .doc file.
-     * @param string $outDir       Directory where the resulting .docx will be written.
-     * @return string Absolute path to the converted .docx file.
-     * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
-     */
-    private function convertDocToDocx( string $docFilePath, string $outDir ): string
-    {
-        $cmd = [
-            $this->libreofficeExecutablePath,
-            '--headless',
-            '--convert-to', 'docx',
-            '--outdir', $outDir,
-            $docFilePath,
-        ];
-
-        wfDebugLog( 'PandocUltimateConverter', 'convertDocToDocx: running ' . implode( ' ', $cmd ) );
-
-        $result = Shell::command( $cmd )->includeStderr()->execute();
-        if ( $result->getExitCode() !== 0 ) {
-            throw new \RuntimeException( 'LibreOffice .doc→.docx conversion failed: ' . $result->getStdout() );
-        }
-
-        $baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
-        $docxPath = $outDir . DIRECTORY_SEPARATOR . $baseName . '.docx';
-        if ( !file_exists( $docxPath ) ) {
-            throw new \RuntimeException( 'LibreOffice conversion did not produce expected file: ' . $docxPath );
-        }
-
-        return $docxPath;
     }
 
     /**

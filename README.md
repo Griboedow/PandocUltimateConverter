@@ -20,8 +20,9 @@ Installation is just a bit more complicated than usual:
 3. Load the extension in LocalSettings.php ```wfLoadExtension( 'PandocUltimateConverter' );```
 4. Configure path to pandoc binary ```$wgPandocUltimateConverter_PandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';```. It will work without this param if pandoc is in the PATH env. variable
 5. [Optional] **For PDF support**: install poppler and configure the path (see [Installing poppler for PDF support](#installing-poppler-for-pdf-support) below)
-6. [Optional] **For DOC support**: install LibreOffice and configure the path (see [Installing LibreOffice for DOC support](#installing-libreoffice-for-doc-support) below)
-7. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocUltimateConverter_TempFolderPath = 'D:\_TMP';```. It will try to use default temp folder if not specified. 
+6. [Optional] **For scanned PDF (OCR) support**: install Tesseract and configure the path (see [Installing Tesseract for scanned PDF (OCR) support](#installing-tesseract-for-scanned-pdf-ocr-support) below)
+7. [Optional] **For DOC support**: install LibreOffice and configure the path (see [Installing LibreOffice for DOC support](#installing-libreoffice-for-doc-support) below)
+8. [Optional] Configure path to a temp folder where pandoc will store images before upload ```$wgPandocUltimateConverter_TempFolderPath = 'D:\_TMP';```. It will try to use default temp folder if not specified. 
 8. Allow additional file extensions to be uploaded to MediaWiki
 ```php
 $wgFileExtensions[] = 'docx';
@@ -66,7 +67,9 @@ Theoretically it supports [everything Pandoc supports](https://pandoc.org/MANUAL
 
 **DOC support** works via a two-step pipeline: LibreOffice first converts the `.doc` file to `.docx`, then the normal DOCX conversion pipeline is used. LibreOffice is only required if you need `.doc` support; all other formats continue to work without it.
 
-**PDF support** works via a two-step pipeline: poppler's `pdftohtml` first converts the PDF to HTML with extracted images, then Pandoc converts that HTML to MediaWiki wikitext. Embedded images are automatically extracted and uploaded to the wiki. This works with text-based PDFs (not scanned documents that would require OCR).
+**PDF support** works via a two-step pipeline: poppler's `pdftohtml` first converts the PDF to HTML with extracted images, then Pandoc converts that HTML to MediaWiki wikitext. Embedded images are automatically extracted and uploaded to the wiki.
+
+**Scanned PDF (OCR) support**: The extension automatically detects whether a PDF contains extractable text or consists of scanned images. For scanned PDFs it falls back to an OCR pipeline: `pdftoppm` renders each page to a high-resolution PNG and `tesseract` extracts the text. The recognized text is assembled directly into MediaWiki wikitext — no extra Pandoc step is needed. Tesseract must be installed separately (see [Installing Tesseract for scanned PDF (OCR) support](#installing-tesseract-for-scanned-pdf-ocr-support) below).
 
 Webpages can be imported as well. Pandoc does not work very well with webpages, but it might be helpful if the webpage contains a lot of images and other files.
 
@@ -87,6 +90,8 @@ There are additional configs:
 2.  ```$wgPandocUltimateConverter_UseColorProcessors = true;``` -- Controls whether ODT/DOCX color preprocessing is enabled. Set to `true` to preserve text/background colors from Word and LibreOffice documents. This is the new parameter for issue #14.
 3. Global configs ```$wgPandocExecutablePath``` and ```$wgPandocTmpFolderPath ``` are still working but we recommend to switch to confiuration parameteres ```$wgPandocUltimateConverter_PandocExecutablePath``` and ```$wgPandocUltimateConverter_TempFolderPath```.
 4. You can specify custom user rights for the extensions: via ```$wgPandocUltimateConverter_PandocCustomUserRight``` where you can specify the [required permission](https://www.mediawiki.org/wiki/Manual:User_rights#List_of_permissions). For example: ```$wgPandocUltimateConverter_PandocCustomUserRight = 'nominornewtalk';``` should prohibit access for non-bots:
+5. ```$wgPandocUltimateConverter_TesseractExecutablePath``` -- Full path to the tesseract executable for scanned PDF OCR (optional if tesseract is in PATH).
+6. ```$wgPandocUltimateConverter_OcrLanguage = 'eng';``` -- Tesseract language code(s) for OCR. Use `+` to combine languages (e.g. `'eng+deu'`). Defaults to `'eng'`.
 
 ![image](https://github.com/user-attachments/assets/550ec70b-60fe-4074-b0aa-acb475aed9ab)
 
@@ -117,6 +122,43 @@ $wgPandocUltimateConverter_PdfToHtmlExecutablePath = 'C:\poppler\Library\bin\pdf
 ```
 
 If `pdftohtml` is already in your PATH, no additional configuration is needed — the extension will find it automatically.
+
+## Installing Tesseract for scanned PDF (OCR) support
+Scanned PDF OCR requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and poppler's `pdftoppm` utility (which is installed together with `pdftohtml`).
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo apt install tesseract-ocr
+# For languages other than English, install the corresponding language pack, e.g.:
+sudo apt install tesseract-ocr-deu   # German
+sudo apt install tesseract-ocr-fra   # French
+```
+
+**Linux (RHEL/Fedora):**
+```bash
+sudo dnf install tesseract
+```
+
+**Windows (Chocolatey):**
+```powershell
+choco install tesseract
+```
+
+**Windows (manual):**
+1. Download the installer from https://github.com/UB-Mannheim/tesseract/wiki
+2. Run the installer (note the installation path, e.g. `C:\Program Files\Tesseract-OCR`)
+3. Either add the Tesseract directory to your system PATH, or configure the path in `LocalSettings.php`:
+```php
+$wgPandocUltimateConverter_TesseractExecutablePath = 'C:\Program Files\Tesseract-OCR\tesseract.exe';
+```
+
+To change the OCR language (default is English), set:
+```php
+$wgPandocUltimateConverter_OcrLanguage = 'eng';       // English (default)
+$wgPandocUltimateConverter_OcrLanguage = 'eng+deu';   // English + German
+```
+
+If `tesseract` is already in your PATH, no additional configuration is needed — the extension will detect scanned PDFs automatically and run OCR on them.
 
 ## Installing LibreOffice for DOC support
 DOC import requires [LibreOffice](https://www.libreoffice.org/). If LibreOffice is not installed, `.doc` files will fail to convert — all other formats will continue to work normally.

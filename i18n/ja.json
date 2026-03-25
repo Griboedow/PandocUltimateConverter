@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "このWikiではファイルのアップロードが無効になっています。LocalSettings.php に '$wgEnableUploads = true;' を追加して有効にしてください",
 	"pandocultimateconverter-error-mustbeloggedin": "このWikiにファイルをアップロードできるのはログインユーザーのみです。続行するにはログインしてください。",
 	"pandocultimateconverter-error-generic": "ファイルのアップロードに失敗しました: $1",
+	"pandocultimateconverter-error-title": "変換エラー",
+	"pandocultimateconverter-error-conversion": "Pandoc の変換に失敗しました: $1",
 	"apierror-pandocultimateconverter-nosource": "'filename' または 'url' のいずれかを指定してください。",
 	"apierror-pandocultimateconverter-multiplesource": "'filename' または 'url' のいずれか一方のみ指定してください。両方は指定できません。",
 	"apierror-pandocultimateconverter-invalidurlscheme": "サポートされるのは http および https の URL のみです。",

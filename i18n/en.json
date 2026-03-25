@@ -28,6 +28,9 @@
     "pandocultimateconverter-error-mustbeloggedin": "Only logged in users can upload files on this wiki. Please login to proceed.",
     "pandocultimateconverter-error-generic": "Failed to upload file: $1",
 
+    "pandocultimateconverter-error-title": "Conversion error",
+    "pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
+
     "apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
     "apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
     "apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",

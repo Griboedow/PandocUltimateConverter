@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Bu wikide dosya yükleme devre dışı bırakılmış. LocalSettings.php dosyasına '$wgEnableUploads = true;' ekleyerek etkinleştirin",
 	"pandocultimateconverter-error-mustbeloggedin": "Bu wikiye yalnızca oturum açmış kullanıcılar dosya yükleyebilir. Devam etmek için lütfen oturum açın.",
 	"pandocultimateconverter-error-generic": "Dosya yüklenemedi: $1",
+	"pandocultimateconverter-error-title": "Dönüştürme hatası",
+	"pandocultimateconverter-error-conversion": "Pandoc dönüştürmesi başarısız oldu: $1",
 	"apierror-pandocultimateconverter-nosource": "'filename' veya 'url' değerlerinden birini sağlamalısınız.",
 	"apierror-pandocultimateconverter-multiplesource": "İkisini birden değil, 'filename' veya 'url' değerlerinden birini sağlayın.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Yalnızca http ve https URL'leri desteklenmektedir.",

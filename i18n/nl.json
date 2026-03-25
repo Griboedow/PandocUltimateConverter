@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Uploaden van bestanden is uitgeschakeld op dit wiki. Schakel het in door '$wgEnableUploads = true;' toe te voegen aan LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Alleen ingelogde gebruikers kunnen bestanden uploaden naar dit wiki. Log in om door te gaan.",
 	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1",
+	"pandocultimateconverter-error-title": "Conversiefout",
+	"pandocultimateconverter-error-conversion": "Pandoc-conversie mislukt: $1",
 	"apierror-pandocultimateconverter-nosource": "U moet 'filename' of 'url' opgeven.",
 	"apierror-pandocultimateconverter-multiplesource": "Geef 'filename' of 'url' op, niet beide.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Alleen http- en https-URL's worden ondersteund.",

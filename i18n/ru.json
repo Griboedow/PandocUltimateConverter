@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Загрузка файлов отключена на вики. Включите её, добавив '$wgEnableUploads = true;' в LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Загружать файлы на эту вики могут только авторизованные пользователи. Пожалуйста, войдите в систему.",
 	"pandocultimateconverter-error-generic": "Не удалось загрузить файл: $1",
+	"pandocultimateconverter-error-title": "Ошибка конвертации",
+	"pandocultimateconverter-error-conversion": "Конвертация Pandoc завершилась с ошибкой: $1",
 	"apierror-pandocultimateconverter-nosource": "Необходимо указать либо 'filename', либо 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Укажите либо 'filename', либо 'url', но не оба параметра.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Поддерживаются только URL-адреса http и https.",

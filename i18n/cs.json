@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Nahrávání souborů je v tomto wiki zakázáno. Povolte ho přidáním '$wgEnableUploads = true;' do LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Soubory do tohoto wiki mohou nahrávat pouze přihlášení uživatelé. Přihlaste se prosím.",
 	"pandocultimateconverter-error-generic": "Soubor se nepodařilo nahrát: $1",
+	"pandocultimateconverter-error-title": "Chyba převodu",
+	"pandocultimateconverter-error-conversion": "Převod Pandoc selhal: $1",
 	"apierror-pandocultimateconverter-nosource": "Musíte zadat buď 'filename', nebo 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Zadejte buď 'filename', nebo 'url', nikoli oboje.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Podporovány jsou pouze URL adresy s http a https.",

@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Il caricamento di file è disabilitato in questo wiki. Abilitalo aggiungendo '$wgEnableUploads = true;' a LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Solo gli utenti registrati possono caricare file in questo wiki. Accedi per continuare.",
 	"pandocultimateconverter-error-generic": "Caricamento del file non riuscito: $1",
+	"pandocultimateconverter-error-title": "Errore di conversione",
+	"pandocultimateconverter-error-conversion": "Conversione Pandoc non riuscita: $1",
 	"apierror-pandocultimateconverter-nosource": "Devi fornire 'filename' o 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Fornisci 'filename' o 'url', non entrambi.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Sono supportati solo gli URL http e https.",
