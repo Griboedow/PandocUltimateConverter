@@ -15,28 +15,28 @@
 			{{ $i18n( 'pandocultimateconverter-export-description' ).text() }}
 		</p>
 
-		<!-- Page list -->
+		<!-- Unified item list (pages & categories) -->
 		<div class="mw-pandoc-export-app__section">
 			<label class="mw-pandoc-export-app__label">
-				{{ $i18n( 'pandocultimateconverter-export-pages-label' ).text() }}
+				{{ $i18n( 'pandocultimateconverter-export-items-label' ).text() }}
 			</label>
 
 			<div
-				v-for="( page, index ) in pages"
+				v-for="( item, index ) in items"
 				:key="index"
 				class="mw-pandoc-export-app__page-row"
 			>
 				<page-search-input
-					:model-value="page"
+					:model-value="item"
 					:disabled="isExporting"
-					@update:model-value="updatePage( index, $event )"
+					@update:model-value="updateItem( index, $event )"
 				></page-search-input>
 				<cdx-button
 					weight="quiet"
 					action="destructive"
 					:disabled="isExporting"
 					:aria-label="$i18n( 'pandocultimateconverter-export-remove-page' ).text()"
-					@click="removePage( index )"
+					@click="removeItem( index )"
 				>
 					✕
 				</cdx-button>
@@ -47,9 +47,9 @@
 				action="progressive"
 				:disabled="isExporting"
 				class="mw-pandoc-export-app__add-btn"
-				@click="addPage"
+				@click="addItem"
 			>
-				{{ $i18n( 'pandocultimateconverter-export-add-page' ).text() }}
+				{{ $i18n( 'pandocultimateconverter-export-add-item' ).text() }}
 			</cdx-button>
 		</div>
 
@@ -70,8 +70,15 @@
 			></cdx-select>
 		</div>
 
-		<!-- Export button -->
+		<!-- Export button & separate files toggle -->
 		<div class="mw-pandoc-export-app__actions">
+			<cdx-toggle-switch
+				v-model="separateFiles"
+				:disabled="isExporting"
+			>
+				{{ $i18n( 'pandocultimateconverter-export-separate-files' ).text() }}
+			</cdx-toggle-switch>
+
 			<cdx-button
 				weight="primary"
 				action="progressive"
@@ -91,11 +98,8 @@
 
 <script>
 const { defineComponent, ref, computed } = require( 'vue' );
-const { CdxButton, CdxMessage, CdxSelect } = require( '@wikimedia/codex' );
+const { CdxButton, CdxMessage, CdxSelect, CdxToggleSwitch } = require( '@wikimedia/codex' );
 const PageSearchInput = require( './components/PageSearchInput.vue' );
-
-/** Milliseconds to keep the export button in the "preparing" state after the download starts. */
-const EXPORT_LOADING_DURATION_MS = 5000;
 
 // @vue/component
 module.exports = exports = defineComponent( {
@@ -104,12 +108,13 @@ module.exports = exports = defineComponent( {
 		CdxButton,
 		CdxMessage,
 		CdxSelect,
+		CdxToggleSwitch,
 		PageSearchInput
 	},
 	setup() {
-		/** @type {import('vue').Ref<string[]>} */
-		const pages = ref( [ '' ] );
+		const items = ref( [ '' ] );
 		const selectedFormat = ref( 'docx' );
+		const separateFiles = ref( false );
 		const isExporting = ref( false );
 		const errorMsg = ref( '' );
 
@@ -120,29 +125,29 @@ module.exports = exports = defineComponent( {
 		} ) );
 
 		const canExport = computed( () => {
-			const filledPages = pages.value.filter( ( p ) => p.trim().length > 0 );
-			return filledPages.length > 0 && !isExporting.value;
+			const filled = items.value.filter( ( v ) => v.trim().length > 0 );
+			return filled.length > 0 && !isExporting.value;
 		} );
 
-		function addPage() {
-			pages.value.push( '' );
+		function addItem() {
+			items.value.push( '' );
 		}
 
-		function removePage( index ) {
-			if ( pages.value.length === 1 ) {
-				pages.value[ 0 ] = '';
+		function removeItem( index ) {
+			if ( items.value.length === 1 ) {
+				items.value[ 0 ] = '';
 			} else {
-				pages.value.splice( index, 1 );
+				items.value.splice( index, 1 );
 			}
 		}
 
-		function updatePage( index, value ) {
-			pages.value[ index ] = value;
+		function updateItem( index, value ) {
+			items.value[ index ] = value;
 		}
 
 		function handleExport() {
-			const filledPages = pages.value.filter( ( p ) => p.trim().length > 0 );
-			if ( filledPages.length === 0 ) {
+			const filled = items.value.filter( ( v ) => v.trim().length > 0 );
+			if ( filled.length === 0 ) {
 				errorMsg.value = mw.msg( 'pandocultimateconverter-export-error-no-pages' );
 				return;
 			}
@@ -150,16 +155,20 @@ module.exports = exports = defineComponent( {
 			const endpoint = mw.config.get( 'pandocExportEndpoint' );
 			const params = new URLSearchParams();
 			params.set( 'format', selectedFormat.value );
-			filledPages.forEach( ( p ) => params.append( 'pages[]', p ) );
+
+			filled.forEach( ( v ) => {
+				params.append( 'items[]', v );
+			} );
+
+			if ( separateFiles.value ) {
+				params.set( 'separate', '1' );
+			}
 
 			const url = endpoint + '?' + params.toString();
 
 			isExporting.value = true;
 			errorMsg.value = '';
 
-			// Use fetch so we can detect server-side errors (e.g. Pandoc failure)
-			// and surface them to the user instead of silently swallowing them
-			// inside a hidden iframe.
 			fetch( url ).then( ( response ) => {
 				const contentType = response.headers.get( 'Content-Type' ) || '';
 				if ( !response.ok || contentType.indexOf( 'application/json' ) !== -1 ) {
@@ -173,14 +182,12 @@ module.exports = exports = defineComponent( {
 					} );
 				}
 				return response.blob().then( ( blob ) => {
-					// Determine filename from Content-Disposition header, fall back to generic.
 					let filename = 'export';
 					const cd = response.headers.get( 'Content-Disposition' ) || '';
 					const match = cd.match( /filename\*?=(?:UTF-8'')?["']?([^"';\s]+)/i );
 					if ( match ) {
 						filename = decodeURIComponent( match[ 1 ] );
 					}
-					// Trigger browser download via object URL.
 					const a = document.createElement( 'a' );
 					a.href = URL.createObjectURL( blob );
 					a.download = filename;
@@ -199,15 +206,16 @@ module.exports = exports = defineComponent( {
 		}
 
 		return {
-			pages,
+			items,
 			selectedFormat,
+			separateFiles,
 			isExporting,
 			errorMsg,
 			formatOptions,
 			canExport,
-			addPage,
-			removePage,
-			updatePage,
+			addItem,
+			removeItem,
+			updateItem,
 			handleExport
 		};
 	}
@@ -257,6 +265,10 @@ module.exports = exports = defineComponent( {
 	&__actions {
 		padding-top: @spacing-100;
 		border-top: @border-width-base @border-style-base @border-color-subtle;
+		display: flex;
+		flex-direction: column;
+		gap: @spacing-100;
+		align-items: flex-start;
 	}
 }
 </style>

@@ -137,13 +137,29 @@ class SpecialPandocExport extends \SpecialPage {
 			return;
 		}
 
-		$rawPages = $request->getArray( 'pages' ) ?? [];
-		$pages    = array_values( array_filter(
-			array_map( 'trim', $rawPages ),
+		$rawItems = $request->getArray( 'items' ) ?? [];
+		$items    = array_values( array_filter(
+			array_map( 'trim', $rawItems ),
 			static function ( string $p ): bool {
 				return $p !== '';
 			}
 		) );
+
+		// Auto-detect categories vs pages and resolve category members.
+		$pages = [];
+		foreach ( $items as $itemName ) {
+			$title = \Title::newFromText( $itemName );
+			if ( $title !== null && $title->getNamespace() === NS_CATEGORY ) {
+				$visited = [];
+				$categoryPages = $this->getCategoryPages( $title->getText(), $visited );
+				$pages = array_merge( $pages, $categoryPages );
+			} else {
+				$pages[] = $itemName;
+			}
+		}
+
+		// Deduplicate while preserving order.
+		$pages = array_values( array_unique( $pages ) );
 
 		if ( $pages === [] ) {
 			$this->sendJsonError(
@@ -153,20 +169,35 @@ class SpecialPandocExport extends \SpecialPage {
 			return;
 		}
 
-		// Build a safe filename for the download (keep only filesystem-safe characters)
-		$rawBaseName  = count( $pages ) > 1 ? 'export' : $pages[0];
-		$baseName     = self::sanitizeFilename( $rawBaseName );
-		$formatInfo   = self::SUPPORTED_FORMATS[$format];
-		$downloadName = $baseName . '.' . $formatInfo['ext'];
+		$separate = $request->getBool( 'separate' );
+		$formatInfo = self::SUPPORTED_FORMATS[$format];
 
-		try {
-			$outputFile = $this->doExport( $pages, $format );
-		} catch ( \RuntimeException $e ) {
-			$this->sendJsonError( $output, $e->getMessage() );
-			return;
+		// Use page name as filename when exporting a single page.
+		// When "separate" is requested with multiple pages, export each individually.
+		if ( $separate && count( $pages ) > 1 ) {
+			try {
+				$zipFile = $this->doExportSeparate( $pages, $format );
+			} catch ( \RuntimeException $e ) {
+				$this->sendJsonError( $output, $e->getMessage() );
+				return;
+			}
+			$downloadName = 'export.zip';
+			$this->streamDownload( $zipFile, $downloadName, 'application/zip' );
+		} else {
+			// Single file export — use the page name as the filename.
+			$rawBaseName  = count( $pages ) === 1 ? $pages[0] : 'export';
+			$baseName     = self::sanitizeFilename( $rawBaseName );
+			$downloadName = $baseName . '.' . $formatInfo['ext'];
+
+			try {
+				$outputFile = $this->doExport( $pages, $format );
+			} catch ( \RuntimeException $e ) {
+				$this->sendJsonError( $output, $e->getMessage() );
+				return;
+			}
+
+			$this->streamDownload( $outputFile, $downloadName, $formatInfo['mime'] );
 		}
-
-		$this->streamDownload( $outputFile, $downloadName, $formatInfo['mime'] );
 	}
 
 	/**
@@ -257,8 +288,118 @@ class SpecialPandocExport extends \SpecialPage {
 	}
 
 	// -----------------------------------------------------------------------
+	// Category resolution
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Recursively fetch all content pages belonging to a category.
+	 *
+	 * Walks subcategories depth-first and uses a visited set to prevent
+	 * infinite loops when the category graph contains cycles.
+	 *
+	 * @param string   $categoryName  Category name (with or without "Category:" prefix).
+	 * @param string[] &$visited      Set of already-visited category DB keys (cycle guard).
+	 * @return string[] Page titles (main namespace) found in the category tree.
+	 */
+	private function getCategoryPages( string $categoryName, array &$visited ): array {
+		$title = \Title::newFromText( $categoryName, NS_CATEGORY );
+		if ( $title === null ) {
+			return [];
+		}
+
+		$dbKey = $title->getDBkey();
+		if ( in_array( $dbKey, $visited, true ) ) {
+			// Cycle detected — stop recursion.
+			return [];
+		}
+		$visited[] = $dbKey;
+
+		$dbr = $this->mwServices->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$pages = [];
+
+		// Fetch all members of this category.
+		$res = $dbr->newSelectQueryBuilder()
+			->select( [ 'cl_from' ] )
+			->from( 'categorylinks' )
+			->where( [ 'cl_to' => $dbKey ] )
+			->caller( __METHOD__ )
+			->fetchResultSet();
+
+		foreach ( $res as $row ) {
+			$memberTitle = \Title::newFromID( (int)$row->cl_from );
+			if ( $memberTitle === null ) {
+				continue;
+			}
+
+			if ( $memberTitle->getNamespace() === NS_CATEGORY ) {
+				// Recurse into subcategory.
+				$subPages = $this->getCategoryPages(
+					$memberTitle->getPrefixedText(),
+					$visited
+				);
+				$pages = array_merge( $pages, $subPages );
+			} else {
+				$pages[] = $memberTitle->getPrefixedText();
+			}
+		}
+
+		return $pages;
+	}
+
+	// -----------------------------------------------------------------------
 	// Core export logic
 	// -----------------------------------------------------------------------
+
+	/**
+	 * Export each page as a separate file and bundle them in a ZIP archive.
+	 *
+	 * @param string[] $pages  List of wiki page titles to export.
+	 * @param string   $format Format key from SUPPORTED_FORMATS.
+	 * @return string Absolute path to the temporary ZIP file.
+	 * @throws \RuntimeException On any conversion failure.
+	 */
+	private function doExportSeparate( array $pages, string $format ): string {
+		$tempBase = $this->config->get( 'PandocUltimateConverter_TempFolderPath' )
+			?? sys_get_temp_dir();
+		$workDir  = $tempBase . DIRECTORY_SEPARATOR . 'pandoc-export-' . uniqid( '', true );
+		mkdir( $workDir, 0755, true );
+
+		$formatInfo = self::SUPPORTED_FORMATS[$format];
+		$zipPath = $workDir . DIRECTORY_SEPARATOR . 'export.zip';
+
+		// Track individual export workDirs so we can clean them up after zipping.
+		$exportDirs = [];
+
+		try {
+			$zip = new \ZipArchive();
+			if ( $zip->open( $zipPath, \ZipArchive::CREATE ) !== true ) {
+				throw new \RuntimeException( 'Failed to create ZIP archive.' );
+			}
+
+			foreach ( $pages as $pageName ) {
+				$singleFile = $this->doExport( [ $pageName ], $format );
+				$exportDirs[] = dirname( $singleFile );
+				$entryName = self::sanitizeFilename( $pageName ) . '.' . $formatInfo['ext'];
+				$zip->addFile( $singleFile, $entryName );
+			}
+
+			// ZipArchive reads addFile() paths on close(), so files must exist until now.
+			$zip->close();
+
+			// Clean up individual export temp dirs now that the ZIP is written.
+			foreach ( $exportDirs as $dir ) {
+				PandocWrapper::deleteDirectory( $dir );
+			}
+
+			return $zipPath;
+		} catch ( \Exception $e ) {
+			foreach ( $exportDirs as $dir ) {
+				PandocWrapper::deleteDirectory( $dir );
+			}
+			PandocWrapper::deleteDirectory( $workDir );
+			throw new \RuntimeException( $e->getMessage(), 0, $e );
+		}
+	}
 
 	/**
 	 * Run the full export pipeline and return the path to the generated file.

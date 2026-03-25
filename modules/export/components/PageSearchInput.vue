@@ -16,9 +16,7 @@
 const { defineComponent, ref } = require( 'vue' );
 const { CdxLookup } = require( '@wikimedia/codex' );
 
-/** Milliseconds to wait after the last keystroke before firing an autocomplete request. */
 const DEBOUNCE_MS = 300;
-/** Maximum number of autocomplete suggestions to fetch per query. */
 const SUGGESTION_LIMIT = 10;
 
 // @vue/component
@@ -67,10 +65,7 @@ module.exports = exports = defineComponent( {
 		}
 
 		/**
-		 * Fetch autocomplete suggestions for the given query using the MediaWiki
-		 * opensearch API.
-		 *
-		 * @param {string} query
+		 * Fetch autocomplete suggestions from both pages (ns 0) and categories (ns 14).
 		 */
 		function fetchSuggestions( query ) {
 			const api = new mw.Api();
@@ -78,11 +73,10 @@ module.exports = exports = defineComponent( {
 				action: 'opensearch',
 				search: query,
 				limit: SUGGESTION_LIMIT,
-				namespace: 0,
+				namespace: '0|14',
 				redirects: 'resolve',
 				format: 'json'
 			} ).then( ( data ) => {
-				// opensearch returns [query, [titles], [descriptions], [urls]]
 				const titles = ( data && data[ 1 ] ) || [];
 				menuItems.value = titles.map( ( title ) => ( {
 					value: title,

@@ -118,8 +118,8 @@
       ],
       "messages": [
         "pandocultimateconverter-export-description",
-        "pandocultimateconverter-export-pages-label",
-        "pandocultimateconverter-export-add-page",
+        "pandocultimateconverter-export-items-label",
+        "pandocultimateconverter-export-add-item",
         "pandocultimateconverter-export-page-placeholder",
         "pandocultimateconverter-export-format-label",
         "pandocultimateconverter-export-remove-page",
@@ -127,7 +127,8 @@
         "pandocultimateconverter-export-preparing",
         "pandocultimateconverter-export-error-no-pages",
         "pandocultimateconverter-export-error-invalid-format",
-        "pandocultimateconverter-export-error-failed"
+        "pandocultimateconverter-export-error-failed",
+        "pandocultimateconverter-export-separate-files"
       ]
     }
   },
