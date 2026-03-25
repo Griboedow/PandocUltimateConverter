@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "Żądany format eksportu nie jest obsługiwany.",
 	"pandocultimateconverter-export-error-failed": "Eksport nie powiódł się: $1",
 	"pandocultimateconverter-export-drag-hint": "Przeciągnij, aby zmienić kolejność",
-	"pandocultimateconverter-toolbox-export": "Eksportuj"
+	"pandocultimateconverter-toolbox-export": "Eksportuj",
+
+	"confluencemigration": "Migracja Confluence",
+	"confluencemigration-summary": "Migruj wszystkie strony z przestrzeni Confluence do tej wiki.",
+	"confluencemigration-desc": "Wprowadź adres URL Confluence, klucz przestrzeni i dane uwierzytelniające, aby przenieść wszystkie strony do tej wiki. Obsługiwane są zarówno Confluence Cloud, jak i Confluence Server. Zadanie działa w tle; po zakończeniu otrzymasz powiadomienie.",
+	"confluencemigration-disabled": "Funkcja migracji Confluence jest wyłączona w tej wiki.",
+	"confluencemigration-url-label": "Adres URL Confluence:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Serwer: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Klucz przestrzeni:",
+	"confluencemigration-user-label": "E-mail / Nazwa użytkownika:",
+	"confluencemigration-token-label": "Token API / Hasło:",
+	"confluencemigration-prefix-label": "Prefiks strony docelowej (opcjonalne):",
+	"confluencemigration-overwrite-label": "Nadpisz istniejące strony",
+	"confluencemigration-submit": "Rozpocznij migrację",
+	"confluencemigration-queued": "Zadanie migracji przestrzeni $1 zostało dodane do kolejki. Otrzymasz powiadomienie po jego zakończeniu.",
+	"confluencemigration-history-comment": "Zaimportowano z Confluence",
+	"confluencemigration-error-invalid-url": "Podaj prawidłowy adres URL Confluence zaczynający się od https://.",
+	"confluencemigration-error-empty-spacekey": "Podaj klucz przestrzeni Confluence.",
+	"confluencemigration-error-empty-credentials": "Podaj swój adres e-mail/nazwę użytkownika oraz token API/hasło.",
+	"confluencemigration-notify-done": "Migracja Confluence przestrzeni $1 zakończona: przeniesiono $2 {{PLURAL:$2|stronę|strony|stron}}."
 }

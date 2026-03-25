@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "A kért exportformátum nem támogatott.",
 	"pandocultimateconverter-export-error-failed": "Az exportálás meghiúsult: $1",
 	"pandocultimateconverter-export-drag-hint": "Húzza az átrendezéshez",
-	"pandocultimateconverter-toolbox-export": "Exportálás"
+	"pandocultimateconverter-toolbox-export": "Exportálás",
+
+	"confluencemigration": "Confluence-migráció",
+	"confluencemigration-summary": "Az összes oldal áttelepítése egy Confluence-területről ebbe a wikibe.",
+	"confluencemigration-desc": "Add meg a Confluence URL-jét, a terület kulcsát és a hitelesítő adatokat az összes oldal áttelepítéséhez ebbe a wikibe. Confluence Cloud és Confluence Server egyaránt támogatott. A feladat a háttérben fut; értesítést kapsz, ha elkészült.",
+	"confluencemigration-disabled": "A Confluence-migrálási funkció le van tiltva ezen a wikin.",
+	"confluencemigration-url-label": "Confluence URL-je:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Szerver: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Terület kulcsa:",
+	"confluencemigration-user-label": "E-mail / Felhasználónév:",
+	"confluencemigration-token-label": "API token / Jelszó:",
+	"confluencemigration-prefix-label": "Céloldal előtag (nem kötelező):",
+	"confluencemigration-overwrite-label": "Meglévő oldalak felülírása",
+	"confluencemigration-submit": "Migrálás indítása",
+	"confluencemigration-queued": "A(z) $1 terület migrálási feladata sorba lett helyezve. Értesítést kapsz, ha elkészült.",
+	"confluencemigration-history-comment": "Importálva a Confluence-ből",
+	"confluencemigration-error-invalid-url": "Kérjük, adj meg egy érvényes, https://-vel kezdődő Confluence URL-t.",
+	"confluencemigration-error-empty-spacekey": "Kérjük, add meg a Confluence terület kulcsát.",
+	"confluencemigration-error-empty-credentials": "Kérjük, add meg az e-mail-címed/felhasználóneved és az API tokened/jelszavad.",
+	"confluencemigration-notify-done": "A Confluence $1 területének migrálása kész: $2 oldal áttelepítve."
 }

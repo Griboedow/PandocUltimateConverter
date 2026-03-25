@@ -97,5 +97,26 @@
 	"pandocultimateconverter-export-preparing": "Préparation du téléchargement…",
 	"pandocultimateconverter-export-error-no-pages": "Veuillez ajouter au moins une page à exporter.",
 	"pandocultimateconverter-export-error-invalid-format": "Le format d'export demandé n'est pas pris en charge.",
-	"pandocultimateconverter-export-error-failed": "L'export a échoué : $1",	"pandocultimateconverter-export-drag-hint": "Glisser pour réorganiser",	"pandocultimateconverter-toolbox-export": "Exporter"
+	"pandocultimateconverter-export-error-failed": "L'export a échoué : $1",
+	"pandocultimateconverter-export-drag-hint": "Glisser pour réorganiser",
+	"pandocultimateconverter-toolbox-export": "Exporter",
+
+	"confluencemigration": "Migration Confluence",
+	"confluencemigration-summary": "Migrez toutes les pages d'un espace Confluence vers ce wiki.",
+	"confluencemigration-desc": "Saisissez l'URL Confluence, la clé d'espace et vos identifiants pour migrer toutes les pages vers ce wiki. Confluence Cloud et Confluence Server sont pris en charge. La tâche s'exécute en arrière-plan ; vous recevrez une notification à son achèvement.",
+	"confluencemigration-disabled": "La fonctionnalité de migration Confluence est désactivée sur ce wiki.",
+	"confluencemigration-url-label": "URL Confluence :",
+	"confluencemigration-url-help": "Cloud : https://yourcompany.atlassian.net — Serveur : https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Clé d'espace :",
+	"confluencemigration-user-label": "E-mail / Nom d'utilisateur :",
+	"confluencemigration-token-label": "Jeton API / Mot de passe :",
+	"confluencemigration-prefix-label": "Préfixe de page cible (optionnel) :",
+	"confluencemigration-overwrite-label": "Écraser les pages existantes",
+	"confluencemigration-submit": "Démarrer la migration",
+	"confluencemigration-queued": "Le travail de migration de l'espace $1 a été mis en file d'attente. Vous recevrez une notification à son achèvement.",
+	"confluencemigration-history-comment": "Importé depuis Confluence",
+	"confluencemigration-error-invalid-url": "Veuillez entrer une URL Confluence valide commençant par https://.",
+	"confluencemigration-error-empty-spacekey": "Veuillez entrer la clé de l'espace Confluence.",
+	"confluencemigration-error-empty-credentials": "Veuillez entrer votre e-mail/nom d'utilisateur et votre jeton API/mot de passe.",
+	"confluencemigration-notify-done": "La migration Confluence de l'espace $1 est terminée : $2 pages migrées."
 }

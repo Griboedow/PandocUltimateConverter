@@ -72,6 +72,12 @@ class I18nCompletenessTest extends TestCase {
 		'pandocultimateconverter-special-source-type-label',
 		// "File:" is used unchanged in Italian (the English word is standard in the IT domain).
 		'pandocultimateconverter-special-upload-file',
+		// "Confluence URL:" — "Confluence" is a brand name and "URL" is a universal acronym;
+		// the combined label is technically correct in most languages without modification.
+		'confluencemigration-url-label',
+		// The url-help line contains technical URL examples that must stay in English;
+		// the surrounding language structure is often identical to English too.
+		'confluencemigration-url-help',
 	];
 
 	// ------------------------------------------------------------------

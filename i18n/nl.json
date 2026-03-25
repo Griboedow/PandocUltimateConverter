@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "Het gevraagde exportformaat wordt niet ondersteund.",
 	"pandocultimateconverter-export-error-failed": "Export mislukt: $1",
 	"pandocultimateconverter-export-drag-hint": "Slepen om te herordenen",
-	"pandocultimateconverter-toolbox-export": "Exporteren"
+	"pandocultimateconverter-toolbox-export": "Exporteren",
+
+	"confluencemigration": "Confluence-migratie",
+	"confluencemigration-summary": "Migreer alle pagina's van een Confluence-ruimte naar deze wiki.",
+	"confluencemigration-desc": "Geef de Confluence-URL, de ruimtesleutel en je inloggegevens op om alle pagina's van een Confluence-ruimte naar deze wiki te migreren. Confluence Cloud en Confluence Server worden beide ondersteund. De taak wordt op de achtergrond uitgevoerd; je ontvangt een melding wanneer deze is voltooid.",
+	"confluencemigration-disabled": "De Confluence-migratiefunctie is uitgeschakeld op deze wiki.",
+	"confluencemigration-url-label": "Confluence-URL:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Server: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Ruimtesleutel:",
+	"confluencemigration-user-label": "E-mailadres / Gebruikersnaam:",
+	"confluencemigration-token-label": "API-token / Wachtwoord:",
+	"confluencemigration-prefix-label": "Voorvoegsel doelpagina (optioneel):",
+	"confluencemigration-overwrite-label": "Bestaande pagina's overschrijven",
+	"confluencemigration-submit": "Migratie starten",
+	"confluencemigration-queued": "De migratietaak voor ruimte $1 staat in de wachtrij. Je ontvangt een melding wanneer deze is voltooid.",
+	"confluencemigration-history-comment": "Geïmporteerd vanuit Confluence",
+	"confluencemigration-error-invalid-url": "Voer een geldige Confluence-URL in die begint met https://.",
+	"confluencemigration-error-empty-spacekey": "Voer de Confluence-ruimtesleutel in.",
+	"confluencemigration-error-empty-credentials": "Voer je e-mailadres/gebruikersnaam en API-token/wachtwoord in.",
+	"confluencemigration-notify-done": "Confluence-migratie van ruimte $1 is voltooid: $2 {{PLURAL:$2|pagina|pagina's}} gemigreerd."
 }

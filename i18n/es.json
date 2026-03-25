@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "El formato de exportación solicitado no está soportado.",
 	"pandocultimateconverter-export-error-failed": "La exportación falló: $1",
 	"pandocultimateconverter-export-drag-hint": "Arrastra para reordenar",
-	"pandocultimateconverter-toolbox-export": "Exportar"
+	"pandocultimateconverter-toolbox-export": "Exportar",
+
+	"confluencemigration": "Migración de Confluence",
+	"confluencemigration-summary": "Migra todas las páginas de un espacio de Confluence a esta wiki.",
+	"confluencemigration-desc": "Introduce la URL de Confluence, la clave del espacio y tus credenciales para migrar todas las páginas a esta wiki. Se admiten Confluence Cloud y Confluence Server. La tarea se ejecuta en segundo plano; recibirás una notificación cuando finalice.",
+	"confluencemigration-disabled": "La función de migración de Confluence está desactivada en esta wiki.",
+	"confluencemigration-url-label": "URL de Confluence:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Server: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Clave del espacio:",
+	"confluencemigration-user-label": "Correo electrónico / Nombre de usuario:",
+	"confluencemigration-token-label": "Token de API / Contraseña:",
+	"confluencemigration-prefix-label": "Prefijo de página destino (opcional):",
+	"confluencemigration-overwrite-label": "Sobrescribir páginas existentes",
+	"confluencemigration-submit": "Iniciar migración",
+	"confluencemigration-queued": "El trabajo de migración del espacio $1 se ha puesto en cola. Recibirás una notificación cuando se complete.",
+	"confluencemigration-history-comment": "Importado desde Confluence",
+	"confluencemigration-error-invalid-url": "Por favor, introduce una URL válida de Confluence que comience con https://.",
+	"confluencemigration-error-empty-spacekey": "Por favor, introduce la clave del espacio de Confluence.",
+	"confluencemigration-error-empty-credentials": "Por favor, introduce tu correo electrónico/nombre de usuario y token de API/contraseña.",
+	"confluencemigration-notify-done": "La migración de Confluence del espacio $1 ha finalizado: $2 {{PLURAL:$2|página migrada|páginas migradas}}."
 }

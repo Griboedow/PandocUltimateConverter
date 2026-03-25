@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "Запрошенный формат экспорта не поддерживается.",
 	"pandocultimateconverter-export-error-failed": "Ошибка экспорта: $1",
 	"pandocultimateconverter-export-drag-hint": "Перетащите для изменения порядка",
-	"pandocultimateconverter-toolbox-export": "Экспорт"
+	"pandocultimateconverter-toolbox-export": "Экспорт",
+
+	"confluencemigration": "Миграция Confluence",
+	"confluencemigration-summary": "Миграция всех страниц из пространства Confluence в эту вики.",
+	"confluencemigration-desc": "Введите URL Confluence, ключ пространства и учётные данные для переноса всех страниц в эту вики. Поддерживаются Confluence Cloud и Confluence Server. Задание выполняется в фоновом режиме; по завершении вы получите уведомление.",
+	"confluencemigration-disabled": "Функция миграции Confluence отключена в этой вики.",
+	"confluencemigration-url-label": "URL Confluence:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Сервер: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Ключ пространства:",
+	"confluencemigration-user-label": "Электронная почта / Имя пользователя:",
+	"confluencemigration-token-label": "API-токен / Пароль:",
+	"confluencemigration-prefix-label": "Префикс целевой страницы (необязательно):",
+	"confluencemigration-overwrite-label": "Перезаписывать существующие страницы",
+	"confluencemigration-submit": "Начать миграцию",
+	"confluencemigration-queued": "Задание миграции пространства $1 добавлено в очередь. Вы получите уведомление по завершении.",
+	"confluencemigration-history-comment": "Импортировано из Confluence",
+	"confluencemigration-error-invalid-url": "Введите корректный URL Confluence, начинающийся с https://.",
+	"confluencemigration-error-empty-spacekey": "Введите ключ пространства Confluence.",
+	"confluencemigration-error-empty-credentials": "Введите вашу электронную почту/имя пользователя и API-токен/пароль.",
+	"confluencemigration-notify-done": "Миграция Confluence пространства $1 завершена: перенесено $2 {{PLURAL:$2|страница|страницы|страниц}}."
 }

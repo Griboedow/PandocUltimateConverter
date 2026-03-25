@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "Запитаний формат експорту не підтримується.",
 	"pandocultimateconverter-export-error-failed": "Помилка експорту: $1",
 	"pandocultimateconverter-export-drag-hint": "Перетягніть для зміни порядку",
-	"pandocultimateconverter-toolbox-export": "Експорт"
+	"pandocultimateconverter-toolbox-export": "Експорт",
+
+	"confluencemigration": "Міграція Confluence",
+	"confluencemigration-summary": "Міграція всіх сторінок із простору Confluence до цієї вікі.",
+	"confluencemigration-desc": "Введіть URL Confluence, ключ простору та облікові дані для перенесення всіх сторінок до цієї вікі. Підтримуються Confluence Cloud та Confluence Server. Завдання виконується у фоновому режимі; після завершення ви отримаєте сповіщення.",
+	"confluencemigration-disabled": "Функцію міграції Confluence вимкнено в цій вікі.",
+	"confluencemigration-url-label": "URL Confluence:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Сервер: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Ключ простору:",
+	"confluencemigration-user-label": "Електронна пошта / Ім'я користувача:",
+	"confluencemigration-token-label": "API-токен / Пароль:",
+	"confluencemigration-prefix-label": "Префікс цільової сторінки (необов'язково):",
+	"confluencemigration-overwrite-label": "Перезаписувати існуючі сторінки",
+	"confluencemigration-submit": "Почати міграцію",
+	"confluencemigration-queued": "Завдання міграції простору $1 додано до черги. Ви отримаєте сповіщення після завершення.",
+	"confluencemigration-history-comment": "Імпортовано з Confluence",
+	"confluencemigration-error-invalid-url": "Введіть коректний URL Confluence, що починається з https://.",
+	"confluencemigration-error-empty-spacekey": "Введіть ключ простору Confluence.",
+	"confluencemigration-error-empty-credentials": "Введіть вашу електронну пошту/ім'я користувача та API-токен/пароль.",
+	"confluencemigration-notify-done": "Міграцію Confluence простору $1 завершено: перенесено $2 {{PLURAL:$2|сторінку|сторінки|сторінок}}."
 }

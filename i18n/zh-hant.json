@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "請求的匯出格式不受支援。",
 	"pandocultimateconverter-export-error-failed": "匯出失敗：$1",
 	"pandocultimateconverter-export-drag-hint": "拖曳以重新排序",
-	"pandocultimateconverter-toolbox-export": "匯出"
+	"pandocultimateconverter-toolbox-export": "匯出",
+
+	"confluencemigration": "Confluence 遷移",
+	"confluencemigration-summary": "將 Confluence 空間中的所有頁面遷移至本 wiki。",
+	"confluencemigration-desc": "輸入 Confluence URL、空間金鑰及憑證，將 Confluence 空間的所有頁面批次遷移至本 wiki。支援 Confluence Cloud 與 Confluence Server。遷移任務在背景執行，完成後您將收到通知。",
+	"confluencemigration-disabled": "本 wiki 已停用 Confluence 遷移功能。",
+	"confluencemigration-url-label": "Confluence URL：",
+	"confluencemigration-url-help": "Cloud：https://yourcompany.atlassian.net — 伺服器：https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "空間金鑰：",
+	"confluencemigration-user-label": "電子郵件 / 使用者名稱：",
+	"confluencemigration-token-label": "API 金鑰 / 密碼：",
+	"confluencemigration-prefix-label": "目標頁面前綴（選填）：",
+	"confluencemigration-overwrite-label": "覆蓋已有頁面",
+	"confluencemigration-submit": "開始遷移",
+	"confluencemigration-queued": "空間 $1 的遷移任務已加入佇列，完成後您將收到通知。",
+	"confluencemigration-history-comment": "從 Confluence 匯入",
+	"confluencemigration-error-invalid-url": "請輸入以 https:// 開頭的有效 Confluence URL。",
+	"confluencemigration-error-empty-spacekey": "請輸入 Confluence 空間金鑰。",
+	"confluencemigration-error-empty-credentials": "請輸入您的電子郵件/使用者名稱以及 API 金鑰/密碼。",
+	"confluencemigration-notify-done": "Confluence 空間 $1 的遷移已完成：已遷移 $2 個頁面。"
 }

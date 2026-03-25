@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "İstenen dışa aktarma biçimi desteklenmiyor.",
 	"pandocultimateconverter-export-error-failed": "Dışa aktarma başarısız oldu: $1",
 	"pandocultimateconverter-export-drag-hint": "Sıralamayı değiştirmek için sürükleyin",
-	"pandocultimateconverter-toolbox-export": "Dışa Aktar"
+	"pandocultimateconverter-toolbox-export": "Dışa Aktar",
+
+	"confluencemigration": "Confluence Taşıma",
+	"confluencemigration-summary": "Bir Confluence alanındaki tüm sayfaları bu wikiye taşıyın.",
+	"confluencemigration-desc": "Bir Confluence alanındaki tüm sayfaları bu wikiye taşımak için Confluence URL'sini, alan anahtarını ve kimlik bilgilerinizi girin. Confluence Cloud ve Confluence Server desteklenmektedir. Görev arka planda çalışır; tamamlandığında bir bildirim alacaksınız.",
+	"confluencemigration-disabled": "Confluence taşıma özelliği bu wikide devre dışı bırakılmıştır.",
+	"confluencemigration-url-label": "Confluence URL'si:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Sunucu: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Alan anahtarı:",
+	"confluencemigration-user-label": "E-posta / Kullanıcı adı:",
+	"confluencemigration-token-label": "API belirteci / Parola:",
+	"confluencemigration-prefix-label": "Hedef sayfa öneki (isteğe bağlı):",
+	"confluencemigration-overwrite-label": "Mevcut sayfaların üzerine yaz",
+	"confluencemigration-submit": "Taşımayı başlat",
+	"confluencemigration-queued": "$1 alanı için taşıma işi kuyruğa eklendi. Tamamlandığında bir bildirim alacaksınız.",
+	"confluencemigration-history-comment": "Confluence'dan içe aktarıldı",
+	"confluencemigration-error-invalid-url": "Lütfen https:// ile başlayan geçerli bir Confluence URL'si girin.",
+	"confluencemigration-error-empty-spacekey": "Lütfen Confluence alan anahtarını girin.",
+	"confluencemigration-error-empty-credentials": "Lütfen e-posta adresinizi/kullanıcı adınızı ve API belirtecinizi/parolanızı girin.",
+	"confluencemigration-notify-done": "$1 alanının Confluence taşıması tamamlandı: $2 sayfa taşındı."
 }

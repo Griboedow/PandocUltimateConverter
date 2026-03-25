@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "Das angeforderte Exportformat wird nicht unterstützt.",
 	"pandocultimateconverter-export-error-failed": "Export fehlgeschlagen: $1",
 	"pandocultimateconverter-export-drag-hint": "Ziehen zum Umsortieren",
-	"pandocultimateconverter-toolbox-export": "Exportieren"
+	"pandocultimateconverter-toolbox-export": "Exportieren",
+
+	"confluencemigration": "Confluence-Migration",
+	"confluencemigration-summary": "Alle Seiten eines Confluence-Bereichs in dieses Wiki migrieren.",
+	"confluencemigration-desc": "Gib die Confluence-URL, den Bereichsschlüssel und deine Anmeldedaten ein, um alle Seiten eines Confluence-Bereichs in dieses Wiki zu migrieren. Confluence Cloud (https://*.atlassian.net) und Confluence Server / Data Center werden unterstützt. Die Migration läuft im Hintergrund; du erhältst eine Benachrichtigung, wenn sie abgeschlossen ist.",
+	"confluencemigration-disabled": "Die Confluence-Migrationsfunktion ist in diesem Wiki deaktiviert.",
+	"confluencemigration-url-label": "Confluence-URL:",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Server: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "Bereichsschlüssel:",
+	"confluencemigration-user-label": "E-Mail / Benutzername:",
+	"confluencemigration-token-label": "API-Token / Passwort:",
+	"confluencemigration-prefix-label": "Seitenprefix (optional):",
+	"confluencemigration-overwrite-label": "Vorhandene Seiten überschreiben",
+	"confluencemigration-submit": "Migration starten",
+	"confluencemigration-queued": "Der Migrationsauftrag für Bereich $1 wurde in die Warteschlange eingereiht. Du erhältst eine Benachrichtigung, wenn er abgeschlossen ist.",
+	"confluencemigration-history-comment": "Aus Confluence importiert",
+	"confluencemigration-error-invalid-url": "Bitte gib eine gültige Confluence-URL ein, die mit https:// beginnt.",
+	"confluencemigration-error-empty-spacekey": "Bitte gib den Confluence-Bereichsschlüssel ein.",
+	"confluencemigration-error-empty-credentials": "Bitte gib deine E-Mail/deinen Benutzernamen und deinen API-Token/dein Passwort ein.",
+	"confluencemigration-notify-done": "Die Confluence-Migration des Bereichs $1 ist abgeschlossen: $2 {{PLURAL:$2|Seite|Seiten}} migriert."
 }

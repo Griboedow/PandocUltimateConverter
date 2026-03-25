@@ -99,5 +99,24 @@
 	"pandocultimateconverter-export-error-invalid-format": "要求されたエクスポート形式はサポートされていません。",
 	"pandocultimateconverter-export-error-failed": "エクスポートに失敗しました: $1",
 	"pandocultimateconverter-export-drag-hint": "ドラッグして並べ替え",
-	"pandocultimateconverter-toolbox-export": "エクスポート"
+	"pandocultimateconverter-toolbox-export": "エクスポート",
+
+	"confluencemigration": "Confluenceマイグレーション",
+	"confluencemigration-summary": "ConfluenceスペースのすべてのページをこのWikiに移行します。",
+	"confluencemigration-desc": "ConfluenceのURL、スペースキー、認証情報を入力して、ConfluenceスペースのすべてのページをこのWikiに一括移行します。Confluence CloudとConfluence Serverの両方をサポートしています。移行はバックグラウンドジョブとして実行され、完了すると通知が届きます。",
+	"confluencemigration-disabled": "このWikiではConfluence移行機能が無効になっています。",
+	"confluencemigration-url-label": "ConfluenceのURL：",
+	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — サーバー: https://confluence.yourcompany.com",
+	"confluencemigration-spacekey-label": "スペースキー：",
+	"confluencemigration-user-label": "メールアドレス / ユーザー名：",
+	"confluencemigration-token-label": "APIトークン / パスワード：",
+	"confluencemigration-prefix-label": "対象ページのプレフィックス（任意）：",
+	"confluencemigration-overwrite-label": "既存のページを上書きする",
+	"confluencemigration-submit": "移行を開始",
+	"confluencemigration-queued": "スペース $1 の移行ジョブがキューに追加されました。完了すると通知が届きます。",
+	"confluencemigration-history-comment": "Confluenceからインポート",
+	"confluencemigration-error-invalid-url": "https://で始まる有効なConfluence URLを入力してください。",
+	"confluencemigration-error-empty-spacekey": "Confluenceのスペースキーを入力してください。",
+	"confluencemigration-error-empty-credentials": "メールアドレス/ユーザー名とAPIトークン/パスワードを入力してください。",
+	"confluencemigration-notify-done": "スペース $1 のConfluence移行が完了しました：$2 ページが移行されました。"
 }

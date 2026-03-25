@@ -33,7 +33,11 @@
   },
   "SpecialPages": {
     "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocUltimateConverter",
-    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocExport"
+    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocExport",
+    "ConfluenceMigration": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialConfluenceMigration"
+  },
+  "JobClasses": {
+    "confluenceMigration": "MediaWiki\\Extension\\PandocUltimateConverter\\Jobs\\ConfluenceMigrationJob"
   },
   "ResourceModules": {
     "ext.PandocUltimateConverter": {
@@ -242,6 +246,12 @@
       "path": false,
       "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
       "public": false
+    },
+    "PandocUltimateConverter_EnableConfluenceMigration": {
+      "value": true,
+      "path": false,
+      "description": "Set to false to disable the Special:ConfluenceMigration page and prevent any Confluence space migrations.",
+      "public": true
     }
   },
   "ConfigRegistry": {

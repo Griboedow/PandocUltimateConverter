@@ -6,4 +6,5 @@ $specialPageAliases = [];
 $specialPageAliases['en'] = [
 	'PandocUltimateConverter' => [ 'PandocUltimateConverter' ],
 	'PandocExport'            => [ 'PandocExport' ],
+	'ConfluenceMigration'     => [ 'ConfluenceMigration' ],
 ];
