@@ -25,7 +25,18 @@
 				v-for="( item, index ) in items"
 				:key="index"
 				class="mw-pandoc-export-app__page-row"
+				:class="{ 'mw-pandoc-export-app__page-row--dragging': dragIndex === index,
+					'mw-pandoc-export-app__page-row--over': dragOverIndex === index && dragIndex !== index }"
+				:draggable="!isExporting && items.length > 1"
+				@dragstart="onDragStart( index, $event )"
+				@dragover.prevent="onDragOver( index )"
+				@dragend="onDragEnd"
 			>
+				<span
+					v-if="items.length > 1"
+					class="mw-pandoc-export-app__drag-handle"
+					:title="$i18n( 'pandocultimateconverter-export-drag-hint' ).text()"
+				>⠿</span>
 				<page-search-input
 					:model-value="item"
 					:disabled="isExporting"
@@ -118,6 +129,8 @@ module.exports = exports = defineComponent( {
 		const separateFiles = ref( false );
 		const isExporting = ref( false );
 		const errorMsg = ref( '' );
+		const dragIndex = ref( null );
+		const dragOverIndex = ref( null );
 
 		const rawFormats = mw.config.get( 'pandocExportFormats' ) || {};
 		const formatOptions = Object.keys( rawFormats ).map( ( key ) => ( {
@@ -144,6 +157,27 @@ module.exports = exports = defineComponent( {
 
 		function updateItem( index, value ) {
 			items.value[ index ] = value;
+		}
+
+		function onDragStart( index, event ) {
+			dragIndex.value = index;
+			event.dataTransfer.effectAllowed = 'move';
+		}
+
+		function onDragOver( index ) {
+			if ( dragIndex.value === null || dragIndex.value === index ) {
+				dragOverIndex.value = null;
+				return;
+			}
+			dragOverIndex.value = index;
+			const moved = items.value.splice( dragIndex.value, 1 )[ 0 ];
+			items.value.splice( index, 0, moved );
+			dragIndex.value = index;
+		}
+
+		function onDragEnd() {
+			dragIndex.value = null;
+			dragOverIndex.value = null;
 		}
 
 		function handleExport() {
@@ -221,9 +255,14 @@ module.exports = exports = defineComponent( {
 			errorMsg,
 			formatOptions,
 			canExport,
+			dragIndex,
+			dragOverIndex,
 			addItem,
 			removeItem,
 			updateItem,
+			onDragStart,
+			onDragOver,
+			onDragEnd,
 			handleExport
 		};
 	}
@@ -260,6 +299,28 @@ module.exports = exports = defineComponent( {
 		align-items: flex-start;
 		gap: @spacing-50;
 		margin-bottom: @spacing-50;
+		transition: opacity 0.15s;
+
+		&--dragging {
+			opacity: 0.4;
+		}
+
+		&--over {
+			border-top: 2px solid @color-progressive;
+		}
+	}
+
+	&__drag-handle {
+		cursor: grab;
+		user-select: none;
+		padding: @spacing-25 @spacing-25;
+		color: @color-subtle;
+		font-size: @font-size-large;
+		line-height: 32px;
+
+		&:active {
+			cursor: grabbing;
+		}
 	}
 
 	&__add-btn {

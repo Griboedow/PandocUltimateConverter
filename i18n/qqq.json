@@ -75,6 +75,7 @@
 	"pandocultimateconverter-export-items-label": "Label for the section where the user selects which pages and categories to export.",
 	"pandocultimateconverter-export-add-item": "Label for the button that adds another page or category input to the export form.",
 	"pandocultimateconverter-export-separate-files": "Label for the checkbox that makes each page export to its own file, bundled in a ZIP archive.",
+	"pandocultimateconverter-export-drag-hint": "Tooltip shown on the drag handle icon used to reorder pages in the export list.",
 	"pandocultimateconverter-export-pages-label": "Label for the section where the user selects which pages to export.",
 	"pandocultimateconverter-export-add-page": "Label for the button that adds another page name input to the export form.",
 	"pandocultimateconverter-export-page-placeholder": "Placeholder text inside a page name input field on the export form.",

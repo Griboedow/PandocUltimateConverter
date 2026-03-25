@@ -90,6 +90,7 @@
 	"pandocultimateconverter-export-error-invalid-format": "The requested export format is not supported.",
 	"pandocultimateconverter-export-error-failed": "Export failed: $1",
 	"pandocultimateconverter-export-separate-files": "Download separate file for each page (ZIP archive)",
+	"pandocultimateconverter-export-drag-hint": "Drag to reorder",
 
 	"pandocultimateconverter-toolbox-export": "Export"
 }

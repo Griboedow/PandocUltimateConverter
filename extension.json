@@ -136,7 +136,8 @@
         "pandocultimateconverter-export-error-no-pages",
         "pandocultimateconverter-export-error-invalid-format",
         "pandocultimateconverter-export-error-failed",
-        "pandocultimateconverter-export-separate-files"
+        "pandocultimateconverter-export-separate-files",
+        "pandocultimateconverter-export-drag-hint"
       ]
     }
   },
