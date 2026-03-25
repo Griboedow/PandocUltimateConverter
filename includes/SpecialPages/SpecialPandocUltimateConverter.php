@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\Html\Html;
@@ -66,9 +67,11 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
         if ( $this->useCodex ) {
             $output->addModules( 'ext.PandocUltimateConverter.codex' );
+            $llmAvailable = LlmPolishService::newFromConfig( $this->config ) !== null;
             $output->addJsConfigVars( [
                 'pandocCodexTitleMinLength' => self::TITLE_MIN_LENGTH,
                 'pandocCodexTitleMaxLength' => self::TITLE_MAX_LENGTH,
+                'pandocCodexLlmAvailable'   => $llmAvailable,
             ] );
             $output->addHTML( Html::element( 'div', [ 'class' => 'mw-pandoc-codex-root' ] ) );
             return;

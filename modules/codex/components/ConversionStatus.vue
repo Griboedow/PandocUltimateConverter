@@ -28,10 +28,38 @@
 			v-else-if="item.status === 'done'"
 			class="mw-pandoc-status__done"
 		>
-			<span class="mw-pandoc-status__done-icon">✓</span>
-			<a :href="item.resultPageUrl">
-				{{ $i18n( 'pandocultimateconverter-codex-status-done' ).text() }}
-			</a>
+			<div class="mw-pandoc-status__done-row">
+				<span class="mw-pandoc-status__done-icon">✓</span>
+				<a :href="item.resultPageUrl">
+					{{ $i18n( item.polishCompleted
+						? 'pandocultimateconverter-codex-status-done-polished'
+						: 'pandocultimateconverter-codex-status-done-converted'
+					).text() }}
+				</a>
+			</div>
+			<div v-if="item.polishError" class="mw-pandoc-status__polish-error">
+				<cdx-message type="error" inline>
+					{{ $i18n( 'pandocultimateconverter-codex-status-polish-error', item.polishError ).text() }}
+				</cdx-message>
+				<cdx-button
+					weight="quiet"
+					action="progressive"
+					size="medium"
+					@click="onRetryPolish"
+				>
+					{{ $i18n( 'pandocultimateconverter-codex-retry' ).text() }}
+				</cdx-button>
+			</div>
+		</div>
+
+		<div
+			v-else-if="item.status === 'polishing'"
+			class="mw-pandoc-status__progress"
+		>
+			<cdx-progress-bar inline></cdx-progress-bar>
+			<span class="mw-pandoc-status__label">
+				{{ $i18n( 'pandocultimateconverter-codex-status-polishing' ).text() }}
+			</span>
 		</div>
 
 		<div
@@ -82,7 +110,11 @@ module.exports = exports = defineComponent( {
 			store.retryItem( props.item.id );
 		}
 
-		return { onRetry };
+		function onRetryPolish() {
+			store.retryPolish( props.item.id );
+		}
+
+		return { onRetry, onRetryPolish };
 	}
 } );
 </script>
@@ -105,9 +137,21 @@ module.exports = exports = defineComponent( {
 
 	&__done {
 		display: flex;
+		flex-direction: column;
+		gap: @spacing-25;
+	}
+
+	&__done-row {
+		display: flex;
 		align-items: center;
 		gap: @spacing-25;
 		font-weight: @font-weight-bold;
+	}
+
+	&__polish-error {
+		display: flex;
+		flex-direction: column;
+		gap: @spacing-25;
 	}
 
 	&__done-icon {

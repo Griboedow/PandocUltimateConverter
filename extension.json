@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -20,6 +20,7 @@
   },
   "APIModules": {
     "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
+    "pandocllmpolish": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocLlmPolish",
     "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
   },
   "ExtensionMessagesFiles": {
@@ -95,7 +96,8 @@
         "pandocultimateconverter-codex-overwrite-toggle",
         "pandocultimateconverter-codex-status-uploading",
         "pandocultimateconverter-codex-status-converting",
-        "pandocultimateconverter-codex-status-done",
+        "pandocultimateconverter-codex-status-done-converted",
+        "pandocultimateconverter-codex-status-done-polished",
         "pandocultimateconverter-codex-status-error",
         "pandocultimateconverter-codex-retry",
         "pandocultimateconverter-codex-column-source",
@@ -109,7 +111,12 @@
         "pandocultimateconverter-codex-convert-one",
         "pandocultimateconverter-codex-switch-classic",
         "pandocultimateconverter-codex-stop",
-        "pandocultimateconverter-codex-stop-requested"
+        "pandocultimateconverter-codex-stop-requested",
+        "pandocultimateconverter-codex-llm-polish-toggle",
+        "pandocultimateconverter-codex-llm-polish-btn",
+        "pandocultimateconverter-codex-status-polishing",
+        "pandocultimateconverter-codex-status-polish-error",
+        "pandocultimateconverter-conversion-complete-comment"
       ]
     },
     "ext.PandocUltimateConverter.export": {
@@ -211,6 +218,30 @@
       "path": false,
       "description": "When true, show an 'Export' action in the page tools menu (Actions tab) on content pages.",
       "public": true
+    },
+    "PandocUltimateConverter_LlmProvider": {
+      "value": null,
+      "path": false,
+      "description": "LLM provider to use for optional wikitext cleanup. Supported values: 'openai' or 'claude'. Leave null to disable LLM polishing.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmApiKey": {
+      "value": null,
+      "path": false,
+      "description": "API key for the configured LLM provider. Required when LlmProvider is set.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmModel": {
+      "value": null,
+      "path": false,
+      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmPrompt": {
+      "value": null,
+      "path": false,
+      "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
+      "public": false
     }
   },
   "ConfigRegistry": {
