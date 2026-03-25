@@ -61,7 +61,7 @@ Add to `LocalSettings.php`:
 $wgPandocUltimateConverter_LlmProvider = 'openai';   // or 'claude'
 $wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
 // Optional: override the default model
-// $wgPandocUltimateConverter_LlmModel = 'gpt-4o';
+// $wgPandocUltimateConverter_LlmModel = 'gpt-5.4-nano';   // OpenAI default; or 'claude-3-5-haiku-20241022' for Claude
 ```
 
 ### Usage

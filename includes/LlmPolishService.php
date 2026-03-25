@@ -34,7 +34,7 @@ class LlmPolishService {
 	private const HTTP_TIMEOUT = 300;
 
 	/** Default cleanup prompt */
-	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. It was created by conversion form other source (file or URL).'
+	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. It was created by conversion from other source (file or URL).'
 		. 'Remove unnecessary formatting artifacts (html tags, extra whitespace, website headers and menu, empty span tags, etc.), fix inconsistent spacing, and improve readability '
 		. 'while strictly preserving all content, wiki links, templates, and MediaWiki markup syntax. '
 		. 'Return only the cleaned wikitext without any explanations or commentary.';
@@ -194,7 +194,7 @@ class LlmPolishService {
 	 * @return string  Response body
 	 * @throws \RuntimeException On cURL error or non-2xx HTTP status.
 	 */
-	private function httpPost( string $url, string $body, array $headers ): string {
+	protected function httpPost( string $url, string $body, array $headers ): string {
 		if ( !function_exists( 'curl_init' ) ) {
 			throw new \RuntimeException( 'cURL is required for LLM API calls but is not available.' );
 		}
