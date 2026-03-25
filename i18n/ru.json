@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "Пожалуйста, добавьте хотя бы одну страницу для экспорта.",
 	"pandocultimateconverter-export-error-invalid-format": "Запрошенный формат экспорта не поддерживается.",
 	"pandocultimateconverter-export-error-failed": "Ошибка экспорта: $1",
+	"pandocultimateconverter-export-drag-hint": "Перетащите для изменения порядка",
 	"pandocultimateconverter-toolbox-export": "Экспорт"
 }

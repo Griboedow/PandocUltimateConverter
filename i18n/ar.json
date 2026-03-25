@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "الرجاء إضافة صفحة واحدة على الأقل للتصدير.",
 	"pandocultimateconverter-export-error-invalid-format": "تنسيق التصدير المطلوب غير مدعوم.",
 	"pandocultimateconverter-export-error-failed": "فشل التصدير: $1",
+	"pandocultimateconverter-export-drag-hint": "اسحب لتغيير الترتيب",
 	"pandocultimateconverter-toolbox-export": "تصدير"
 }

@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "Aggiungi almeno una pagina da esportare.",
 	"pandocultimateconverter-export-error-invalid-format": "Il formato di esportazione richiesto non è supportato.",
 	"pandocultimateconverter-export-error-failed": "Esportazione non riuscita: $1",
+	"pandocultimateconverter-export-drag-hint": "Trascina per riordinare",
 	"pandocultimateconverter-toolbox-export": "Esporta"
 }

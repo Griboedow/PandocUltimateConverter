@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "請至少新增一個要匯出的頁面。",
 	"pandocultimateconverter-export-error-invalid-format": "請求的匯出格式不受支援。",
 	"pandocultimateconverter-export-error-failed": "匯出失敗：$1",
+	"pandocultimateconverter-export-drag-hint": "拖曳以重新排序",
 	"pandocultimateconverter-toolbox-export": "匯出"
 }

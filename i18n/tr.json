@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "Lütfen dışa aktarmak için en az bir sayfa ekleyin.",
 	"pandocultimateconverter-export-error-invalid-format": "İstenen dışa aktarma biçimi desteklenmiyor.",
 	"pandocultimateconverter-export-error-failed": "Dışa aktarma başarısız oldu: $1",
+	"pandocultimateconverter-export-drag-hint": "Sıralamayı değiştirmek için sürükleyin",
 	"pandocultimateconverter-toolbox-export": "Dışa Aktar"
 }

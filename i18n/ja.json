@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "エクスポートするページを少なくとも1つ追加してください。",
 	"pandocultimateconverter-export-error-invalid-format": "要求されたエクスポート形式はサポートされていません。",
 	"pandocultimateconverter-export-error-failed": "エクスポートに失敗しました: $1",
+	"pandocultimateconverter-export-drag-hint": "ドラッグして並べ替え",
 	"pandocultimateconverter-toolbox-export": "エクスポート"
 }

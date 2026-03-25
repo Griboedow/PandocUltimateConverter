@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "내보낼 페이지를 하나 이상 추가하세요.",
 	"pandocultimateconverter-export-error-invalid-format": "요청한 내보내기 형식은 지원되지 않습니다.",
 	"pandocultimateconverter-export-error-failed": "내보내기 실패: $1",
+	"pandocultimateconverter-export-drag-hint": "드래그하여 순서 변경",
 	"pandocultimateconverter-toolbox-export": "내보내기"
 }

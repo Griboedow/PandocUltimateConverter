@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "Lägg till minst en sida att exportera.",
 	"pandocultimateconverter-export-error-invalid-format": "Det begärda exportformatet stöds inte.",
 	"pandocultimateconverter-export-error-failed": "Export misslyckades: $1",
+	"pandocultimateconverter-export-drag-hint": "Dra för att ändra ordning",
 	"pandocultimateconverter-toolbox-export": "Exportera"
 }

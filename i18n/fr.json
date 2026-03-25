@@ -84,6 +84,5 @@
 	"pandocultimateconverter-export-preparing": "Préparation du téléchargement…",
 	"pandocultimateconverter-export-error-no-pages": "Veuillez ajouter au moins une page à exporter.",
 	"pandocultimateconverter-export-error-invalid-format": "Le format d'export demandé n'est pas pris en charge.",
-	"pandocultimateconverter-export-error-failed": "L'export a échoué : $1",
-	"pandocultimateconverter-toolbox-export": "Exporter"
+	"pandocultimateconverter-export-error-failed": "L'export a échoué : $1",	"pandocultimateconverter-export-drag-hint": "Glisser pour réorganiser",	"pandocultimateconverter-toolbox-export": "Exporter"
 }

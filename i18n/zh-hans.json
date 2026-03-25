@@ -85,5 +85,6 @@
 	"pandocultimateconverter-export-error-no-pages": "请至少添加一个要导出的页面。",
 	"pandocultimateconverter-export-error-invalid-format": "请求的导出格式不受支持。",
 	"pandocultimateconverter-export-error-failed": "导出失败：$1",
+	"pandocultimateconverter-export-drag-hint": "拖动以重新排序",
 	"pandocultimateconverter-toolbox-export": "导出"
 }
