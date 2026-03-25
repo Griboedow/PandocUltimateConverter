@@ -148,6 +148,7 @@ module.exports = exports = defineStore( 'converter', () => {
 				status: 'queued',
 				errorMessage: '',
 				polishError: '',
+				polishCompleted: false,
 				resultPageUrl: '',
 				uploadedFileName: ''
 			} );
@@ -185,8 +186,7 @@ module.exports = exports = defineStore( 'converter', () => {
 					pageExists: null,
 					status: 'queued',
 					errorMessage: '',
-					polishError: '',
-					resultPageUrl: '',
+					polishError: '',				polishCompleted: false,					resultPageUrl: '',
 					uploadedFileName: ''
 				} );
 				schedulePageExistsCheck( id );
@@ -620,6 +620,7 @@ module.exports = exports = defineStore( 'converter', () => {
 			pagename: item.targetPageName
 		} ).then( () => {
 			item.status = 'done';
+			item.polishCompleted = true;
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'done';
 			item.polishError = ( errorObj && errorObj.error && errorObj.error.info ) || code;

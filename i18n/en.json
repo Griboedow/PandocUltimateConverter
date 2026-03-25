@@ -76,6 +76,8 @@
     "pandocultimateconverter-codex-status-uploading": "Uploading…",
     "pandocultimateconverter-codex-status-converting": "Converting…",
     "pandocultimateconverter-codex-status-done": "Done",
+    "pandocultimateconverter-codex-status-done-converted": "Conversion done",
+    "pandocultimateconverter-codex-status-done-polished": "AI cleanup done",
     "pandocultimateconverter-codex-status-error": "Error: $1",
     "pandocultimateconverter-codex-retry": "Retry",
     "pandocultimateconverter-codex-column-source": "Source",

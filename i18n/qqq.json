@@ -57,6 +57,8 @@
 	"pandocultimateconverter-codex-status-uploading": "Status text shown while a file is being uploaded.",
 	"pandocultimateconverter-codex-status-converting": "Status text shown while a file is being converted.",
 	"pandocultimateconverter-codex-status-done": "Status text shown when conversion is complete.",
+	"pandocultimateconverter-codex-status-done-converted": "Status text shown when Pandoc conversion is complete but AI cleanup has not been run.",
+	"pandocultimateconverter-codex-status-done-polished": "Status text shown when AI cleanup has completed successfully.",
 	"pandocultimateconverter-codex-status-error": "Status text shown when an error occurs. $1 is the error message.",
 	"pandocultimateconverter-codex-retry": "Label for the button to retry a failed conversion.",
 	"pandocultimateconverter-codex-column-source": "Column header for the source file or URL.",

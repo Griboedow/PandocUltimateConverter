@@ -31,7 +31,10 @@
 			<div class="mw-pandoc-status__done-row">
 				<span class="mw-pandoc-status__done-icon">✓</span>
 				<a :href="item.resultPageUrl">
-					{{ $i18n( 'pandocultimateconverter-codex-status-done' ).text() }}
+					{{ $i18n( item.polishCompleted
+						? 'pandocultimateconverter-codex-status-done-polished'
+						: 'pandocultimateconverter-codex-status-done-converted'
+					).text() }}
 				</a>
 			</div>
 			<div v-if="item.polishError" class="mw-pandoc-status__polish-error">
