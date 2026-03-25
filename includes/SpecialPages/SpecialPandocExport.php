@@ -446,8 +446,16 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$parts     = [];
 		$wikitexts = [];
+		$parser        = $this->mwServices->getParser();
+		$parserOptions = \ParserOptions::newFromAnon();
 		foreach ( $pages as $pageName ) {
-			$wikitext    = $this->getPageWikitext( $pageName );
+			$wikitext = $this->getPageWikitext( $pageName );
+
+			// Expand templates / parser functions while keeping the result as wikitext
+			// so that {{TemplateName}} and {{#if:…}} are resolved before Pandoc sees them.
+			$title    = \Title::newFromText( $pageName );
+			$wikitext = $parser->preprocess( $wikitext, $title, $parserOptions );
+
 			$wikitexts[] = $wikitext;
 			$this->gatherImages( $wikitext, $mediaDir );
 		}
