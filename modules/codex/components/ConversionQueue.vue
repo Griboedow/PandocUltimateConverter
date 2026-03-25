@@ -65,16 +65,29 @@
 							action="progressive"
 							class="mw-pandoc-queue__play-btn"
 							:disabled="store.isConverting"
+							:title="$i18n( 'pandocultimateconverter-codex-convert-one' ).text()"
 							:aria-label="$i18n( 'pandocultimateconverter-codex-convert-one' ).text()"
 							@click="store.retryItem( item.id )"
 						>
 							▶
 						</cdx-button>
 						<cdx-button
-							v-if="item.status !== 'uploading' && item.status !== 'converting'"
+							v-if="item.status === 'done' && store.LLM_AVAILABLE && !store.polishPendingIds.includes( item.id )"
+							weight="quiet"
+							action="progressive"
+							class="mw-pandoc-queue__ai-btn"
+							:title="$i18n( 'pandocultimateconverter-codex-llm-polish-btn' ).text()"
+							:aria-label="$i18n( 'pandocultimateconverter-codex-llm-polish-btn' ).text()"
+							@click="store.polishItem( item.id )"
+						>
+							✨
+						</cdx-button>
+						<cdx-button
+							v-if="item.status !== 'uploading' && item.status !== 'converting' && item.status !== 'polishing'"
 							weight="quiet"
 							action="destructive"
 							:disabled="store.isConverting"
+							:title="$i18n( 'pandocultimateconverter-codex-remove-item' ).text()"
 							:aria-label="$i18n( 'pandocultimateconverter-codex-remove-item' ).text()"
 							@click="store.removeItem( item.id )"
 						>

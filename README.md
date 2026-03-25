@@ -4,6 +4,7 @@ MediaWiki extension for **importing** documents/webpages into wiki pages and **e
 
 - **Import**: convert DOCX, ODT, PDF, DOC, or a webpage URL into a wiki page (with images)
 - **Export**: download wiki pages as DOCX, ODT, EPUB, PDF, HTML, RTF, or TXT
+- **AI cleanup**: optional LLM-powered post-conversion wikitext polish (OpenAI or Claude)
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
@@ -47,8 +48,39 @@ What happens during conversion:
 - Images are extracted and uploaded to the wiki automatically (duplicates are skipped)
 - The uploaded source file is removed after conversion
 - Temporary files are cleaned up
-
 A legacy (non-Codex) form is available at `Special:PandocUltimateConverter?codex=0`.
+
+## AI Cleanup (LLM Polish)
+
+The extension can optionally run an LLM (OpenAI or Claude) to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
+
+### Setup
+
+Add to `LocalSettings.php`:
+```php
+$wgPandocUltimateConverter_LlmProvider = 'openai';   // or 'claude'
+$wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
+// Optional: override the default model
+// $wgPandocUltimateConverter_LlmModel = 'gpt-4o';
+```
+
+### Usage
+
+There are two ways to use AI cleanup:
+
+1. **Batch mode** — check the "Polish with AI" checkbox before clicking **Convert all**. Each item is converted first, then automatically queued for AI cleanup. The conversion queue and the AI cleanup queue run in parallel.
+2. **Per-item** — click the ✨ button on any already-converted item to run AI cleanup on demand.
+
+If AI cleanup fails, a per-item error is shown with a **Retry** button.
+
+### LLM Configuration
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `PandocUltimateConverter_LlmProvider` | `null` | `"openai"` or `"claude"`. Leave null to disable. |
+| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the configured provider. |
+| `PandocUltimateConverter_LlmModel` | `null` | Model override. Defaults to `gpt-5.4-nano` (OpenAI) or `claude-3-5-haiku-20241022` (Claude). |
+| `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for the cleanup step. |
 
 ## Export (Special:PandocExport)
 
@@ -105,6 +137,10 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_FiltersToUse` | `[]` | Custom [Pandoc Lua filters](https://pandoc.org/filters.html) to apply. Must be in the `filters/` folder. |
 | `PandocUltimateConverter_UseColorProcessors` | `false` | Preserve text/background colors from DOCX/ODT files. |
 | `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
+| `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
+| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
+| `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
+| `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
 
 ### Built-in Lua filters
 
@@ -176,26 +212,26 @@ $wgPandocUltimateConverter_LibreOfficeExecutablePath = 'C:\Program Files\LibreOf
 
 ## Action API
 
-The extension exposes `action=pandocconvert` for programmatic conversions.
+The extension exposes three API modules. Write operations (`pandocconvert`, `pandocllmpolish`) require a CSRF token and POST.
 
-Requires a CSRF token and POST. Obtain a token:
+Obtain a CSRF token first:
 ```
 GET /api.php?action=query&meta=tokens&format=json
 ```
 
-**Convert a URL:**
+### action=pandocconvert
+
+Converts a file or URL to a wiki page. Requires a CSRF token and POST.
+
 ```
 POST /api.php
-action=pandocconvert&url=https://example.com&pagename=My Article&forceoverwrite=1&token=<csrf>&format=json
+action=pandocconvert&pagename=My Article&url=https://example.com&forceoverwrite=1&token=<csrf>&format=json
 ```
 
-**Convert an uploaded file:**
+**Response:**
+```json
+{ "pandocconvert": { "result": "success", "pagename": "My Article" } }
 ```
-POST /api.php
-action=pandocconvert&filename=Document.docx&pagename=My Article&forceoverwrite=1&token=<csrf>&format=json
-```
-
-### API parameters
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
@@ -205,7 +241,47 @@ action=pandocconvert&filename=Document.docx&pagename=My Article&forceoverwrite=1
 | `forceoverwrite` | no | `1` to overwrite existing page (default: `0`) |
 | `token` | yes | CSRF token |
 
+### action=pandocllmpolish
+
+Runs LLM AI cleanup on an existing wiki page's wikitext. Requires a CSRF token and POST. The LLM provider must be [configured](#llm-configuration).
+
+```
+POST /api.php
+action=pandocllmpolish&pagename=My Article&token=<csrf>&format=json
+```
+
+**Response:**
+```json
+{ "pandocllmpolish": { "result": "success", "pagename": "My Article" } }
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `pagename` | yes | Title of existing wiki page to polish |
+| `token` | yes | CSRF token |
+
+### action=pandocurltitle
+
+Fetches remote URLs and extracts their HTML `<title>` tags. Used internally by the Codex UI to suggest page names for URL imports. GET request, no token required.
+
+```
+GET /api.php?action=pandocurltitle&urls=https://example.com&format=json
+```
+
+**Response:**
+```json
+{ "pandocurltitle": { "results": [ { "url": "https://example.com", "title": "Example Domain" } ] } }
+```
+
+Accepts multiple URLs (pipe-separated). Only `http`/`https` URLs are accepted.
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `urls` | yes | One or more URLs (pipe-separated) to fetch titles from |
+
 ### API error codes
+
+**pandocconvert:**
 
 | Code | Meaning |
 |------|---------|
@@ -213,7 +289,14 @@ action=pandocconvert&filename=Document.docx&pagename=My Article&forceoverwrite=1
 | `multiplesource` | Both `filename` and `url` supplied |
 | `invalidurlscheme` | URL is not `http`/`https` |
 | `pageexists` | Page exists and `forceoverwrite` not set |
-| `conversionfailed` | Pandoc conversion failed |
+
+**pandocllmpolish:**
+
+| Code | Meaning |
+|------|---------|
+| `pagenotfound` | The specified page does not exist |
+| `notconfigured` | LLM provider is not configured on this wiki |
+| `notwikitext` | The page content is not wikitext |
 
 ## Debugging
 

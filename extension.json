@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -20,6 +20,7 @@
   },
   "APIModules": {
     "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
+    "pandocllmpolish": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocLlmPolish",
     "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
   },
   "ExtensionMessagesFiles": {
@@ -110,7 +111,11 @@
         "pandocultimateconverter-codex-switch-classic",
         "pandocultimateconverter-codex-stop",
         "pandocultimateconverter-codex-stop-requested",
-        "pandocultimateconverter-codex-llm-polish-toggle"
+        "pandocultimateconverter-codex-llm-polish-toggle",
+        "pandocultimateconverter-codex-llm-polish-btn",
+        "pandocultimateconverter-codex-status-polishing",
+        "pandocultimateconverter-codex-status-polish-error",
+        "pandocultimateconverter-conversion-complete-comment"
       ]
     },
     "ext.PandocUltimateConverter.export": {
@@ -228,7 +233,7 @@
     "PandocUltimateConverter_LlmModel": {
       "value": null,
       "path": false,
-      "description": "Model name to use for LLM polishing. Defaults to 'gpt-4o-mini' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
+      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
       "public": false
     },
     "PandocUltimateConverter_LlmPrompt": {

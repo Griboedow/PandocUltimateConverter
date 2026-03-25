@@ -11,7 +11,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
  * Configuration (in LocalSettings.php):
  *   $wgPandocUltimateConverter_LlmProvider  = 'openai';        // or 'claude'
  *   $wgPandocUltimateConverter_LlmApiKey    = 'sk-...';
- *   $wgPandocUltimateConverter_LlmModel     = 'gpt-4o-mini';   // optional, uses provider default
+ *   $wgPandocUltimateConverter_LlmModel     = 'gpt-5.4-nano';  // optional, uses provider default
  *   $wgPandocUltimateConverter_LlmPrompt    = '...';           // optional, uses built-in default
  */
 class LlmPolishService {
@@ -22,17 +22,20 @@ class LlmPolishService {
 	private const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 	private const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 
-	private const OPENAI_DEFAULT_MODEL = 'gpt-4o-mini';
+	private const OPENAI_DEFAULT_MODEL = 'gpt-5.4-nano';
 	private const CLAUDE_DEFAULT_MODEL = 'claude-3-5-haiku-20241022';
 
 	private const CLAUDE_API_VERSION = '2023-06-01';
 
 	/** Maximum tokens to request from the LLM */
-	private const MAX_TOKENS = 8192;
+	private const MAX_TOKENS = 81920;
+
+	/** cURL timeout in seconds for LLM API calls */
+	private const HTTP_TIMEOUT = 300;
 
 	/** Default cleanup prompt */
-	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. '
-		. 'Remove unnecessary formatting artifacts, fix inconsistent spacing, and improve readability '
+	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. It was created by conversion form other source (file or URL).'
+		. 'Remove unnecessary formatting artifacts (html tags, extra whitespace, website headers and menu, empty span tags, etc.), fix inconsistent spacing, and improve readability '
 		. 'while strictly preserving all content, wiki links, templates, and MediaWiki markup syntax. '
 		. 'Return only the cleaned wikitext without any explanations or commentary.';
 
@@ -109,9 +112,9 @@ class LlmPolishService {
 	 */
 	private function callOpenAi( string $wikitext ): string {
 		$body = json_encode( [
-			'model'      => $this->model,
-			'max_tokens' => self::MAX_TOKENS,
-			'messages'   => [
+			'model'                => $this->model,
+			'max_completion_tokens' => self::MAX_TOKENS,
+			'messages'             => [
 				[ 'role' => 'system', 'content' => $this->prompt ],
 				[ 'role' => 'user',   'content' => $wikitext ],
 			],
@@ -202,7 +205,7 @@ class LlmPolishService {
 			CURLOPT_POSTFIELDS     => $body,
 			CURLOPT_HTTPHEADER     => $headers,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => 120,
+			CURLOPT_TIMEOUT        => self::HTTP_TIMEOUT,
 		] );
 
 		$response = curl_exec( $ch );

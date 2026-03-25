@@ -89,6 +89,8 @@ module.exports = exports = defineStore( 'converter', () => {
 	const overwriteExisting = ref( false );
 	const llmPolish = ref( false );
 	const globalErrors = ref( [] );
+	const isPolishing = ref( false );
+	const polishPendingIds = ref( [] );
 
 	// Debounce timers keyed by item id for page-existence checks
 	const checkTimers = {};
@@ -145,6 +147,7 @@ module.exports = exports = defineStore( 'converter', () => {
 				pageExists: null,
 				status: 'queued',
 				errorMessage: '',
+				polishError: '',
 				resultPageUrl: '',
 				uploadedFileName: ''
 			} );
@@ -182,6 +185,7 @@ module.exports = exports = defineStore( 'converter', () => {
 					pageExists: null,
 					status: 'queued',
 					errorMessage: '',
+					polishError: '',
 					resultPageUrl: '',
 					uploadedFileName: ''
 				} );
@@ -235,6 +239,10 @@ module.exports = exports = defineStore( 'converter', () => {
 			clearTimeout( checkTimers[ id ] );
 			delete checkTimers[ id ];
 		}
+		const pendingIdx = polishPendingIds.value.indexOf( id );
+		if ( pendingIdx !== -1 ) {
+			polishPendingIds.value.splice( pendingIdx, 1 );
+		}
 	}
 
 	/**
@@ -242,6 +250,7 @@ module.exports = exports = defineStore( 'converter', () => {
 	 */
 	function clearAll() {
 		items.value = [];
+		polishPendingIds.value = [];
 		for ( const key of Object.keys( checkTimers ) ) {
 			clearTimeout( checkTimers[ key ] );
 			delete checkTimers[ key ];
@@ -329,13 +338,7 @@ module.exports = exports = defineStore( 'converter', () => {
 		stopRequested.value = false;
 		globalErrors.value = [];
 
-		// Install navigation guard
-		const beforeUnload = ( e ) => {
-			e.preventDefault();
-			e.returnValue = mw.msg( 'pandocultimateconverter-codex-navigate-warning' );
-			return e.returnValue;
-		};
-		window.addEventListener( 'beforeunload', beforeUnload );
+		installNavGuard();
 
 		const itemsToProcess = items.value.filter(
 			( item ) => item.status === 'queued' || item.status === 'error'
@@ -355,7 +358,7 @@ module.exports = exports = defineStore( 'converter', () => {
 		return chain.always( () => {
 			isConverting.value = false;
 			stopRequested.value = false;
-			window.removeEventListener( 'beforeunload', beforeUnload );
+			removeNavGuardIfIdle();
 		} );
 	}
 
@@ -364,6 +367,7 @@ module.exports = exports = defineStore( 'converter', () => {
 	 */
 	function stopConversion() {
 		stopRequested.value = true;
+		polishPendingIds.value = [];
 	}
 
 	/**
@@ -378,15 +382,10 @@ module.exports = exports = defineStore( 'converter', () => {
 			return $.Deferred().reject().promise();
 		}
 
-		const beforeUnload = ( e ) => {
-			e.preventDefault();
-			e.returnValue = mw.msg( 'pandocultimateconverter-codex-navigate-warning' );
-			return e.returnValue;
-		};
-		window.addEventListener( 'beforeunload', beforeUnload );
+		installNavGuard();
 
 		return convertSingleItem( item ).always( () => {
-			window.removeEventListener( 'beforeunload', beforeUnload );
+			removeNavGuardIfIdle();
 		} );
 	}
 
@@ -397,13 +396,67 @@ module.exports = exports = defineStore( 'converter', () => {
 	 * @return {jQuery.Promise}
 	 */
 	function convertSingleItem( item ) {
-		const api = new mw.Api();
+		const api = new mw.Api( { ajax: { timeout: 900000 } } );
 		item.errorMessage = '';
 
 		if ( item.sourceType === 'file' ) {
 			return convertFileItem( api, item );
 		}
 		return convertUrlItem( api, item );
+	}
+
+	// ── Navigation guard (shared by conversion + polish queues) ──
+
+	let navGuardHandler = null;
+
+	function installNavGuard() {
+		if ( navGuardHandler ) {
+			return;
+		}
+		navGuardHandler = ( e ) => {
+			e.preventDefault();
+			e.returnValue = mw.msg( 'pandocultimateconverter-codex-navigate-warning' );
+			return e.returnValue;
+		};
+		window.addEventListener( 'beforeunload', navGuardHandler );
+	}
+
+	function removeNavGuardIfIdle() {
+		if ( !isConverting.value && !isPolishing.value && navGuardHandler ) {
+			window.removeEventListener( 'beforeunload', navGuardHandler );
+			navGuardHandler = null;
+		}
+	}
+
+	// ── AI-polish queue (runs in parallel with the conversion queue) ──
+
+	let polishBusy = false;
+
+	function enqueuePolish( id ) {
+		polishPendingIds.value.push( id );
+		installNavGuard();
+		drainPolishQueue();
+	}
+
+	function drainPolishQueue() {
+		if ( polishBusy ) {
+			return;
+		}
+		if ( polishPendingIds.value.length === 0 ) {
+			isPolishing.value = false;
+			if ( !isConverting.value ) {
+				stopRequested.value = false;
+			}
+			removeNavGuardIfIdle();
+			return;
+		}
+		isPolishing.value = true;
+		polishBusy = true;
+		const id = polishPendingIds.value.shift();
+		polishItem( id ).always( () => {
+			polishBusy = false;
+			drainPolishQueue();
+		} );
 	}
 
 	/**
@@ -495,27 +548,23 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
-		if ( llmPolish.value ) {
-			params.llmpolish = 1;
-		}
-		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
+		return api.postWithEditToken( params ).then( ( result ) => {
 			item.status = 'done';
-			const title = mw.Title.newFromText( result.pandocconvert.pagename );
+			const pagename = ( result.pandocconvert && result.pandocconvert.pagename ) || item.targetPageName;
+			const title = mw.Title.newFromText( pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
-			// Cleanup temp file (best-effort, don't block on failure)
 			api.postWithEditToken( {
 				action: 'delete',
 				title: 'File:' + tempFileName,
 				reason: mw.msg( 'pandocultimateconverter-conversion-complete-comment' )
 			} );
 			item.uploadedFileName = '';
+			if ( llmPolish.value && LLM_AVAILABLE ) {
+				enqueuePolish( item.id );
+			}
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'error';
-			if ( code === 'http' && errorObj && errorObj.textStatus === 'timeout' ) {
-				item.errorMessage = 'Conversion timed out. The file may be too large. Try again or increase the server timeout.';
-			} else {
-				item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
-			}
+			item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
 		} );
 	}
 
@@ -536,32 +585,72 @@ module.exports = exports = defineStore( 'converter', () => {
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
-		if ( llmPolish.value ) {
-			params.llmpolish = 1;
-		}
-		return api.postWithEditToken( params, { timeout: 5 * 60 * 1000 } ).then( ( result ) => {
+		return api.postWithEditToken( params ).then( ( result ) => {
 			item.status = 'done';
-			const title = mw.Title.newFromText( result.pandocconvert.pagename );
+			const pagename = ( result.pandocconvert && result.pandocconvert.pagename ) || item.targetPageName;
+			const title = mw.Title.newFromText( pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
+			if ( llmPolish.value && LLM_AVAILABLE ) {
+				enqueuePolish( item.id );
+			}
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'error';
-			if ( code === 'http' && errorObj && errorObj.textStatus === 'timeout' ) {
-				item.errorMessage = 'Conversion timed out. The page may be too large. Try again or increase the server timeout.';
-			} else {
-				item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
-			}
+			item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
 		} );
+	}
+
+	/**
+	 * Run LLM AI cleanup on an already-converted item.
+	 *
+	 * @param {number} id
+	 * @return {jQuery.Promise}
+	 */
+	function polishItem( id ) {
+		const item = items.value.find( ( i ) => i.id === id );
+		if ( !item || item.status !== 'done' ) {
+			return $.Deferred().reject().promise();
+		}
+
+		item.status = 'polishing';
+		item.polishError = '';
+
+		const api = new mw.Api( { ajax: { timeout: 900000 } } );
+		return api.postWithEditToken( {
+			action: 'pandocllmpolish',
+			pagename: item.targetPageName
+		} ).then( () => {
+			item.status = 'done';
+		} ).catch( ( code, errorObj ) => {
+			item.status = 'done';
+			item.polishError = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+		} );
+	}
+
+	/**
+	 * Retry AI polish on an item that had a polish error.
+	 *
+	 * @param {number} id
+	 * @return {jQuery.Promise}
+	 */
+	function retryPolish( id ) {
+		const item = items.value.find( ( i ) => i.id === id );
+		if ( !item || item.status !== 'done' || !item.polishError ) {
+			return $.Deferred().reject().promise();
+		}
+		return polishItem( id );
 	}
 
 	return {
 		items,
 		isConverting,
+		isPolishing,
 		stopRequested,
 		isFetchingTitles,
 		overwriteExisting,
 		llmPolish,
 		LLM_AVAILABLE,
 		globalErrors,
+		polishPendingIds,
 		queuedCount,
 		overwriteCount,
 		canConvert,
@@ -575,6 +664,8 @@ module.exports = exports = defineStore( 'converter', () => {
 		convertAll,
 		stopConversion,
 		retryItem,
+		polishItem,
+		retryPolish,
 		TITLE_MIN,
 		TITLE_MAX
 	};

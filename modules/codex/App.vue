@@ -44,44 +44,44 @@
 				>
 					{{ $i18n( 'pandocultimateconverter-codex-overwrite-toggle' ).text() }}
 				</cdx-checkbox>
-				<cdx-toggle-switch
+				<cdx-checkbox
 					v-if="store.LLM_AVAILABLE"
 					v-model="store.llmPolish"
 					:disabled="store.isConverting"
 				>
 					{{ $i18n( 'pandocultimateconverter-codex-llm-polish-toggle' ).text() }}
-				</cdx-toggle-switch>
-			</div>
-			<div class="mw-pandoc-codex-app__actions-right">
-				<cdx-button
-					weight="normal"
-					action="default"
-					:disabled="store.isConverting"
-					@click="store.clearAll()"
-				>
-					{{ $i18n( 'pandocultimateconverter-codex-clear-all' ).text() }}
-				</cdx-button>
-				<cdx-button
-					v-if="store.isConverting"
-					weight="primary"
-					action="destructive"
-					:disabled="store.stopRequested"
-					@click="store.stopConversion()"
-				>
-					{{ $i18n( store.stopRequested
-						? 'pandocultimateconverter-codex-stop-requested'
-						: 'pandocultimateconverter-codex-stop'
-					).text() }}
-				</cdx-button>
-				<cdx-button
-					v-else
-					weight="primary"
-					action="progressive"
-					:disabled="!store.canConvert"
-					@click="handleConvertAll"
-				>
-					{{ $i18n( 'pandocultimateconverter-codex-convert-all' ).text() }}
-				</cdx-button>
+				</cdx-checkbox>
+				<div class="mw-pandoc-codex-app__actions-buttons">
+					<cdx-button
+						weight="normal"
+						action="default"
+						:disabled="store.isConverting"
+						@click="store.clearAll()"
+					>
+						{{ $i18n( 'pandocultimateconverter-codex-clear-all' ).text() }}
+					</cdx-button>
+					<cdx-button
+						v-if="store.isConverting || store.isPolishing"
+						weight="primary"
+						action="destructive"
+						:disabled="store.stopRequested"
+						@click="store.stopConversion()"
+					>
+						{{ $i18n( store.stopRequested
+							? 'pandocultimateconverter-codex-stop-requested'
+							: 'pandocultimateconverter-codex-stop'
+						).text() }}
+					</cdx-button>
+					<cdx-button
+						v-if="!store.isConverting"
+						weight="primary"
+						action="progressive"
+						:disabled="!store.canConvert"
+						@click="handleConvertAll"
+					>
+						{{ $i18n( 'pandocultimateconverter-codex-convert-all' ).text() }}
+					</cdx-button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -89,7 +89,7 @@
 
 <script>
 const { defineComponent, ref, computed } = require( 'vue' );
-const { CdxButton, CdxMessage, CdxCheckbox, CdxToggleSwitch } = require( '@wikimedia/codex' );
+const { CdxButton, CdxMessage, CdxCheckbox } = require( '@wikimedia/codex' );
 const useConverterStore = require( './stores/converter.js' );
 const SourceSelector = require( './components/SourceSelector.vue' );
 const ConversionQueue = require( './components/ConversionQueue.vue' );
@@ -101,7 +101,6 @@ module.exports = exports = defineComponent( {
 		CdxButton,
 		CdxMessage,
 		CdxCheckbox,
-		CdxToggleSwitch,
 		SourceSelector,
 		ConversionQueue
 	},
@@ -154,9 +153,6 @@ module.exports = exports = defineComponent( {
 	}
 
 	&__actions {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
 		margin-top: @spacing-100;
 		padding-top: @spacing-100;
 		border-top: @border-width-base @border-style-base @border-color-subtle;
@@ -168,9 +164,10 @@ module.exports = exports = defineComponent( {
 		gap: @spacing-50;
 	}
 
-	&__actions-right {
+	&__actions-buttons {
 		display: flex;
 		gap: @spacing-75;
+		margin-top: @spacing-75;
 	}
 }
 </style>
