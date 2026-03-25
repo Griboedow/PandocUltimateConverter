@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -10,9 +10,17 @@
   "AutoloadNamespaces": {
     "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
   },
+  "HookHandlers": {
+    "PandocHooks": {
+      "class": "MediaWiki\\Extension\\PandocUltimateConverter\\HookHandler"
+    }
+  },
+  "Hooks": {
+    "SkinTemplateNavigation::Universal": "PandocHooks"
+  },
   "APIModules": {
-    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert",
-    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocUrlTitle"
+    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
+    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
@@ -23,8 +31,8 @@
     ]
   },
   "SpecialPages": {
-    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter",
-    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocExport"
+    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocUltimateConverter",
+    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocExport"
   },
   "ResourceModules": {
     "ext.PandocUltimateConverter": {
@@ -195,6 +203,12 @@
       "value": "eng",
       "path": false,
       "description": "Tesseract language code(s) used for OCR of scanned PDFs. Use '+' to combine multiple languages, e.g. 'eng+deu'. Defaults to 'eng'.",
+      "public": true
+    },
+    "PandocUltimateConverter_ShowExportInPageTools": {
+      "value": true,
+      "path": false,
+      "description": "When true, show an 'Export' action in the page tools menu (Actions tab) on content pages.",
       "public": true
     }
   },

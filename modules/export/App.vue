@@ -72,12 +72,12 @@
 
 		<!-- Export button & separate files toggle -->
 		<div class="mw-pandoc-export-app__actions">
-			<cdx-toggle-switch
+			<cdx-checkbox
 				v-model="separateFiles"
 				:disabled="isExporting"
 			>
 				{{ $i18n( 'pandocultimateconverter-export-separate-files' ).text() }}
-			</cdx-toggle-switch>
+			</cdx-checkbox>
 
 			<cdx-button
 				weight="primary"
@@ -98,7 +98,7 @@
 
 <script>
 const { defineComponent, ref, computed } = require( 'vue' );
-const { CdxButton, CdxMessage, CdxSelect, CdxToggleSwitch } = require( '@wikimedia/codex' );
+const { CdxButton, CdxMessage, CdxSelect, CdxCheckbox } = require( '@wikimedia/codex' );
 const PageSearchInput = require( './components/PageSearchInput.vue' );
 
 // @vue/component
@@ -108,11 +108,12 @@ module.exports = exports = defineComponent( {
 		CdxButton,
 		CdxMessage,
 		CdxSelect,
-		CdxToggleSwitch,
+		CdxCheckbox,
 		PageSearchInput
 	},
 	setup() {
-		const items = ref( [ '' ] );
+		const preloaded = mw.config.get( 'pandocExportInitialPages' ) || [];
+		const items = ref( preloaded.length > 0 ? preloaded : [ '' ] );
 		const selectedFormat = ref( 'docx' );
 		const separateFiles = ref( false );
 		const isExporting = ref( false );
@@ -184,9 +185,16 @@ module.exports = exports = defineComponent( {
 				return response.blob().then( ( blob ) => {
 					let filename = 'export';
 					const cd = response.headers.get( 'Content-Disposition' ) || '';
-					const match = cd.match( /filename\*?=(?:UTF-8'')?["']?([^"';\s]+)/i );
-					if ( match ) {
-						filename = decodeURIComponent( match[ 1 ] );
+					// Prefer RFC 5987 filename* (URL-encoded UTF-8)
+					const starMatch = cd.match( /filename\*\s*=\s*UTF-8''([^;\s]+)/i );
+					if ( starMatch ) {
+						filename = decodeURIComponent( starMatch[ 1 ] );
+					} else {
+						// Fall back to quoted filename="..."
+						const quotedMatch = cd.match( /filename\s*=\s*"([^"]+)"/i );
+						if ( quotedMatch ) {
+							filename = quotedMatch[ 1 ];
+						}
 					}
 					const a = document.createElement( 'a' );
 					a.href = URL.createObjectURL( blob );

@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MediaWiki\Extension\PandocUltimateConverter;
+namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;

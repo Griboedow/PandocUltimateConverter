@@ -2,10 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace MediaWiki\Extension\PandocUltimateConverter;
+namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
+use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 
@@ -98,7 +99,7 @@ class SpecialPandocExport extends \SpecialPage {
 	}
 
 	protected function getGroupName(): string {
-		return 'media';
+		return 'pagetools';
 	}
 
 	public function execute( $par ): void {
@@ -116,9 +117,17 @@ class SpecialPandocExport extends \SpecialPage {
 
 		// Otherwise render the interactive Codex UI.
 		$output->addModules( 'ext.PandocUltimateConverter.export' );
+
+		// Pre-fill the page list from the subpage path (Special:PandocExport/Page_Name)
+		$initialPages = [];
+		if ( $par !== null && $par !== '' ) {
+			$initialPages[] = str_replace( '_', ' ', $par );
+		}
+
 		$output->addJsConfigVars( [
-			'pandocExportFormats'  => self::SUPPORTED_FORMATS,
-			'pandocExportEndpoint' => $this->getPageTitle()->getLocalURL(),
+			'pandocExportFormats'      => self::SUPPORTED_FORMATS,
+			'pandocExportEndpoint'     => $this->getPageTitle()->getLocalURL(),
+			'pandocExportInitialPages' => $initialPages,
 		] );
 		$output->addHTML( Html::element( 'div', [ 'class' => 'mw-pandoc-export-root' ] ) );
 	}

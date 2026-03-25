@@ -89,5 +89,7 @@
 	"pandocultimateconverter-export-error-no-pages": "Please add at least one page or category to export.",
 	"pandocultimateconverter-export-error-invalid-format": "The requested export format is not supported.",
 	"pandocultimateconverter-export-error-failed": "Export failed: $1",
-	"pandocultimateconverter-export-separate-files": "Download separate file for each page (ZIP archive)"
+	"pandocultimateconverter-export-separate-files": "Download separate file for each page (ZIP archive)",
+
+	"pandocultimateconverter-toolbox-export": "Export"
 }

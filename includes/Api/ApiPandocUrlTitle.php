@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace MediaWiki\Extension\PandocUltimateConverter;
+namespace MediaWiki\Extension\PandocUltimateConverter\Api;
 
 use ApiBase;
 use MediaWiki\MediaWikiServices;

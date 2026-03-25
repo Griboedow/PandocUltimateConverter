@@ -4,7 +4,7 @@ declare( strict_types=1 );
 
 namespace MediaWiki\Extension\PandocUltimateConverter\Tests\Unit;
 
-use MediaWiki\Extension\PandocUltimateConverter\SpecialPandocExport;
+use MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,9 +13,9 @@ use PHPUnit\Framework\TestCase;
  * These methods have no MediaWiki dependencies and can therefore be exercised
  * without a running wiki installation.
  *
- * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPandocExport::sanitizeFilename
- * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPandocExport::buildCombinedWikitext
- * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPandocExport::extractWikilinkTargets
+ * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::sanitizeFilename
+ * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::buildCombinedWikitext
+ * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::extractWikilinkTargets
  */
 class SpecialPandocExportTest extends TestCase {
 
