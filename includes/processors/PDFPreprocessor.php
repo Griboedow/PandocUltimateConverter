@@ -78,17 +78,11 @@ class PDFPreprocessor {
 		// pdftotext exits 0 even for scanned PDFs (just produces empty output)
 		$text = $result->getStdout();
 
-		// Derive page count from form-feed separators inserted between pages.
-		$formFeeds = substr_count( $text, "\f" );
-		$pageCount = $formFeeds + 1;
-
-		$nonWhitespace = strlen( preg_replace( '/\s+/', '', $text ) );
-		$threshold = self::TEXT_CHARS_PER_PAGE_THRESHOLD * $pageCount;
-		$isScanned = $nonWhitespace < $threshold;
+		$isScanned = $this->classifyTextAsScanned( $text );
 
 		wfDebugLog(
 			'PandocUltimateConverter',
-			"PDFPreprocessor::isScannedPdf: pages=$pageCount, chars=$nonWhitespace, threshold=$threshold, scanned=" . ( $isScanned ? 'yes' : 'no' )
+			"PDFPreprocessor::isScannedPdf: scanned=" . ( $isScanned ? 'yes' : 'no' )
 		);
 
 		return $isScanned;
@@ -155,25 +149,7 @@ class PDFPreprocessor {
 		}
 
 		// Step 3: Assemble plain-text OCR output into MediaWiki wikitext.
-		// Non-empty lines within each page are joined as paragraphs (separated by
-		// blank lines); pages are separated by a horizontal rule (----) so readers
-		// can tell where pages begin.
-		$wikitextParts = [];
-		foreach ( $allPageTexts as $pageText ) {
-			$lines = explode( "\n", $pageText );
-			$pageLines = [];
-			foreach ( $lines as $line ) {
-				$trimmed = trim( $line );
-				if ( $trimmed !== '' ) {
-					$pageLines[] = $trimmed;
-				}
-			}
-			if ( $pageLines !== [] ) {
-				$wikitextParts[] = implode( "\n\n", $pageLines );
-			}
-		}
-
-		$wikitext = implode( "\n\n----\n\n", $wikitextParts );
+		$wikitext = $this->assembleWikitextFromPageTexts( $allPageTexts );
 
 		wfDebugLog(
 			'PandocUltimateConverter',
@@ -284,6 +260,58 @@ class PDFPreprocessor {
 		$this->cleanHtml( $htmlFile );
 
 		return $htmlFile;
+	}
+
+	/**
+	 * Classify extracted PDF text as scanned or text-based.
+	 *
+	 * Counts non-whitespace characters and compares the average per page
+	 * (derived from form-feed separators) against TEXT_CHARS_PER_PAGE_THRESHOLD.
+	 *
+	 * @param string $text Raw text extracted by pdftotext.
+	 * @return bool True if the PDF appears to be a scanned (image-only) document.
+	 */
+	private function classifyTextAsScanned( string $text ): bool {
+		// Derive page count from form-feed separators inserted between pages.
+		$formFeeds = substr_count( $text, "\f" );
+		$pageCount = $formFeeds + 1;
+
+		$nonWhitespace = strlen( preg_replace( '/\s+/', '', $text ) );
+		$threshold = self::TEXT_CHARS_PER_PAGE_THRESHOLD * $pageCount;
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			"PDFPreprocessor::classifyTextAsScanned: pages=$pageCount, chars=$nonWhitespace, threshold=$threshold"
+		);
+
+		return $nonWhitespace < $threshold;
+	}
+
+	/**
+	 * Assemble per-page OCR texts into MediaWiki wikitext.
+	 *
+	 * Non-empty lines within each page become paragraphs (separated by blank
+	 * lines); pages are separated by a horizontal rule (----).
+	 *
+	 * @param string[] $pageTexts One entry per page, as returned by tesseract.
+	 * @return string MediaWiki wikitext.
+	 */
+	private function assembleWikitextFromPageTexts( array $pageTexts ): string {
+		$wikitextParts = [];
+		foreach ( $pageTexts as $pageText ) {
+			$lines = explode( "\n", $pageText );
+			$pageLines = [];
+			foreach ( $lines as $line ) {
+				$trimmed = trim( $line );
+				if ( $trimmed !== '' ) {
+					$pageLines[] = $trimmed;
+				}
+			}
+			if ( $pageLines !== [] ) {
+				$wikitextParts[] = implode( "\n\n", $pageLines );
+			}
+		}
+		return implode( "\n\n----\n\n", $wikitextParts );
 	}
 
 	/**
