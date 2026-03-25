@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "جارٍ تحضير التنزيل…",
 	"pandocultimateconverter-export-error-no-pages": "الرجاء إضافة صفحة واحدة على الأقل للتصدير.",
 	"pandocultimateconverter-export-error-invalid-format": "تنسيق التصدير المطلوب غير مدعوم.",
-	"pandocultimateconverter-export-error-failed": "فشل التصدير: $1"
+	"pandocultimateconverter-export-error-failed": "فشل التصدير: $1",
+	"pandocultimateconverter-toolbox-export": "تصدير"
 }

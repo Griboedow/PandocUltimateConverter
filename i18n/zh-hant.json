@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "正在準備下載…",
 	"pandocultimateconverter-export-error-no-pages": "請至少新增一個要匯出的頁面。",
 	"pandocultimateconverter-export-error-invalid-format": "請求的匯出格式不受支援。",
-	"pandocultimateconverter-export-error-failed": "匯出失敗：$1"
+	"pandocultimateconverter-export-error-failed": "匯出失敗：$1",
+	"pandocultimateconverter-toolbox-export": "匯出"
 }

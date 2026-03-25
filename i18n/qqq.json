@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Text shown on the Export button while the file is being prepared for download.",
 	"pandocultimateconverter-export-error-no-pages": "Error message shown when the user clicks Export without entering any page names.",
 	"pandocultimateconverter-export-error-invalid-format": "Error message shown when an unsupported export format is requested.",
-	"pandocultimateconverter-export-error-failed": "Error message shown when the server-side Pandoc export fails. $1 is the error detail."
+	"pandocultimateconverter-export-error-failed": "Error message shown when the server-side Pandoc export fails. $1 is the error detail.",
+	"pandocultimateconverter-toolbox-export": "Label for the Export link shown in the page toolbox (sidebar) that navigates to the Pandoc Export special page."
 }

@@ -84,5 +84,6 @@
 	"pandocultimateconverter-export-preparing": "Download voorbereiden…",
 	"pandocultimateconverter-export-error-no-pages": "Voeg ten minste één pagina toe om te exporteren.",
 	"pandocultimateconverter-export-error-invalid-format": "Het gevraagde exportformaat wordt niet ondersteund.",
-	"pandocultimateconverter-export-error-failed": "Export mislukt: $1"
+	"pandocultimateconverter-export-error-failed": "Export mislukt: $1",
+	"pandocultimateconverter-toolbox-export": "Exporteren"
 }
