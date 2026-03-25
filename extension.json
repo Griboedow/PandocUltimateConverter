@@ -156,6 +156,18 @@
       "path": false,
       "description": "Full path to the LibreOffice executable (soffice or libreoffice). No need to specify if LibreOffice is in PATH. Required for .doc import support.",
       "public": true
+    },
+    "PandocUltimateConverter_TesseractExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to the tesseract OCR executable. No need to specify if tesseract is in PATH. Required for scanned PDF (OCR) support.",
+      "public": true
+    },
+    "PandocUltimateConverter_OcrLanguage": {
+      "value": "eng",
+      "path": false,
+      "description": "Tesseract language code(s) used for OCR of scanned PDFs. Use '+' to combine multiple languages, e.g. 'eng+deu'. Defaults to 'eng'.",
+      "public": true
     }
   },
   "ConfigRegistry": {

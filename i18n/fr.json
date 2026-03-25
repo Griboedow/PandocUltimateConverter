@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Le téléversement de fichiers est désactivé sur ce wiki. Activez-le en ajoutant '$wgEnableUploads = true;' dans LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Seuls les utilisateurs connectés peuvent téléverser des fichiers sur ce wiki. Veuillez vous connecter pour continuer.",
 	"pandocultimateconverter-error-generic": "Échec du téléversement du fichier\u00a0: $1",
+	"pandocultimateconverter-error-title": "Conversion error",
+	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
 
 	"apierror-pandocultimateconverter-nosource": "Vous devez fournir 'filename' ou 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Fournissez 'filename' ou 'url', pas les deux.",

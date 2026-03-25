@@ -12,6 +12,19 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # i18n completeness — no PHP required; runs once on any ubuntu runner
+  # ---------------------------------------------------------------------------
+  i18n:
+    name: i18n completeness
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check translation completeness
+        run: bash tests/i18n-completeness.sh
+
+  # ---------------------------------------------------------------------------
   # Unit tests — PHPUnit 10/11 requires PHP >=8.1; drop EOL 7.4/8.0 from matrix
   # ---------------------------------------------------------------------------
   unit:

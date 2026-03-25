@@ -9,11 +9,12 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
 /**
- * Tests for PDFPreprocessor — specifically the HTML-cleaning logic that strips
- * pdftohtml artefacts before the intermediate HTML is handed to Pandoc.
+ * Tests for PDFPreprocessor — the HTML-cleaning logic, OCR scanned-PDF
+ * detection, and wikitext assembly.
  *
- * The private cleanHtml() method is tested via reflection because it encapsulates
- * a clearly defined transformation that is important to verify independently.
+ * Private methods are tested via reflection because they encapsulate clearly
+ * defined transformations that are important to verify independently, without
+ * requiring external binaries (pdftotext, pdftoppm, tesseract).
  *
  * @covers \MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor
  */
@@ -21,11 +22,15 @@ class PDFPreprocessorTest extends TestCase {
 
 	private PDFPreprocessor $preprocessor;
 	private ReflectionMethod $cleanHtml;
+	private ReflectionMethod $classifyTextAsScanned;
+	private ReflectionMethod $assembleWikitextFromPageTexts;
 	private string $tmpDir;
 
 	protected function setUp(): void {
 		$this->preprocessor = new PDFPreprocessor();
 		$this->cleanHtml    = new ReflectionMethod( PDFPreprocessor::class, 'cleanHtml' );
+		$this->classifyTextAsScanned = new ReflectionMethod( PDFPreprocessor::class, 'classifyTextAsScanned' );
+		$this->assembleWikitextFromPageTexts = new ReflectionMethod( PDFPreprocessor::class, 'assembleWikitextFromPageTexts' );
 
 		$this->tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'pdf_test_' . uniqid();
 		mkdir( $this->tmpDir, 0755, true );
@@ -53,6 +58,22 @@ class PDFPreprocessorTest extends TestCase {
 		file_put_contents( $file, $html );
 		$this->cleanHtml->invoke( $this->preprocessor, $file );
 		return file_get_contents( $file );
+	}
+
+	/**
+	 * Call the private classifyTextAsScanned() helper and return the result.
+	 */
+	private function classify( string $text ): bool {
+		return $this->classifyTextAsScanned->invoke( $this->preprocessor, $text );
+	}
+
+	/**
+	 * Call the private assembleWikitextFromPageTexts() helper and return the result.
+	 *
+	 * @param string[] $pageTexts
+	 */
+	private function assemble( array $pageTexts ): string {
+		return $this->assembleWikitextFromPageTexts->invoke( $this->preprocessor, $pageTexts );
 	}
 
 	// ------------------------------------------------------------------
@@ -180,5 +201,132 @@ HTML;
 		}
 		// If we reach here, no exception was thrown.
 		$this->assertTrue( true );
+	}
+
+	// ------------------------------------------------------------------
+	// classifyTextAsScanned — scanned PDF detection
+	// ------------------------------------------------------------------
+
+	public function testEmptyTextIsClassifiedAsScanned(): void {
+		$this->assertTrue( $this->classify( '' ) );
+	}
+
+	public function testWhitespaceOnlyTextIsClassifiedAsScanned(): void {
+		$this->assertTrue( $this->classify( "   \n\t\r\n   " ) );
+	}
+
+	public function testTextWithEnoughCharsIsNotScanned(): void {
+		// 100 non-whitespace chars on a single page → well above the 50-char threshold
+		$text = str_repeat( 'x', 100 );
+		$this->assertFalse( $this->classify( $text ) );
+	}
+
+	public function testTextJustBelowThresholdIsScanned(): void {
+		// 49 non-whitespace chars for a single page (threshold is 50)
+		$text = str_repeat( 'a', 49 );
+		$this->assertTrue( $this->classify( $text ) );
+	}
+
+	public function testTextExactlyAtThresholdIsNotScanned(): void {
+		// Exactly 50 non-whitespace chars → not scanned (threshold is strictly less-than)
+		$text = str_repeat( 'a', 50 );
+		$this->assertFalse( $this->classify( $text ) );
+	}
+
+	public function testMultiPageTextUsesPageCountForThreshold(): void {
+		// 3 pages (2 form feeds) → threshold = 3 × 50 = 150
+		// Providing 100 chars should still be scanned, 200 chars should not
+		$twoFormFeeds = "\f\f";
+
+		$scannedText    = str_repeat( 'a', 100 ) . $twoFormFeeds;
+		$textBasedText  = str_repeat( 'a', 200 ) . $twoFormFeeds;
+
+		$this->assertTrue( $this->classify( $scannedText ),
+			'100 chars across 3 pages (threshold 150) should be scanned' );
+		$this->assertFalse( $this->classify( $textBasedText ),
+			'200 chars across 3 pages (threshold 150) should not be scanned' );
+	}
+
+	public function testWhitespaceCharactersDoNotCountTowardsThreshold(): void {
+		// 200 spaces — whitespace is excluded from the character count
+		$text = str_repeat( ' ', 200 );
+		$this->assertTrue( $this->classify( $text ) );
+	}
+
+	public function testSinglePageWithMixedWhitespaceAndText(): void {
+		// 60 'x' + lots of spaces — non-whitespace count is 60, threshold is 50
+		$text = str_repeat( 'x', 60 ) . str_repeat( ' ', 500 );
+		$this->assertFalse( $this->classify( $text ) );
+	}
+
+	// ------------------------------------------------------------------
+	// assembleWikitextFromPageTexts — wikitext assembly
+	// ------------------------------------------------------------------
+
+	public function testAssembleEmptyArrayReturnsEmptyString(): void {
+		$this->assertSame( '', $this->assemble( [] ) );
+	}
+
+	public function testAssembleSinglePageSingleLine(): void {
+		$result = $this->assemble( [ 'Hello world' ] );
+		$this->assertSame( 'Hello world', $result );
+	}
+
+	public function testAssembleSinglePageMultipleLines(): void {
+		$result = $this->assemble( [ "Line one\nLine two\nLine three" ] );
+		$this->assertSame( "Line one\n\nLine two\n\nLine three", $result );
+	}
+
+	public function testAssembleTwoPagesAreSeparatedByHorizontalRule(): void {
+		$result = $this->assemble( [ 'Page one text', 'Page two text' ] );
+		$this->assertSame( "Page one text\n\n----\n\nPage two text", $result );
+	}
+
+	public function testAssembleThreePagesAreSeparatedByHorizontalRules(): void {
+		$result = $this->assemble( [ 'Page one', 'Page two', 'Page three' ] );
+		$this->assertSame( "Page one\n\n----\n\nPage two\n\n----\n\nPage three", $result );
+	}
+
+	public function testAssembleStripsLeadingAndTrailingWhitespaceFromLines(): void {
+		$result = $this->assemble( [ "  trimmed line  \n   another  " ] );
+		$this->assertSame( "trimmed line\n\nanother", $result );
+	}
+
+	public function testAssembleSkipsEmptyLines(): void {
+		$result = $this->assemble( [ "First\n\n\nSecond\n\n" ] );
+		$this->assertSame( "First\n\nSecond", $result );
+	}
+
+	public function testAssembleSkipsEntirelyEmptyPage(): void {
+		// An empty (or whitespace-only) page should not produce a section or extra ----
+		$result = $this->assemble( [ 'Page one', "   \n\n  ", 'Page three' ] );
+		$this->assertSame( "Page one\n\n----\n\nPage three", $result );
+	}
+
+	public function testAssembleAllEmptyPagesReturnsEmptyString(): void {
+		$result = $this->assemble( [ '', "  \n\t  ", "\n\n" ] );
+		$this->assertSame( '', $result );
+	}
+
+	public function testAssembleMultiLinePageWithEmptyLinesInterleaved(): void {
+		$pageText = "First line\n\nSecond line\n\n\nThird line";
+		$result   = $this->assemble( [ $pageText ] );
+		$this->assertSame( "First line\n\nSecond line\n\nThird line", $result );
+	}
+
+	public function testAssembleRealisticTwoPageOcrOutput(): void {
+		$page1 = "Chapter 1\n\nThis is the introduction.\nIt spans two lines.";
+		$page2 = "Chapter 2\n\nThe second chapter begins here.";
+
+		$result = $this->assemble( [ $page1, $page2 ] );
+
+		$this->assertStringContainsString( 'Chapter 1', $result );
+		$this->assertStringContainsString( 'Chapter 2', $result );
+		$this->assertStringContainsString( '----', $result );
+		// Pages must appear in order
+		$this->assertLessThan(
+			strpos( $result, 'Chapter 2' ),
+			strpos( $result, 'Chapter 1' )
+		);
 	}
 }

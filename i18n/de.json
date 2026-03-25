@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Das Hochladen von Dateien ist in diesem Wiki deaktiviert. Aktiviere es, indem du '$wgEnableUploads = true;' in LocalSettings.php hinzufügst",
 	"pandocultimateconverter-error-mustbeloggedin": "Nur angemeldete Benutzer können Dateien in dieses Wiki hochladen. Bitte melde dich an.",
 	"pandocultimateconverter-error-generic": "Datei konnte nicht hochgeladen werden: $1",
+	"pandocultimateconverter-error-title": "Conversion error",
+	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
 
 	"apierror-pandocultimateconverter-nosource": "Du musst entweder 'filename' oder 'url' angeben.",
 	"apierror-pandocultimateconverter-multiplesource": "Gib entweder 'filename' oder 'url' an, nicht beides.",
