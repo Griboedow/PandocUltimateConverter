@@ -152,12 +152,8 @@ class SpecialPandocExport extends \SpecialPage {
 		}
 
 		// Build a safe filename for the download (keep only filesystem-safe characters)
-		$rawBaseName = count( $pages ) > 1 ? 'export' : $pages[0];
-		$baseName = preg_replace( '/[\/\\\\:\*\?"<>\|]/', '_', $rawBaseName );
-		$baseName = trim( $baseName, '. ' );
-		if ( $baseName === '' ) {
-			$baseName = 'export';
-		}
+		$rawBaseName  = count( $pages ) > 1 ? 'export' : $pages[0];
+		$baseName     = self::sanitizeFilename( $rawBaseName );
 		$formatInfo   = self::SUPPORTED_FORMATS[$format];
 		$downloadName = $baseName . '.' . $formatInfo['ext'];
 
@@ -171,6 +167,78 @@ class SpecialPandocExport extends \SpecialPage {
 		}
 
 		$this->streamDownload( $outputFile, $downloadName, $formatInfo['mime'] );
+	}
+
+	// -----------------------------------------------------------------------
+	// Public static helpers (pure logic; no MediaWiki dependencies)
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Sanitize a raw string into a safe download filename component.
+	 *
+	 * Replaces filesystem-unsafe characters with underscores and strips leading /
+	 * trailing dots and spaces.  Falls back to "export" when the result would be
+	 * empty.
+	 *
+	 * Extracted as a public static method so it can be unit-tested in isolation.
+	 */
+	public static function sanitizeFilename( string $raw ): string {
+		$name = preg_replace( '/[\/\\\\:\*\?"<>\|]/', '_', $raw );
+		$name = trim( $name ?? '', '. ' );
+		return $name !== '' ? $name : 'export';
+	}
+
+	/**
+	 * Build the combined wikitext for a multi-page export.
+	 *
+	 * When only one page is exported the wikitext is returned as-is.  For
+	 * multiple pages each section is preceded by a level-1 heading and sections
+	 * are separated by a horizontal rule.
+	 *
+	 * Extracted as a public static method so it can be unit-tested in isolation.
+	 *
+	 * @param string[] $pages     Ordered list of page names.
+	 * @param string[] $wikitexts Wikitext for each page, same order as $pages.
+	 * @return string
+	 */
+	public static function buildCombinedWikitext( array $pages, array $wikitexts ): string {
+		$parts = [];
+		$multi = count( $pages ) > 1;
+		foreach ( $pages as $i => $pageName ) {
+			$wikitext = $wikitexts[$i] ?? '';
+			if ( $multi ) {
+				$parts[] = '= ' . wfEscapeWikiText( $pageName ) . " =\n\n" . $wikitext;
+			} else {
+				$parts[] = $wikitext;
+			}
+		}
+		return implode( "\n\n----\n\n", $parts );
+	}
+
+	/**
+	 * Extract candidate file-link targets from wikitext using a broad regex.
+	 *
+	 * Returns every unique link target that contains a ":" character (i.e. has
+	 * a namespace prefix).  The caller is responsible for filtering to actual
+	 * file-namespace titles via Title::newFromText().
+	 *
+	 * Extracted as a public static method so the regex logic can be
+	 * unit-tested independently of the MediaWiki Title API.
+	 *
+	 * @return string[] Unique trimmed link targets, e.g. ["File:foo.png", "Media:bar.jpg"]
+	 */
+	public static function extractWikilinkTargets( string $wikitext ): array {
+		if ( !preg_match_all( '/\[\[([^\|\[\]#\n]+)/u', $wikitext, $matches ) ) {
+			return [];
+		}
+		$results = [];
+		foreach ( array_unique( $matches[1] ) as $rawLink ) {
+			$rawLink = trim( $rawLink );
+			if ( $rawLink !== '' && strpos( $rawLink, ':' ) !== false ) {
+				$results[] = $rawLink;
+			}
+		}
+		return $results;
 	}
 
 	// -----------------------------------------------------------------------
@@ -211,21 +279,15 @@ class SpecialPandocExport extends \SpecialPage {
 		$mediaDir = $workDir . DIRECTORY_SEPARATOR . 'media';
 		mkdir( $mediaDir, 0755, true );
 
-		$parts = [];
+		$parts     = [];
+		$wikitexts = [];
 		foreach ( $pages as $pageName ) {
-			$wikitext = $this->getPageWikitext( $pageName );
+			$wikitext    = $this->getPageWikitext( $pageName );
+			$wikitexts[] = $wikitext;
 			$this->gatherImages( $wikitext, $mediaDir );
-			// Add a top-level heading before each page's wikitext when combining several pages.
-			// wfEscapeWikiText() prevents page names with wikitext-special characters from
-			// accidentally altering the document structure.
-			if ( count( $pages ) > 1 ) {
-				$parts[] = '= ' . wfEscapeWikiText( $pageName ) . " =\n\n" . $wikitext;
-			} else {
-				$parts[] = $wikitext;
-			}
 		}
 
-		$combinedWikitext = implode( "\n\n----\n\n", $parts );
+		$combinedWikitext = self::buildCombinedWikitext( $pages, $wikitexts );
 
 		// Write wikitext to a temp file for pandoc to read.
 		$inputFile = $workDir . DIRECTORY_SEPARATOR . 'input.mediawiki';
@@ -307,19 +369,11 @@ class SpecialPandocExport extends \SpecialPage {
 	 * @param string $mediaDir Absolute path to the temp media directory.
 	 */
 	private function gatherImages( string $wikitext, string $mediaDir ): void {
-		// Capture the full link target (everything before the first |, ]], #, or newline).
-		// We cast a wide net and let Title::newFromText() do the namespace validation.
-		if ( !preg_match_all( '/\[\[([^\|\[\]#\n]+)/u', $wikitext, $matches ) ) {
-			return;
-		}
+		// Use the static helper to extract candidate file-link targets (those with a ":").
+		// Title::newFromText() then does the authoritative namespace validation.
+		$candidates = self::extractWikilinkTargets( $wikitext );
 
-		foreach ( array_unique( $matches[1] ) as $rawLink ) {
-			$rawLink = trim( $rawLink );
-			// Skip plain [[PageName]] links that have no namespace prefix.
-			if ( $rawLink === '' || strpos( $rawLink, ':' ) === false ) {
-				continue;
-			}
-
+		foreach ( $candidates as $rawLink ) {
 			$title = \Title::newFromText( $rawLink );
 			if ( $title === null ) {
 				continue;
