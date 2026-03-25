@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "Filuppladdning är inaktiverad på det här wikin. Aktivera det genom att lägga till '$wgEnableUploads = true;' i LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Endast inloggade användare kan ladda upp filer till det här wikin. Logga in för att fortsätta.",
 	"pandocultimateconverter-error-generic": "Det gick inte att ladda upp filen: $1",
+	"pandocultimateconverter-error-title": "Conversion error",
+	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
 
 	"apierror-pandocultimateconverter-nosource": "Du måste ange antingen 'filename' eller 'url'.",
 	"apierror-pandocultimateconverter-multiplesource": "Ange antingen 'filename' eller 'url', inte båda.",

@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "이 위키에서는 파일 업로드가 비활성화되어 있습니다. LocalSettings.php에 '$wgEnableUploads = true;'를 추가하여 활성화하세요",
 	"pandocultimateconverter-error-mustbeloggedin": "이 위키에는 로그인한 사용자만 파일을 업로드할 수 있습니다. 계속하려면 로그인하세요.",
 	"pandocultimateconverter-error-generic": "파일 업로드 실패: $1",
+	"pandocultimateconverter-error-title": "Conversion error",
+	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
 
 	"apierror-pandocultimateconverter-nosource": "'filename' 또는 'url' 중 하나를 제공해야 합니다.",
 	"apierror-pandocultimateconverter-multiplesource": "'filename' 또는 'url' 중 하나만 제공하세요. 둘 다 제공할 수 없습니다.",

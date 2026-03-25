@@ -25,6 +25,8 @@
 	"pandocultimateconverter-error-uploaddisabled": "A fájlfeltöltés le van tiltva ezen a wikin. Engedélyezze a '$wgEnableUploads = true;' sor hozzáadásával a LocalSettings.php fájlhoz",
 	"pandocultimateconverter-error-mustbeloggedin": "Csak bejelentkezett felhasználók tölthetnek fel fájlokat erre a wikire. A folytatáshoz kérjük, jelentkezzen be.",
 	"pandocultimateconverter-error-generic": "A fájl feltöltése sikertelen: $1",
+	"pandocultimateconverter-error-title": "Conversion error",
+	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
 
 	"apierror-pandocultimateconverter-nosource": "Meg kell adnia a 'filename' vagy az 'url' paramétert.",
 	"apierror-pandocultimateconverter-multiplesource": "Adja meg a 'filename' vagy az 'url' paramétert, de ne mindkettőt.",
