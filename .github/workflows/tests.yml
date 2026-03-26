@@ -380,7 +380,7 @@ jobs:
           # poppler-utils               → pdftohtml, pdftotext, pdftoppm  (PDF import)
           # tesseract-ocr               → tesseract                        (OCR import)
           # imagemagick                 → convert                          (build scanned-PDF fixture)
-          # libreoffice                 → libreoffice --headless           (DOC import + screenshot rendering)
+          # libreoffice                 → libreoffice --headless           (DOC import)
           # texlive-xetex               → xelatex binary                  (PDF export)
           # lmodern                     → lmodern.sty (Pandoc LaTeX template)
           # texlive-fonts-recommended   → pzdr.tfm / ZapfDingbats (hyperref bookmarks)
@@ -404,48 +404,110 @@ jobs:
         working-directory: mediawiki/extensions/PandocUltimateConverter
         run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
 
-      - name: Render binary artifacts to screenshots
-        if: always()
+      # -------------------------------------------------------------------
+      # Set up a real MediaWiki instance for the Playwright Web UI tests.
+      # The PHPUnit e2e tests above run against stubs; they do not need a
+      # database.  The Playwright tests hit a live HTTP server, so we
+      # bootstrap MW here (SQLite, port 8080) after the pipeline tests.
+      # -------------------------------------------------------------------
+
+      - name: Set up MediaWiki database for Playwright tests
         run: |
-          ARTS=/tmp/pandoc-e2e-artifacts
-          mkdir -p /tmp/lo-renders
+          cd mediawiki
+          php maintenance/install.php \
+            --dbtype sqlite \
+            --dbpath /tmp/mwdb-ui \
+            --server http://localhost:8080 \
+            --scriptpath "" \
+            --lang en \
+            TestWiki admin \
+            --pass adminpassword
+          echo 'wfLoadExtension("PandocUltimateConverter");' >> LocalSettings.php
+          echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> LocalSettings.php
 
-          # PDF export → PNG (page 1 only, 150 dpi)
-          if [ -f "$ARTS/export-output.pdf" ]; then
-            pdftoppm -r 150 -png -singlefile \
-              "$ARTS/export-output.pdf" "$ARTS/screenshot-export-pdf" || true
-          fi
+      - name: Create content page for page-tools screenshot
+        run: |
+          export MW_INSTALL_PATH="${GITHUB_WORKSPACE}/mediawiki"
+          cat > /tmp/create-ui-test-page.php << 'PHPEOF'
+          <?php
+          $IP = getenv( 'MW_INSTALL_PATH' );
+          require_once "$IP/maintenance/Maintenance.php";
+          class CreateUITestPage extends Maintenance {
+              public function __construct() { parent::__construct(); }
+              public function execute() {
+                  $s   = \MediaWiki\MediaWikiServices::getInstance();
+                  $t   = $s->getTitleFactory()->newFromText( 'PandocUITestPage' );
+                  $p   = $s->getWikiPageFactory()->newFromTitle( $t );
+                  $u   = $s->getUserFactory()->newFromName( 'admin' );
+                  $upd = $p->newPageUpdater( $u );
+                  $upd->setContent(
+                      \MediaWiki\Revision\SlotRecord::MAIN,
+                      \ContentHandler::makeContent( '= UI Test Page =\n\nUsed for Web UI screenshots.', $t )
+                  );
+                  $upd->saveRevision( \CommentStoreComment::newUnsavedComment( 'UI screenshot setup' ) );
+                  $this->output( $upd->wasSuccessful() ? "PAGE_CREATED\n" : "PAGE_CREATION_FAILED\n" );
+              }
+          }
+          $maintClass = CreateUITestPage::class;
+          require_once RUN_MAINTENANCE_IF_MAIN;
+          PHPEOF
+          php /tmp/create-ui-test-page.php
 
-          # DOCX export → PDF (via LibreOffice) → PNG
-          if [ -f "$ARTS/export-output.docx" ]; then
-            libreoffice --headless \
-              --convert-to pdf --outdir /tmp/lo-renders \
-              "$ARTS/export-output.docx" 2>/dev/null || true
-            if [ -f "/tmp/lo-renders/export-output.pdf" ]; then
-              pdftoppm -r 150 -png -singlefile \
-                "/tmp/lo-renders/export-output.pdf" "$ARTS/screenshot-export-docx" || true
-              rm -f /tmp/lo-renders/export-output.pdf
+      - name: Start PHP built-in web server
+        run: |
+          cd mediawiki
+          php -S 0.0.0.0:8080 > /tmp/php-server.log 2>&1 &
+          echo "PHP server PID: $!"
+          # Wait up to 30 s for the server to respond
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/index.php -o /dev/null; then
+              echo "Server ready after ${i}s"
+              break
             fi
-          fi
+            echo "Waiting... (${i}/30)"
+            sleep 1
+          done
 
-          # ODT export → PDF (via LibreOffice) → PNG
-          if [ -f "$ARTS/export-output.odt" ]; then
-            libreoffice --headless \
-              --convert-to pdf --outdir /tmp/lo-renders \
-              "$ARTS/export-output.odt" 2>/dev/null || true
-            if [ -f "/tmp/lo-renders/export-output.pdf" ]; then
-              pdftoppm -r 150 -png -singlefile \
-                "/tmp/lo-renders/export-output.pdf" "$ARTS/screenshot-export-odt" || true
-            fi
-          fi
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-          echo "=== Artifacts ==="
-          ls -lh "$ARTS"/ || true
+      - name: Install Playwright dependencies
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        run: npm ci
 
-      - name: Upload conversion artifacts with screenshots
+      - name: Install Playwright Chromium browser
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Playwright Web UI screenshot tests
+        if: always()
+        continue-on-error: true
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        env:
+          MW_BASE_URL: http://localhost:8080
+          MW_ADMIN_USER: admin
+          MW_ADMIN_PASS: adminpassword
+          UI_SCREENSHOTS_DIR: /tmp/pandoc-ui-screenshots
+        run: |
+          mkdir -p /tmp/pandoc-ui-screenshots
+          npx playwright test
+          echo "=== Screenshots ==="
+          ls -lh /tmp/pandoc-ui-screenshots/ || true
+
+      - name: Upload conversion artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-mw-artifacts-mw-${{ matrix.mw }}
           path: /tmp/pandoc-e2e-artifacts/
+          if-no-files-found: warn
+
+      - name: Upload Web UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots-mw-${{ matrix.mw }}
+          path: /tmp/pandoc-ui-screenshots/
           if-no-files-found: warn
