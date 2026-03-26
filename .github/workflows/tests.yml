@@ -302,89 +302,6 @@ jobs:
           php /tmp/mw_smoke_test.php
 
   # ---------------------------------------------------------------------------
-  # E2E tests — exercise the full import + export pipeline with real tools
-  #
-  # Tests cover:
-  #   Import 1.1: DOCX colour preservation (DOCXColorPreprocessor)
-  #   Import 1.1: ODT  colour preservation (ODTColorPreprocessor)
-  #   Import 1.2: PDF  text-based import   (pdftohtml → Pandoc)
-  #   Import 1.2: PDF  OCR import          (pdftoppm + tesseract)
-  #   Import 1.3: DOC  import              (LibreOffice → Pandoc)
-  #   Export 2.1: DOCX export              (Pandoc mediawiki→docx)
-  #   Export 2.2: ODT  export              (Pandoc mediawiki→odt)
-  #   Export 2.3: PDF  export              (Pandoc mediawiki→pdf via xelatex)
-  #   Export 2.4: Format registry check    (SpecialPandocExport::SUPPORTED_FORMATS)
-  #
-  # Converted outputs are uploaded as artifacts ("screenshots") for review.
-  # ---------------------------------------------------------------------------
-  e2e:
-    name: E2E tests (Pandoc ${{ matrix.pandoc }})
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        pandoc:
-          - "3.5"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          extensions: dom, zip, mbstring, gd
-          coverage: none
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Install Pandoc ${{ matrix.pandoc }}
-        run: |
-          wget -q "https://github.com/jgm/pandoc/releases/download/${{ matrix.pandoc }}/pandoc-${{ matrix.pandoc }}-1-amd64.deb" \
-            -O /tmp/pandoc.deb
-          sudo dpkg -i /tmp/pandoc.deb
-          pandoc --version
-
-      - name: Install optional tools (poppler, tesseract, libreoffice, texlive)
-        run: |
-          sudo apt-get update -q
-          # poppler-utils               → pdftohtml, pdftotext, pdftoppm  (PDF import)
-          # tesseract-ocr               → tesseract                        (OCR import)
-          # imagemagick                 → convert                          (build scanned-PDF fixture)
-          # libreoffice                 → libreoffice --headless           (DOC import)
-          # texlive-xetex               → xelatex binary                  (PDF export)
-          # lmodern                     → lmodern.sty (Pandoc LaTeX template)
-          # texlive-fonts-recommended   → pzdr.tfm / ZapfDingbats (hyperref bookmarks)
-          # texlive-latex-recommended   → microtype, upquote, and other common packages
-          sudo apt-get install -y --no-install-recommends \
-            poppler-utils \
-            tesseract-ocr tesseract-ocr-eng \
-            imagemagick \
-            libreoffice \
-            texlive-xetex \
-            lmodern \
-            texlive-fonts-recommended \
-            texlive-latex-recommended
-
-      - name: Create artifacts directory
-        run: mkdir -p /tmp/pandoc-e2e-artifacts
-
-      - name: Run e2e tests
-        env:
-          E2E_ARTIFACTS_DIR: /tmp/pandoc-e2e-artifacts
-        run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
-
-      - name: Upload conversion artifacts ("screenshots")
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-conversion-artifacts-pandoc-${{ matrix.pandoc }}
-          path: /tmp/pandoc-e2e-artifacts/
-          if-no-files-found: warn
-
-  # ---------------------------------------------------------------------------
   # E2E + MediaWiki integration tests — run the full import/export pipeline
   # inside a real MediaWiki installation for each supported MW version.
   #
@@ -395,6 +312,10 @@ jobs:
   #   MW 1.42 / PHP 8.2
   #   MW 1.43 / PHP 8.3
   #   MW 1.45 / PHP 8.3
+  #
+  # After the tests run, exported binary files (DOCX, ODT, PDF) are rendered
+  # to PNG screenshots using LibreOffice + pdftoppm so reviewers can see the
+  # actual visual output in the uploaded artifacts.
   # ---------------------------------------------------------------------------
   e2e-mw:
     name: E2E tests (MW ${{ matrix.mw }}, PHP ${{ matrix.php }})
@@ -459,7 +380,7 @@ jobs:
           # poppler-utils               → pdftohtml, pdftotext, pdftoppm  (PDF import)
           # tesseract-ocr               → tesseract                        (OCR import)
           # imagemagick                 → convert                          (build scanned-PDF fixture)
-          # libreoffice                 → libreoffice --headless           (DOC import)
+          # libreoffice                 → libreoffice --headless           (DOC import + screenshot rendering)
           # texlive-xetex               → xelatex binary                  (PDF export)
           # lmodern                     → lmodern.sty (Pandoc LaTeX template)
           # texlive-fonts-recommended   → pzdr.tfm / ZapfDingbats (hyperref bookmarks)
@@ -483,7 +404,45 @@ jobs:
         working-directory: mediawiki/extensions/PandocUltimateConverter
         run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
 
-      - name: Upload conversion artifacts
+      - name: Render binary artifacts to screenshots
+        if: always()
+        run: |
+          ARTS=/tmp/pandoc-e2e-artifacts
+          mkdir -p /tmp/lo-renders
+
+          # PDF export → PNG (page 1 only, 150 dpi)
+          if [ -f "$ARTS/export-output.pdf" ]; then
+            pdftoppm -r 150 -png -singlefile \
+              "$ARTS/export-output.pdf" "$ARTS/screenshot-export-pdf" || true
+          fi
+
+          # DOCX export → PDF (via LibreOffice) → PNG
+          if [ -f "$ARTS/export-output.docx" ]; then
+            libreoffice --headless \
+              --convert-to pdf --outdir /tmp/lo-renders \
+              "$ARTS/export-output.docx" 2>/dev/null || true
+            if [ -f "/tmp/lo-renders/export-output.pdf" ]; then
+              pdftoppm -r 150 -png -singlefile \
+                "/tmp/lo-renders/export-output.pdf" "$ARTS/screenshot-export-docx" || true
+              rm -f /tmp/lo-renders/export-output.pdf
+            fi
+          fi
+
+          # ODT export → PDF (via LibreOffice) → PNG
+          if [ -f "$ARTS/export-output.odt" ]; then
+            libreoffice --headless \
+              --convert-to pdf --outdir /tmp/lo-renders \
+              "$ARTS/export-output.odt" 2>/dev/null || true
+            if [ -f "/tmp/lo-renders/export-output.pdf" ]; then
+              pdftoppm -r 150 -png -singlefile \
+                "/tmp/lo-renders/export-output.pdf" "$ARTS/screenshot-export-odt" || true
+            fi
+          fi
+
+          echo "=== Artifacts ==="
+          ls -lh "$ARTS"/ || true
+
+      - name: Upload conversion artifacts with screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
