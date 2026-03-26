@@ -36,7 +36,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Run i18n completeness test
-        run: ./vendor/bin/phpunit --testsuite unit --filter I18nCompletenessTest
+        run: ./vendor/bin/phpunit --testsuite i18n
 
   # ---------------------------------------------------------------------------
   # Unit tests — PHPUnit 10/11 requires PHP >=8.1
@@ -85,7 +85,9 @@ jobs:
       matrix:
         include:
           # MW 1.39 is an LTS release; PHP 7.4.3–8.1 are supported.
-          # We use PHP 8.1 so PHPUnit 10+ can run the test suite.
+          # PHP 7.4 is the minimum version declared in composer.json.
+          - { mw: "1.39", mw_branch: "REL1_39", php: "7.4" }
+          # PHP 8.1 is the highest version supported by both MW 1.39 and PHPUnit 10+.
           - { mw: "1.39", mw_branch: "REL1_39", php: "8.1" }
 
     steps:
@@ -124,7 +126,9 @@ jobs:
       - name: Install extension Composer dependencies
         run: |
           cd mediawiki/extensions/PandocUltimateConverter
-          composer install --no-interaction --prefer-dist
+          # Use --no-dev: dev deps (PHPUnit 10+) require PHP >=8.1, but this job
+          # also runs on PHP 7.4. Unit tests are run separately in the 'unit' job.
+          composer install --no-interaction --prefer-dist --no-dev
 
       - name: Set up MediaWiki database (SQLite)
         run: |
@@ -147,6 +151,9 @@ jobs:
           echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> mediawiki/LocalSettings.php
           # Override $wgServer to match the built-in PHP server port used in the HTTP test.
           echo '$wgServer = "http://localhost:8080";' >> mediawiki/LocalSettings.php
+          # Disable MW shell sandboxing so pandoc can make outgoing HTTP requests
+          # (e.g. fetching the local fixture URL during the e2e test).
+          echo '$wgShellRestrictionMethod = false;' >> mediawiki/LocalSettings.php
 
       - name: Start PHP built-in web server
         run: |
@@ -210,6 +217,20 @@ jobs:
         run: |
           pip install playwright
           playwright install --with-deps chromium
+
+      - name: Verify pandoc can fetch the fixture URL (pre-e2e sanity check)
+        run: |
+          # Run pandoc directly from bash to confirm it can reach localhost:8081.
+          # If this step fails the e2e test would also fail, giving a clearer error.
+          OUTPUT=$(pandoc --to=mediawiki --from=html "http://localhost:8081/fixture.html")
+          echo "Pandoc output (first 200 chars): ${OUTPUT:0:200}"
+          if echo "$OUTPUT" | grep -q "E2E Test Heading"; then
+            echo "Pandoc URL conversion: OK"
+          else
+            echo "FAIL: expected 'E2E Test Heading' in pandoc output"
+            echo "Full output: $OUTPUT"
+            exit 1
+          fi
 
       - name: E2E browser test — open special page, convert URL, validate result page
         run: |

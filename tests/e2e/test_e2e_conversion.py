@@ -23,6 +23,9 @@ MW_BASE = "http://localhost:8080"
 FIXTURE_URL = "http://localhost:8081/fixture.html"
 TARGET_PAGE = "E2ETestConvertedPage"
 
+# Allow up to 60 s for the pandoc conversion + page creation + redirect.
+CONVERSION_TIMEOUT_MS = 60_000
+
 
 def run() -> None:
     with sync_playwright() as p:
@@ -69,12 +72,18 @@ def run() -> None:
 
         # ------------------------------------------------------------------
         # Step 5: submit and wait for redirect to the converted page.
+        #
+        # Use expect_navigation() so the listener is registered before the
+        # click event fires — this avoids any race between JS form.submit()
+        # and Playwright starting to monitor for navigation.
         # ------------------------------------------------------------------
-        page.click("#mw-pandoc-upload-form-submit")
-        page.wait_for_url(
-            re.compile(re.escape(TARGET_PAGE)),
-            timeout=30_000,
-        )
+        print("Submitting conversion form …")
+        with page.expect_navigation(
+            url=re.compile(re.escape(TARGET_PAGE)),
+            timeout=CONVERSION_TIMEOUT_MS,
+        ):
+            page.click("#mw-pandoc-upload-form-submit")
+
         print(f"Form submitted — redirected to: {page.url}")
 
         # Save a screenshot of the resulting page.
