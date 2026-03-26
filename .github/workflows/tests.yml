@@ -383,3 +383,110 @@ jobs:
           name: e2e-conversion-artifacts-pandoc-${{ matrix.pandoc }}
           path: /tmp/pandoc-e2e-artifacts/
           if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # E2E + MediaWiki integration tests — run the full import/export pipeline
+  # inside a real MediaWiki installation for each supported MW version.
+  #
+  # This job combines the "mediawiki" smoke-test setup (real MW environment)
+  # with the "e2e" pipeline tests (Pandoc + poppler + tesseract + LibreOffice).
+  #
+  # Matrix:
+  #   MW 1.42 / PHP 8.2
+  #   MW 1.43 / PHP 8.3
+  #   MW 1.45 / PHP 8.3
+  # ---------------------------------------------------------------------------
+  e2e-mw:
+    name: E2E tests (MW ${{ matrix.mw }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
+          - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: extensions/PandocUltimateConverter
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring, intl, fileinfo, gd
+          coverage: none
+
+      - name: Clone MediaWiki ${{ matrix.mw }}
+        run: |
+          git clone --depth 1 \
+            --branch "${{ matrix.mw_branch }}" \
+            https://github.com/wikimedia/mediawiki.git mediawiki
+
+      - name: Install MediaWiki Composer dependencies
+        run: |
+          cd mediawiki
+          if composer install --help 2>&1 | grep -q -- '--no-audit'; then
+            AUDIT_FLAG="--no-audit"
+          elif composer install --help 2>&1 | grep -q -- '--no-security-blocking'; then
+            AUDIT_FLAG="--no-security-blocking"
+          else
+            AUDIT_FLAG=""
+          fi
+          composer install --no-interaction --prefer-dist --no-dev $AUDIT_FLAG
+
+      - name: Move extension into MW tree
+        run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
+
+      - name: Install extension Composer dependencies
+        run: |
+          cd mediawiki/extensions/PandocUltimateConverter
+          composer install --no-interaction --prefer-dist
+
+      - name: Install Pandoc 3.5
+        run: |
+          wget -q "https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb" \
+            -O /tmp/pandoc.deb
+          sudo dpkg -i /tmp/pandoc.deb
+          pandoc --version
+
+      - name: Install optional tools (poppler, tesseract, libreoffice, texlive)
+        run: |
+          sudo apt-get update -q
+          # poppler-utils               → pdftohtml, pdftotext, pdftoppm  (PDF import)
+          # tesseract-ocr               → tesseract                        (OCR import)
+          # imagemagick                 → convert                          (build scanned-PDF fixture)
+          # libreoffice                 → libreoffice --headless           (DOC import)
+          # texlive-xetex               → xelatex binary                  (PDF export)
+          # lmodern                     → lmodern.sty (Pandoc LaTeX template)
+          # texlive-fonts-recommended   → pzdr.tfm / ZapfDingbats (hyperref bookmarks)
+          # texlive-latex-recommended   → microtype, upquote, and other common packages
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils \
+            tesseract-ocr tesseract-ocr-eng \
+            imagemagick \
+            libreoffice \
+            texlive-xetex \
+            lmodern \
+            texlive-fonts-recommended \
+            texlive-latex-recommended
+
+      - name: Create artifacts directory
+        run: mkdir -p /tmp/pandoc-e2e-artifacts
+
+      - name: Run e2e tests (within MW tree)
+        env:
+          E2E_ARTIFACTS_DIR: /tmp/pandoc-e2e-artifacts
+        working-directory: mediawiki/extensions/PandocUltimateConverter
+        run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
+
+      - name: Upload conversion artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-mw-artifacts-mw-${{ matrix.mw }}
+          path: /tmp/pandoc-e2e-artifacts/
+          if-no-files-found: warn
