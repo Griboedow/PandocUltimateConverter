@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
-use MediaWiki\Config\Config;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
@@ -23,7 +22,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
     private WikiPageFactory $titleFactory;
     /** @var \RepoGroup */
     private $repoGroup;
-    private Config $config;
+    /** @var \Config */
+    private $config;
     private PandocWrapper $pandocWrapper;
 
     public function __construct()
