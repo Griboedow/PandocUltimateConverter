@@ -142,6 +142,51 @@ jobs:
         run: |
           echo 'wfLoadExtension("PandocUltimateConverter");' >> mediawiki/LocalSettings.php
           echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> mediawiki/LocalSettings.php
+          # Override $wgServer to match the built-in PHP server port used in the HTTP test.
+          echo '$wgServer = "http://localhost:8080";' >> mediawiki/LocalSettings.php
+
+      - name: Start PHP built-in web server
+        run: |
+          cd mediawiki
+          # PHP built-in server: serve MW from the mediawiki/ directory on port 8080.
+          # Requests for index.php?title=... are handled directly by index.php.
+          php -S localhost:8080 &
+          # Wait up to 15 s for the server to become reachable.
+          for i in $(seq 1 15); do
+            if curl -s -o /dev/null -w "%{http_code}" \
+                "http://localhost:8080/index.php?title=Main_Page" | grep -qE "^[23]"; then
+              echo "Server ready after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: HTTP smoke test — special page loads and renders the conversion form
+        run: |
+          # Fetch Special:PandocUltimateConverter as an anonymous HTTP client.
+          HTTP_STATUS=$(curl -s \
+            -o /tmp/sp_response.html \
+            -w "%{http_code}" \
+            "http://localhost:8080/index.php?title=Special:PandocUltimateConverter")
+          echo "HTTP status: ${HTTP_STATUS}"
+
+          # The special page must return HTTP 200.
+          if [ "${HTTP_STATUS}" != "200" ]; then
+            echo "=== Response (first 60 lines) ==="
+            head -60 /tmp/sp_response.html
+            echo "FAIL: expected HTTP 200, got ${HTTP_STATUS}"
+            exit 1
+          fi
+
+          # The rendered page must contain the conversion form ID.
+          if ! grep -q "mw-pandoc-upload-form" /tmp/sp_response.html; then
+            echo "=== Response (first 80 lines) ==="
+            head -80 /tmp/sp_response.html
+            echo "FAIL: form 'mw-pandoc-upload-form' not found in HTTP response"
+            exit 1
+          fi
+
+          echo "SPECIAL_PAGE_HTTP_OK: form rendered correctly at HTTP 200"
 
       - name: Smoke test — classes, special page, page creation
         run: |
