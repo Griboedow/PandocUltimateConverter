@@ -89,7 +89,7 @@ class ODTColorPreprocessor extends AbstractColorPreprocessor
     {
         $contentXml = $this->tempDir . DIRECTORY_SEPARATOR . 'content.xml';
         if (!file_exists($contentXml)) {
-            return '';
+            return;
         }
 
         $xmlContent = file_get_contents($contentXml);

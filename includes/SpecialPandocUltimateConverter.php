@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
-use MediaWiki\Config\Config;
-use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
+use RequestContext;
 
 class SpecialPandocUltimateConverter extends \SpecialPage
 {
@@ -22,7 +22,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
     private WikiPageFactory $titleFactory;
     /** @var \RepoGroup */
     private $repoGroup;
-    private Config $config;
+    /** @var \Config */
+    private $config;
     private PandocWrapper $pandocWrapper;
 
     public function __construct()
