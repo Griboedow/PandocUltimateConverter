@@ -199,7 +199,7 @@ module.exports = exports = defineComponent( {
 				params.set( 'separate', '1' );
 			}
 
-			const url = endpoint + '?' + params.toString();
+			const url = endpoint + '&' + decodeURIComponent(params.toString());
 
 			isExporting.value = true;
 			errorMsg.value = '';
