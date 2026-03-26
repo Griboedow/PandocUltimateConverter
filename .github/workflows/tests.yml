@@ -261,6 +261,38 @@ jobs:
                       $this->fatalError( "Failed to create test page" );
                   }
                   $this->output( "PAGE_CREATED\n" );
+
+                  // 4. Verify that the HookHandler adds the Export action to the page toolbar.
+                  //    We call the hook directly with lightweight stubs so no skin rendering
+                  //    is needed.
+                  $handler = new \MediaWiki\Extension\PandocUltimateConverter\HookHandler();
+
+                  // Minimal SkinTemplate stub
+                  $sktemplate = new class {
+                      public function getRelevantTitle() {
+                          return new class {
+                              public function isSpecialPage() { return false; }
+                              public function exists()        { return true; }
+                              public function getPrefixedDBkey() { return 'CISmokeTestPage'; }
+                          };
+                      }
+                      public function msg( string $key ) {
+                          return new class( $key ) {
+                              public function __construct( private string $k ) {}
+                              public function text(): string { return $this->k; }
+                          };
+                      }
+                  };
+
+                  $links = [ 'actions' => [] ];
+                  // ShowExportInPageTools must be true for the link to be added
+                  $GLOBALS['wgPandocUltimateConverter_ShowExportInPageTools'] = true;
+                  $handler->onSkinTemplateNavigation__Universal( $sktemplate, $links );
+
+                  if ( empty( $links['actions']['pandocexport'] ) ) {
+                      $this->fatalError( "HookHandler did not add the pandocexport action to the toolbar" );
+                  }
+                  $this->output( "HOOK_EXPORT_ACTION_OK: href=" . $links['actions']['pandocexport']['href'] . "\n" );
               }
           }
 
@@ -268,3 +300,80 @@ jobs:
           require_once RUN_MAINTENANCE_IF_MAIN;
           PHPEOF
           php /tmp/mw_smoke_test.php
+
+  # ---------------------------------------------------------------------------
+  # E2E tests — exercise the full import + export pipeline with real tools
+  #
+  # Tests cover:
+  #   Import 1.1: DOCX colour preservation (DOCXColorPreprocessor)
+  #   Import 1.1: ODT  colour preservation (ODTColorPreprocessor)
+  #   Import 1.2: PDF  text-based import   (pdftohtml → Pandoc)
+  #   Import 1.2: PDF  OCR import          (pdftoppm + tesseract)
+  #   Import 1.3: DOC  import              (LibreOffice → Pandoc)
+  #   Export 2.1: DOCX export              (Pandoc mediawiki→docx)
+  #   Export 2.2: ODT  export              (Pandoc mediawiki→odt)
+  #   Export 2.3: PDF  export              (Pandoc mediawiki→pdf via xelatex)
+  #   Export 2.4: Format registry check    (SpecialPandocExport::SUPPORTED_FORMATS)
+  #
+  # Converted outputs are uploaded as artifacts ("screenshots") for review.
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: E2E tests (Pandoc ${{ matrix.pandoc }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        pandoc:
+          - "3.5"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: dom, zip, mbstring, gd
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install Pandoc ${{ matrix.pandoc }}
+        run: |
+          wget -q "https://github.com/jgm/pandoc/releases/download/${{ matrix.pandoc }}/pandoc-${{ matrix.pandoc }}-1-amd64.deb" \
+            -O /tmp/pandoc.deb
+          sudo dpkg -i /tmp/pandoc.deb
+          pandoc --version
+
+      - name: Install optional tools (poppler, tesseract, libreoffice, texlive)
+        run: |
+          sudo apt-get update -q
+          # poppler-utils  → pdftohtml, pdftotext, pdftoppm  (PDF import)
+          # tesseract-ocr  → tesseract                        (OCR import)
+          # imagemagick    → convert                          (build scanned-PDF fixture)
+          # libreoffice    → libreoffice --headless           (DOC import)
+          # texlive-xetex  → xelatex                         (PDF export)
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils \
+            tesseract-ocr tesseract-ocr-eng \
+            imagemagick \
+            libreoffice \
+            texlive-xetex
+
+      - name: Create artifacts directory
+        run: mkdir -p /tmp/pandoc-e2e-artifacts
+
+      - name: Run e2e tests
+        env:
+          E2E_ARTIFACTS_DIR: /tmp/pandoc-e2e-artifacts
+        run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
+
+      - name: Upload conversion artifacts ("screenshots")
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-conversion-artifacts-pandoc-${{ matrix.pandoc }}
+          path: /tmp/pandoc-e2e-artifacts/
+          if-no-files-found: warn

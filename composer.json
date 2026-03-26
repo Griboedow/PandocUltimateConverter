@@ -20,11 +20,13 @@
 			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\": "tests/",
 			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Fixtures\\": "tests/fixtures/",
 			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Unit\\": "tests/unit/",
-			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Integration\\": "tests/integration/"
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\Integration\\": "tests/integration/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Tests\\E2E\\": "tests/e2e/"
 		}
 	},
 	"scripts": {
-		"test": "phpunit"
+		"test": "phpunit",
+		"test-e2e": "phpunit -c phpunit-e2e.xml.dist"
 	},
 	"config": {
 		"sort-packages": true
