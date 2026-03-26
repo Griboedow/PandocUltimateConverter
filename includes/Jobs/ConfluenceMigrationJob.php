@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Jobs;
 
 use Job;
 use MediaWiki\Extension\PandocUltimateConverter\ConfluenceClient;
+use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\MediaWikiServices;
@@ -48,6 +49,15 @@ class ConfluenceMigrationJob extends Job {
 		$this->removeDuplicates = true;
 	}
 
+	/**
+	 * Do not retry failed migration jobs — failures (invalid URL, auth errors,
+	 * unreachable server) are typically permanent and retrying just keeps the
+	 * job stuck in the queue.
+	 */
+	public function allowRetries(): bool {
+		return false;
+	}
+
 	// -----------------------------------------------------------------------
 	// Job execution
 	// -----------------------------------------------------------------------
@@ -60,6 +70,7 @@ class ConfluenceMigrationJob extends Job {
 		$apiToken      = (string)( $this->params['apiToken']       ?? '' );
 		$targetPrefix  = (string)( $this->params['targetPrefix']   ?? '' );
 		$overwrite     = (bool)(   $this->params['overwrite']      ?? false );
+		$llmPolish     = (bool)(   $this->params['llmPolish']      ?? false );
 		$userId        = (int)(    $this->params['userId']         ?? 0 );
 
 		if ( $confluenceUrl === '' || $spaceKey === '' ) {
@@ -73,6 +84,11 @@ class ConfluenceMigrationJob extends Job {
 
 		$client  = new ConfluenceClient( $confluenceUrl, $apiUser, $apiToken );
 		$wrapper = new PandocWrapper( $config, $services, $user );
+
+		$llmService = null;
+		if ( $llmPolish ) {
+			$llmService = LlmPolishService::newFromConfig( $config );
+		}
 
 		try {
 			$pages = $client->fetchAllPages( $spaceKey );
@@ -98,7 +114,7 @@ class ConfluenceMigrationJob extends Job {
 			}
 
 			try {
-				$this->migratePage( $page, $pageTitle, $client, $wrapper, $services, $user );
+				$this->migratePage( $page, $pageTitle, $client, $wrapper, $services, $user, $llmService );
 				$migratedCount++;
 			} catch ( \RuntimeException $e ) {
 				$errMsg = "Page '{$page['title']}': " . $e->getMessage();
@@ -129,7 +145,8 @@ class ConfluenceMigrationJob extends Job {
 		ConfluenceClient $client,
 		PandocWrapper $wrapper,
 		MediaWikiServices $services,
-		mixed $user
+		mixed $user,
+		?LlmPolishService $llmService = null
 	): void {
 		// 1. Fetch Confluence storage-format HTML.
 		$html = $client->fetchPageBody( $page['id'] );
@@ -172,6 +189,18 @@ class ConfluenceMigrationJob extends Job {
 
 		// 5. Post-process wikitext and save the page.
 		$wikitext = PandocTextPostprocessor::postprocess( $pandocOutput['text'], $imagesVocabulary );
+
+		// 6. Optional LLM polish.
+		if ( $llmService !== null ) {
+			try {
+				$wikitext = $llmService->polish( $wikitext );
+			} catch ( \RuntimeException $e ) {
+				wfDebugLog( 'PandocUltimateConverter',
+					"ConfluenceMigrationJob: LLM polish failed for '{$page['title']}': " . $e->getMessage()
+				);
+				// Save the unpolished version rather than failing the page.
+			}
+		}
 
 		$this->savePage( $pageTitle, $wikitext, $services, $user );
 	}

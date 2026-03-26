@@ -135,6 +135,19 @@
 				</cdx-checkbox>
 			</div>
 
+			<!-- LLM polish checkbox (only if LLM is configured) -->
+			<div
+				v-if="llmAvailable"
+				class="mw-confluence-migration-app__field mw-confluence-migration-app__field--checkbox"
+			>
+				<cdx-checkbox
+					v-model="form.llmPolish"
+					:disabled="isSubmitting"
+				>
+					{{ $i18n( 'confluencemigration-llm-polish-label' ).text() }}
+				</cdx-checkbox>
+			</div>
+
 			<!-- Submit button -->
 			<div class="mw-confluence-migration-app__actions">
 				<cdx-button
@@ -152,11 +165,60 @@
 				</cdx-button>
 			</div>
 		</div>
+
+		<!-- Pending jobs grid -->
+		<div
+			v-if="jobs.length > 0"
+			class="mw-confluence-migration-app__jobs"
+		>
+			<h3 class="mw-confluence-migration-app__jobs-heading">
+				{{ $i18n( 'confluencemigration-jobs-heading' ).text() }}
+			</h3>
+			<table class="mw-confluence-migration-app__jobs-table wikitable">
+				<thead>
+					<tr>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-id' ).text() }}</th>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-space' ).text() }}</th>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-url' ).text() }}</th>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-prefix' ).text() }}</th>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-status' ).text() }}</th>
+						<th>{{ $i18n( 'confluencemigration-jobs-col-queued' ).text() }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="job in jobs"
+						:key="job.id"
+					>
+						<td>{{ job.id }}</td>
+						<td>
+							<strong>{{ job.spaceKey }}</strong>
+						</td>
+						<td class="mw-confluence-migration-app__jobs-url">
+							{{ job.confluenceUrl }}
+						</td>
+						<td>{{ job.targetPrefix || '—' }}</td>
+						<td>
+							<span
+								class="mw-confluence-migration-app__jobs-status"
+								:class="'mw-confluence-migration-app__jobs-status--' + job.status"
+							>
+								{{ job.status === 'running'
+									? $i18n( 'confluencemigration-jobs-status-running' ).text()
+									: $i18n( 'confluencemigration-jobs-status-queued' ).text()
+								}}
+							</span>
+						</td>
+						<td>{{ formatTime( job.queuedAt ) }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 
 <script>
-const { defineComponent, ref, computed } = require( 'vue' );
+const { defineComponent, ref, computed, onMounted, onUnmounted } = require( 'vue' );
 const { CdxButton, CdxCheckbox, CdxMessage, CdxTextInput } = require( '@wikimedia/codex' );
 
 // @vue/component
@@ -175,14 +237,68 @@ module.exports = exports = defineComponent( {
 			apiUser: '',
 			apiToken: '',
 			targetPrefix: '',
-			overwrite: false
+			overwrite: false,
+			llmPolish: false
 		} );
+
+		const llmAvailable = !!mw.config.get( 'confluenceMigrationLlmAvailable' );
 
 		const isSubmitting = ref( false );
 		const successMessage = ref( '' );
 		const errorMessage = ref( '' );
 		/** @type {import('vue').Ref<Set<string>>} */
 		const invalidFields = ref( new Set() );
+
+		// --- Jobs tracking ---
+		const jobs = ref( mw.config.get( 'confluenceMigrationJobs' ) || [] );
+		let pollTimer = null;
+
+		function loadJobs() {
+			const api = new mw.Api();
+			api.get( { action: 'pandocconfluencejobs', format: 'json' } )
+				.then( ( data ) => {
+					if ( data && data.pandocconfluencejobs && data.pandocconfluencejobs.jobs ) {
+						jobs.value = data.pandocconfluencejobs.jobs;
+					}
+				} );
+		}
+
+		function startPolling() {
+			if ( pollTimer ) {
+				return;
+			}
+			pollTimer = setInterval( loadJobs, 10000 );
+		}
+
+		function stopPolling() {
+			if ( pollTimer ) {
+				clearInterval( pollTimer );
+				pollTimer = null;
+			}
+		}
+
+		function formatTime( iso ) {
+			if ( !iso ) {
+				return '—';
+			}
+			try {
+				const d = new Date( iso );
+				return d.toLocaleString();
+			} catch ( e ) {
+				return iso;
+			}
+		}
+
+		onMounted( () => {
+			// Start polling if there are already pending jobs.
+			if ( jobs.value.length > 0 ) {
+				startPolling();
+			}
+		} );
+
+		onUnmounted( () => {
+			stopPolling();
+		} );
 
 		/**
 		 * Return 'error' if the field has a validation error, 'default' otherwise.
@@ -252,7 +368,8 @@ module.exports = exports = defineComponent( {
 				apiuser: form.value.apiUser.trim(),
 				apitoken: form.value.apiToken,
 				targetprefix: form.value.targetPrefix.trim(),
-				overwrite: form.value.overwrite ? '1' : ''
+				overwrite: form.value.overwrite ? '1' : '',
+				llmpolish: form.value.llmPolish ? '1' : ''
 			} ).then( () => {
 				successMessage.value = mw.msg(
 					'confluencemigration-queued',
@@ -261,6 +378,12 @@ module.exports = exports = defineComponent( {
 				// Clear the sensitive token field after a successful submission.
 				form.value.apiToken = '';
 				invalidFields.value = new Set();
+				// Refresh the jobs grid after a short delay so the DB has
+				// committed the new job row, then start polling.
+				setTimeout( () => {
+					loadJobs();
+					startPolling();
+				}, 1500 );
 			} ).catch( ( code, data ) => {
 				const apiError = data && data.error && data.error.info
 					? data.error.info
@@ -278,7 +401,10 @@ module.exports = exports = defineComponent( {
 			errorMessage,
 			canSubmit,
 			fieldStatus,
-			handleSubmit
+			handleSubmit,
+			jobs,
+			formatTime,
+			llmAvailable
 		};
 	}
 } );
@@ -337,6 +463,45 @@ module.exports = exports = defineComponent( {
 	&__actions {
 		padding-top: @spacing-100;
 		border-top: @border-width-base @border-style-base @border-color-subtle;
+	}
+
+	&__jobs {
+		margin-top: @spacing-200;
+	}
+
+	&__jobs-heading {
+		margin-bottom: @spacing-75;
+	}
+
+	&__jobs-table {
+		width: 100%;
+		font-size: @font-size-small;
+	}
+
+	&__jobs-url {
+		max-width: 220px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__jobs-status {
+		display: inline-block;
+		padding: 2px 8px;
+		border-radius: 3px;
+		font-size: @font-size-x-small;
+		font-weight: @font-weight-bold;
+		text-transform: uppercase;
+
+		&--queued {
+			background-color: @background-color-progressive-subtle;
+			color: @color-progressive;
+		}
+
+		&--running {
+			background-color: @background-color-success-subtle;
+			color: @color-success;
+		}
 	}
 }
 </style>

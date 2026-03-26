@@ -22,7 +22,8 @@
     "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
     "pandocllmpolish": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocLlmPolish",
     "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle",
-    "pandocconfluencemigrate": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiConfluenceMigrate"
+    "pandocconfluencemigrate": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiConfluenceMigrate",
+    "pandocconfluencejobs": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiConfluenceJobs"
   },
   "ExtensionMessagesFiles": {
     "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
@@ -177,7 +178,17 @@
         "confluencemigration-queued",
         "confluencemigration-error-invalid-url",
         "confluencemigration-error-empty-spacekey",
-        "confluencemigration-error-empty-credentials"
+        "confluencemigration-error-empty-credentials",
+        "confluencemigration-llm-polish-label",
+        "confluencemigration-jobs-heading",
+        "confluencemigration-jobs-col-id",
+        "confluencemigration-jobs-col-space",
+        "confluencemigration-jobs-col-url",
+        "confluencemigration-jobs-col-prefix",
+        "confluencemigration-jobs-col-status",
+        "confluencemigration-jobs-col-queued",
+        "confluencemigration-jobs-status-queued",
+        "confluencemigration-jobs-status-running"
       ]
     }
   },

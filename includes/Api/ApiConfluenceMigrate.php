@@ -39,6 +39,7 @@ class ApiConfluenceMigrate extends ApiBase {
 		$apiToken      = $params['apitoken'];
 		$targetPrefix  = trim( $params['targetprefix'] ?? '' );
 		$overwrite     = (bool)$params['overwrite'];
+		$llmPolish     = (bool)$params['llmpolish'];
 
 		// Validate that the feature is enabled
 		$mwConfig = MediaWikiServices::getInstance()
@@ -73,6 +74,7 @@ class ApiConfluenceMigrate extends ApiBase {
 			'apiToken'      => $apiToken,
 			'targetPrefix'  => $targetPrefix,
 			'overwrite'     => $overwrite,
+			'llmPolish'     => $llmPolish,
 			'userId'        => $user->getId(),
 		] );
 
@@ -109,6 +111,10 @@ class ApiConfluenceMigrate extends ApiBase {
 				ParamValidator::PARAM_DEFAULT  => '',
 			],
 			'overwrite' => [
+				ParamValidator::PARAM_TYPE    => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false,
+			],
+			'llmpolish' => [
 				ParamValidator::PARAM_TYPE    => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false,
 			],

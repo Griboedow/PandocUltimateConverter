@@ -5,6 +5,8 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
+use MediaWiki\Extension\PandocUltimateConverter\Api\ApiConfluenceJobs;
+use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 
@@ -67,6 +69,13 @@ class SpecialConfluenceMigration extends \SpecialPage {
 
 		// Load the Vue/Codex module and mount the app.
 		$output->addModules( 'ext.PandocUltimateConverter.confluence' );
+
+		// Pre-load pending jobs so the grid renders immediately.
+		$output->addJsConfigVars( 'confluenceMigrationJobs', ApiConfluenceJobs::fetchPendingJobs() );
+		$output->addJsConfigVars( 'confluenceMigrationLlmAvailable',
+			LlmPolishService::newFromConfig( $this->config ) !== null
+		);
+
 		$output->addHTML( Html::element( 'div', [ 'class' => 'mw-confluence-migration-root' ] ) );
 	}
 }
