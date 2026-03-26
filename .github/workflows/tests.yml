@@ -138,6 +138,9 @@ jobs:
             TestWiki admin \
             --pass adminpassword
 
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
       - name: Enable PandocUltimateConverter in LocalSettings.php
         run: |
           echo 'wfLoadExtension("PandocUltimateConverter");' >> mediawiki/LocalSettings.php
@@ -187,6 +190,38 @@ jobs:
           fi
 
           echo "SPECIAL_PAGE_HTTP_OK: form rendered correctly at HTTP 200"
+
+      - name: Serve HTML fixture for URL-conversion e2e test
+        run: |
+          # Serve tests/e2e/ on port 8081 so pandoc can fetch fixture.html via HTTP.
+          python3 -m http.server 8081 \
+            --directory "${GITHUB_WORKSPACE}/mediawiki/extensions/PandocUltimateConverter/tests/e2e" &
+          # Wait up to 15 s for the fixture server to become reachable.
+          for i in $(seq 1 15); do
+            if curl -s -o /dev/null -w "%{http_code}" \
+                "http://localhost:8081/fixture.html" | grep -q "^200"; then
+              echo "Fixture server ready after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Install Playwright Python bindings and Chromium
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: E2E browser test — open special page, convert URL, validate result page
+        run: |
+          python3 "${GITHUB_WORKSPACE}/mediawiki/extensions/PandocUltimateConverter/tests/e2e/test_e2e_conversion.py"
+
+      - name: Upload E2E screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-mw${{ matrix.mw }}-php${{ matrix.php }}
+          path: /tmp/e2e_*.png
+          if-no-files-found: ignore
 
       - name: Smoke test — classes, special page, page creation
         run: |
