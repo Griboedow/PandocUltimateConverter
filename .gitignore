@@ -46,3 +46,4 @@ dist/
 coverage/
 coverage.xml
 coverage.html
+tests/e2e/__pycache__/
