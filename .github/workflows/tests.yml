@@ -128,7 +128,9 @@ jobs:
           cd mediawiki/extensions/PandocUltimateConverter
           # Use --no-dev: dev deps (PHPUnit 10+) require PHP >=8.1, but this job
           # also runs on PHP 7.4. Unit tests are run separately in the 'unit' job.
-          composer install --no-interaction --prefer-dist --no-dev
+          # --ignore-platform-reqs: skip platform-requirement resolution for dev
+          # deps so Composer doesn't reject the install on PHP 7.4.
+          composer install --no-interaction --prefer-dist --no-dev --ignore-platform-reqs
 
       - name: Set up MediaWiki database (SQLite)
         run: |
@@ -154,6 +156,9 @@ jobs:
           # Disable MW shell sandboxing so pandoc can make outgoing HTTP requests
           # (e.g. fetching the local fixture URL during the e2e test).
           echo '$wgShellRestrictionMethod = false;' >> mediawiki/LocalSettings.php
+          # Write MW debug output to a log file so it can be uploaded as a CI
+          # artifact for diagnostics when a test step fails.
+          echo '$wgDebugLogFile = "/tmp/mw_debug.log";' >> mediawiki/LocalSettings.php
 
       - name: Start PHP built-in web server
         run: |
@@ -213,11 +218,6 @@ jobs:
             sleep 1
           done
 
-      - name: Install Playwright Python bindings and Chromium
-        run: |
-          pip install playwright
-          playwright install --with-deps chromium
-
       - name: Verify pandoc can fetch the fixture URL (pre-e2e sanity check)
         run: |
           # Run pandoc directly from bash to confirm it can reach localhost:8081.
@@ -232,16 +232,16 @@ jobs:
             exit 1
           fi
 
-      - name: E2E browser test — open special page, convert URL, validate result page
+      - name: E2E API conversion test — convert URL via pandocconvert API, validate page
         run: |
           python3 "${GITHUB_WORKSPACE}/mediawiki/extensions/PandocUltimateConverter/tests/e2e/test_e2e_conversion.py"
 
-      - name: Upload E2E screenshots
+      - name: Upload e2e debug artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-screenshots-mw${{ matrix.mw }}-php${{ matrix.php }}
-          path: /tmp/e2e_*.png
+          name: e2e-debug-mw${{ matrix.mw }}-php${{ matrix.php }}
+          path: /tmp/mw_debug.log
           if-no-files-found: ignore
 
       - name: Smoke test — classes, special page, page creation
