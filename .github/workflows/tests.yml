@@ -279,7 +279,7 @@ jobs:
                   $IP = getenv( 'MW_INSTALL_PATH' );
 
                   // Load the extension's Composer autoloader so PSR-4 can find
-                  // classes in includes/processors/ (lowercase) on case-sensitive FS.
+                  // classes in includes/Processors/ on case-sensitive FS.
                   $extAutoload = "$IP/extensions/PandocUltimateConverter/vendor/autoload.php";
                   if ( file_exists( $extAutoload ) ) {
                       require_once $extAutoload;
