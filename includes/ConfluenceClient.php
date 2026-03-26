@@ -297,6 +297,24 @@ class ConfluenceClient {
 	}
 
 	/**
+	 * Lightweight connectivity and authentication check.
+	 *
+	 * Fetches one page from the space to verify that the credentials work
+	 * and the space exists.  Throws RuntimeException on failure.
+	 *
+	 * @param string $spaceKey The Confluence space key.
+	 * @throws \RuntimeException On auth failure, bad space key, or network error.
+	 */
+	public function validateAccess( string $spaceKey ): void {
+		$this->get( '/content', [
+			'spaceKey' => $spaceKey,
+			'type'     => 'page',
+			'start'    => '0',
+			'limit'    => '1',
+		] );
+	}
+
+	/**
 	 * Returns true when the configured Confluence instance is Cloud-hosted.
 	 */
 	public function isCloud(): bool {

@@ -214,6 +214,33 @@
 				</tbody>
 			</table>
 		</div>
+
+		<!-- Completed migration reports -->
+		<div
+			v-if="reports.length > 0"
+			class="mw-confluence-migration-app__reports"
+		>
+			<h3 class="mw-confluence-migration-app__reports-heading">
+				{{ $i18n( 'confluencemigration-reports-heading' ).text() }}
+			</h3>
+			<table class="mw-confluence-migration-app__reports-table wikitable">
+				<thead>
+					<tr>
+						<th>{{ $i18n( 'confluencemigration-reports-col-report' ).text() }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="report in reports"
+						:key="report.pageId"
+					>
+						<td>
+							<a :href="report.url">{{ report.title }}</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 
@@ -249,16 +276,22 @@ module.exports = exports = defineComponent( {
 		/** @type {import('vue').Ref<Set<string>>} */
 		const invalidFields = ref( new Set() );
 
-		// --- Jobs tracking ---
+		// --- Jobs & reports tracking ---
 		const jobs = ref( mw.config.get( 'confluenceMigrationJobs' ) || [] );
+		const reports = ref( mw.config.get( 'confluenceMigrationReports' ) || [] );
 		let pollTimer = null;
 
 		function loadJobs() {
 			const api = new mw.Api();
 			api.get( { action: 'pandocconfluencejobs', format: 'json' } )
 				.then( ( data ) => {
-					if ( data && data.pandocconfluencejobs && data.pandocconfluencejobs.jobs ) {
-						jobs.value = data.pandocconfluencejobs.jobs;
+					if ( data && data.pandocconfluencejobs ) {
+						if ( data.pandocconfluencejobs.jobs ) {
+							jobs.value = data.pandocconfluencejobs.jobs;
+						}
+						if ( data.pandocconfluencejobs.reports ) {
+							reports.value = data.pandocconfluencejobs.reports;
+						}
 					}
 				} );
 		}
@@ -293,6 +326,10 @@ module.exports = exports = defineComponent( {
 			// Start polling if there are already pending jobs.
 			if ( jobs.value.length > 0 ) {
 				startPolling();
+			}
+			// Always load reports at least once
+			if ( reports.value.length === 0 ) {
+				loadJobs();
 			}
 		} );
 
@@ -403,6 +440,7 @@ module.exports = exports = defineComponent( {
 			fieldStatus,
 			handleSubmit,
 			jobs,
+			reports,
 			formatTime,
 			llmAvailable
 		};
@@ -502,6 +540,19 @@ module.exports = exports = defineComponent( {
 			background-color: @background-color-success-subtle;
 			color: @color-success;
 		}
+	}
+
+	&__reports {
+		margin-top: @spacing-200;
+	}
+
+	&__reports-heading {
+		margin-bottom: @spacing-75;
+	}
+
+	&__reports-table {
+		width: 100%;
+		font-size: @font-size-small;
 	}
 }
 </style>

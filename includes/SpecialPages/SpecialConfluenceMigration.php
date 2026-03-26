@@ -72,6 +72,7 @@ class SpecialConfluenceMigration extends \SpecialPage {
 
 		// Pre-load pending jobs so the grid renders immediately.
 		$output->addJsConfigVars( 'confluenceMigrationJobs', ApiConfluenceJobs::fetchPendingJobs() );
+		$output->addJsConfigVars( 'confluenceMigrationReports', ApiConfluenceJobs::fetchReportPages() );
 		$output->addJsConfigVars( 'confluenceMigrationLlmAvailable',
 			LlmPolishService::newFromConfig( $this->config ) !== null
 		);

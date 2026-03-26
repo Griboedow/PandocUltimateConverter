@@ -96,11 +96,14 @@ class ConfluenceMigrationJob extends Job {
 			$msg = 'Could not fetch page list from Confluence: ' . $e->getMessage();
 			wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: $msg" );
 			$this->notifyError( $user, $spaceKey, $msg );
+			$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, 0, [], [], [], $msg, $services, $user );
 			$this->setLastError( $msg );
 			return false;
 		}
 
 		$migratedCount = 0;
+		$migratedPages = [];
+		$skippedEmpty  = [];
 		$errors        = [];
 
 		foreach ( $pages as $page ) {
@@ -114,8 +117,13 @@ class ConfluenceMigrationJob extends Job {
 			}
 
 			try {
-				$this->migratePage( $page, $pageTitle, $client, $wrapper, $services, $user, $llmService );
-				$migratedCount++;
+				$saved = $this->migratePage( $page, $pageTitle, $client, $wrapper, $services, $user, $llmService );
+				if ( $saved ) {
+					$migratedCount++;
+					$migratedPages[] = $pageTitle;
+				} else {
+					$skippedEmpty[] = $page['title'];
+				}
 			} catch ( \RuntimeException $e ) {
 				$errMsg = "Page '{$page['title']}': " . $e->getMessage();
 				wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: $errMsg" );
@@ -125,6 +133,7 @@ class ConfluenceMigrationJob extends Job {
 		}
 
 		$this->notifyDone( $user, $spaceKey, $migratedCount, $errors );
+		$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, $migratedCount, $migratedPages, $skippedEmpty, $errors, null, $services, $user );
 
 		return true;
 	}
@@ -137,6 +146,7 @@ class ConfluenceMigrationJob extends Job {
 	 * Migrate a single Confluence page to a MediaWiki page.
 	 *
 	 * @param array{id: string, title: string} $page
+	 * @return bool True if the page was saved, false if skipped (empty body).
 	 * @throws \RuntimeException On conversion or save failure.
 	 */
 	private function migratePage(
@@ -147,12 +157,12 @@ class ConfluenceMigrationJob extends Job {
 		MediaWikiServices $services,
 		mixed $user,
 		?LlmPolishService $llmService = null
-	): void {
+	): bool {
 		// 1. Fetch Confluence storage-format HTML.
 		$html = $client->fetchPageBody( $page['id'] );
 		if ( $html === '' ) {
 			wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: page '{$page['title']}' has empty body, skipping" );
-			return;
+			return false;
 		}
 
 		// 2. Pre-process Confluence-specific XML elements to plain HTML so that
@@ -187,22 +197,27 @@ class ConfluenceMigrationJob extends Job {
 			PandocWrapper::deleteDirectory( $pandocOutput['mediaFolder'] );
 		}
 
-		// 5. Post-process wikitext and save the page.
+		// 5. Post-process wikitext and save the page (first revision — raw conversion).
 		$wikitext = PandocTextPostprocessor::postprocess( $pandocOutput['text'], $imagesVocabulary );
+		$this->savePage( $pageTitle, $wikitext, $services, $user );
 
-		// 6. Optional LLM polish.
+		// 6. Optional LLM polish — saved as a second revision so the raw
+		//    conversion is always preserved in page history.
 		if ( $llmService !== null ) {
 			try {
-				$wikitext = $llmService->polish( $wikitext );
+				$polished = $llmService->polish( $wikitext );
+				$this->savePage( $pageTitle, $polished, $services, $user,
+					wfMessage( 'confluencemigration-llm-history-comment' )->text()
+				);
 			} catch ( \RuntimeException $e ) {
 				wfDebugLog( 'PandocUltimateConverter',
 					"ConfluenceMigrationJob: LLM polish failed for '{$page['title']}': " . $e->getMessage()
 				);
-				// Save the unpolished version rather than failing the page.
+				// The raw conversion is already saved — nothing else to do.
 			}
 		}
 
-		$this->savePage( $pageTitle, $wikitext, $services, $user );
+		return true;
 	}
 
 	/**
@@ -305,11 +320,16 @@ class ConfluenceMigrationJob extends Job {
 		string $pageTitle,
 		string $wikitext,
 		MediaWikiServices $services,
-		mixed $user
+		mixed $user,
+		?string $summary = null
 	): void {
 		$title = \Title::newFromText( $pageTitle );
 		if ( $title === null ) {
 			throw new \RuntimeException( "Invalid page title: $pageTitle" );
+		}
+
+		if ( $summary === null ) {
+			$summary = wfMessage( 'confluencemigration-history-comment' )->text();
 		}
 
 		$wikiPage    = $services->getWikiPageFactory()->newFromTitle( $title );
@@ -317,11 +337,92 @@ class ConfluenceMigrationJob extends Job {
 		$content     = new \WikitextContent( $wikitext );
 		$pageUpdater->setContent( SlotRecord::MAIN, $content );
 		$pageUpdater->saveRevision(
-			\CommentStoreComment::newUnsavedComment(
-				wfMessage( 'confluencemigration-history-comment' )->text()
-			),
+			\CommentStoreComment::newUnsavedComment( $summary ),
 			EDIT_INTERNAL
 		);
+	}
+
+	// -----------------------------------------------------------------------
+	// Report page
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Write a migration report to a wiki page.
+	 *
+	 * @param string[] $migratedPages Titles of successfully migrated pages.
+	 * @param string[] $skippedEmpty  Confluence page titles skipped due to empty body.
+	 * @param string[] $errors Per-page error messages.
+	 * @param string|null $fatalError If set, the migration failed entirely.
+	 */
+	private function writeReportPage(
+		string $spaceKey,
+		string $confluenceUrl,
+		string $targetPrefix,
+		int $migratedCount,
+		array $migratedPages,
+		array $skippedEmpty,
+		array $errors,
+		?string $fatalError,
+		MediaWikiServices $services,
+		mixed $user
+	): void {
+		$datetime = date( 'Y-m-d H:i:s' );
+		$pageTitle = "Migration from Confluence - $datetime";
+
+		$lines = [];
+		$lines[] = '== Migration Report ==';
+		$lines[] = '';
+		$lines[] = "* '''Space Key:''' $spaceKey";
+		$lines[] = "* '''Confluence URL:''' $confluenceUrl";
+		if ( $targetPrefix !== '' ) {
+			$lines[] = "* '''Target Prefix:''' $targetPrefix";
+		}
+		$lines[] = "* '''Date:''' $datetime";
+		$lines[] = '';
+
+		if ( $fatalError !== null ) {
+			$lines[] = '=== Fatal Error ===';
+			$lines[] = '<div class="error">' . htmlspecialchars( $fatalError ) . '</div>';
+		} else {
+			$lines[] = "* '''Pages migrated:''' $migratedCount";
+			if ( count( $errors ) > 0 ) {
+				$lines[] = "* '''Errors:''' " . count( $errors );
+				$lines[] = '';
+				$lines[] = '=== Errors ===';
+				foreach ( $errors as $err ) {
+					$lines[] = '* ' . htmlspecialchars( $err );
+				}
+			} else {
+				$lines[] = '';
+				$lines[] = 'Migration completed successfully with no errors.';
+			}
+
+			if ( count( $migratedPages ) > 0 ) {
+				$lines[] = '';
+				$lines[] = '=== Migrated pages ===';
+				foreach ( $migratedPages as $mp ) {
+					$lines[] = '* [[' . $mp . ']]';
+				}
+			}
+
+			if ( count( $skippedEmpty ) > 0 ) {
+				$lines[] = '';
+				$lines[] = '=== Skipped (empty body) ===';
+				foreach ( $skippedEmpty as $sp ) {
+					$lines[] = '* ' . htmlspecialchars( $sp );
+				}
+			}
+		}
+
+		$wikitext = implode( "\n", $lines );
+
+		try {
+			$this->savePage( $pageTitle, $wikitext, $services, $user );
+		} catch ( \RuntimeException $e ) {
+			wfDebugLog( 'PandocUltimateConverter',
+				'ConfluenceMigrationJob: failed to write report page: ' . $e->getMessage()
+			);
+		}
 	}
 
 	// -----------------------------------------------------------------------

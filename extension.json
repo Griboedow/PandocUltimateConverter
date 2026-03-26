@@ -188,7 +188,9 @@
         "confluencemigration-jobs-col-status",
         "confluencemigration-jobs-col-queued",
         "confluencemigration-jobs-status-queued",
-        "confluencemigration-jobs-status-running"
+        "confluencemigration-jobs-status-running",
+        "confluencemigration-reports-heading",
+        "confluencemigration-reports-col-report"
       ]
     }
   },

@@ -6,6 +6,8 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Api;
 
 use ApiBase;
 use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\IExpression;
+use Wikimedia\Rdbms\LikeValue;
 
 /**
  * Action API module: action=pandocconfluencejobs
@@ -25,10 +27,12 @@ class ApiConfluenceJobs extends ApiBase {
 			$this->dieWithError( 'apierror-mustbeloggedin-generic', 'notloggedin' );
 		}
 
-		$jobs = self::fetchPendingJobs();
+		$jobs    = self::fetchPendingJobs();
+		$reports = self::fetchReportPages();
 
 		$this->getResult()->addValue( null, $this->getModuleName(), [
-			'jobs' => $jobs,
+			'jobs'    => $jobs,
+			'reports' => $reports,
 		] );
 	}
 
@@ -85,6 +89,50 @@ class ApiConfluenceJobs extends ApiBase {
 		}
 
 		return $jobs;
+	}
+
+	/**
+	 * Fetch wiki pages whose title starts with "Migration from Confluence - ".
+	 *
+	 * @return array[] Each element has 'title', 'pageId', and 'timestamp'.
+	 */
+	public static function fetchReportPages(): array {
+		$prefix = 'Migration from Confluence - ';
+		$dbr = MediaWikiServices::getInstance()
+			->getDBLoadBalancer()
+			->getConnection( DB_REPLICA );
+
+		$res = $dbr->newSelectQueryBuilder()
+			->select( [ 'page_id', 'page_title', 'page_touched' ] )
+			->from( 'page' )
+			->where( [
+				'page_namespace' => NS_MAIN,
+				$dbr->expr( 'page_title', IExpression::LIKE,
+					new LikeValue( str_replace( ' ', '_', $prefix ), $dbr->anyString() )
+				),
+			] )
+			->orderBy( 'page_id', 'DESC' )
+			->limit( 50 )
+			->caller( __METHOD__ )
+			->fetchResultSet();
+
+		$reports = [];
+		foreach ( $res as $row ) {
+			$title = str_replace( '_', ' ', $row->page_title );
+			// Extract the datetime portion from the title.
+			$datetime = substr( $title, strlen( $prefix ) );
+			$reports[] = [
+				'pageId'    => (int)$row->page_id,
+				'title'     => $title,
+				'datetime'  => $datetime,
+				'url'       => \Title::newFromText( $title )->getLocalURL(),
+				'touched'   => $row->page_touched
+					? wfTimestamp( TS_ISO_8601, $row->page_touched )
+					: null,
+			];
+		}
+
+		return $reports;
 	}
 
 	/** @inheritDoc */

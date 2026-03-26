@@ -125,6 +125,7 @@
 	"confluencemigration-submitting": "Starting migration…",
 	"confluencemigration-queued": "The migration job for space $1 has been queued. You will receive a notification when it completes.",
 	"confluencemigration-history-comment": "Imported from Confluence",
+	"confluencemigration-llm-history-comment": "LLM cleanup of Confluence import",
 	"confluencemigration-error-invalid-url": "Please enter a valid Confluence URL starting with https://.",
 	"confluencemigration-error-empty-spacekey": "Please enter the Confluence space key.",
 	"confluencemigration-error-empty-credentials": "Please enter your email/username and API token/password.",
@@ -140,7 +141,12 @@
 	"confluencemigration-jobs-status-queued": "Queued",
 	"confluencemigration-jobs-status-running": "Running",
 
+	"confluencemigration-reports-heading": "Completed migration reports",
+	"confluencemigration-reports-col-date": "Date",
+	"confluencemigration-reports-col-report": "Report",
+
 	"apierror-pandocconfluencemigrate-disabled": "The Confluence migration feature is disabled on this wiki.",
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
+	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter\Api;
 
 use ApiBase;
+use MediaWiki\Extension\PandocUltimateConverter\ConfluenceClient;
 use MediaWiki\Extension\PandocUltimateConverter\Jobs\ConfluenceMigrationJob;
 use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -61,6 +62,16 @@ class ApiConfluenceMigrate extends ApiBase {
 		$host   = (string)parse_url( $confluenceUrl, PHP_URL_HOST );
 		if ( $scheme !== 'https' || $host === '' ) {
 			$this->dieWithError( 'apierror-pandocconfluencemigrate-invalidurl' );
+		}
+
+		// Pre-flight: verify credentials and space access before enqueuing
+		$client = new ConfluenceClient( $confluenceUrl, $apiUser, $apiToken );
+		try {
+			$client->validateAccess( $spaceKey );
+		} catch ( \RuntimeException $e ) {
+			$this->dieWithError(
+				[ 'apierror-pandocconfluencemigrate-authfailed', $e->getMessage() ]
+			);
 		}
 
 		// Enqueue the migration job
