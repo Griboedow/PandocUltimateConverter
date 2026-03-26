@@ -1,0 +1,13 @@
+{
+  "name": "pandocultimateconverter-e2e",
+  "version": "1.0.0",
+  "description": "End-to-end tests for the PandocUltimateConverter MediaWiki extension (MW 1.39)",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

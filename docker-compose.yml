@@ -1,0 +1,24 @@
+services:
+  mediawiki:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount the extension into the MW extensions folder (read-only)
+      - .:/var/www/html/extensions/PandocUltimateConverter:ro
+      # Persist the SQLite database between container restarts
+      - mw_data:/var/www/data
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/index.php/Main_Page"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  mw_data:
