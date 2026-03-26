@@ -21,8 +21,9 @@ use PHPUnit\Framework\TestCase;
  *
  * When you add a new key to i18n/en.json you MUST also add a real translation of
  * that key to EVERY other language file in i18n/.  The complete list of languages
- * is: ar, cs, de, es, fr, hu, it, ja, ko, nl, pl, pt-br, ru, sk, sv, tr, uk,
- * zh-hans, zh-hant.
+ * is: ar, cs, da, de, eo, es, fi, fr, he, hi, hu, id, it, ja, ko, la, ms,
+ * nb, nl, pl, pt, pt-br, ro, ru, sco, sk, sv, th, tr, uk, vi, zh-hans,
+ * zh-hant.
  *
  * Do NOT copy-paste the English text as a placeholder — that is what this test
  * is designed to catch and fail on.
@@ -72,6 +73,9 @@ class I18nCompletenessTest extends TestCase {
 		'pandocultimateconverter-special-source-type-label',
 		// "File:" is used unchanged in Italian (the English word is standard in the IT domain).
 		'pandocultimateconverter-special-upload-file',
+		// "Stop" is an internationally understood loanword used unchanged in Danish and
+		// several other languages.
+		'pandocultimateconverter-codex-stop',
 	];
 
 	// ------------------------------------------------------------------
