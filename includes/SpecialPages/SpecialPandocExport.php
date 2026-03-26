@@ -331,7 +331,7 @@ class SpecialPandocExport extends \SpecialPage {
 		$res = $dbr->newSelectQueryBuilder()
 			->select( [ 'cl_from' ] )
 			->from( 'categorylinks' )
-			->where( [ 'cl_to' => $dbKey ] )
+			->where( [ 'cl_target_id' => $dbKey ] )
 			->caller( __METHOD__ )
 			->fetchResultSet();
 
