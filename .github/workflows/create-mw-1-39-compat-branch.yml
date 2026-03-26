@@ -1,0 +1,28 @@
+name: Create mw-1.39-compat branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create mw-1.39-compat branch from v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code origin mw-1.39-compat; then
+            echo "Branch mw-1.39-compat already exists, skipping."
+          else
+            git checkout -b mw-1.39-compat v0.3.0
+            git push origin mw-1.39-compat
+            echo "Branch mw-1.39-compat created from v0.3.0."
+          fi
