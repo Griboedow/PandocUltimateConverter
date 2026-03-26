@@ -350,17 +350,18 @@ jobs:
       - name: Install optional tools (poppler, tesseract, libreoffice, texlive)
         run: |
           sudo apt-get update -q
-          # poppler-utils  → pdftohtml, pdftotext, pdftoppm  (PDF import)
-          # tesseract-ocr  → tesseract                        (OCR import)
-          # imagemagick    → convert                          (build scanned-PDF fixture)
-          # libreoffice    → libreoffice --headless           (DOC import)
-          # texlive-xetex  → xelatex                         (PDF export)
+          # poppler-utils          → pdftohtml, pdftotext, pdftoppm  (PDF import)
+          # tesseract-ocr          → tesseract                        (OCR import)
+          # imagemagick            → convert                          (build scanned-PDF fixture)
+          # libreoffice            → libreoffice --headless           (DOC import)
+          # texlive-xetex + lmodern → xelatex + lmodern.sty          (PDF export)
           sudo apt-get install -y --no-install-recommends \
             poppler-utils \
             tesseract-ocr tesseract-ocr-eng \
             imagemagick \
             libreoffice \
-            texlive-xetex
+            texlive-xetex \
+            lmodern
 
       - name: Create artifacts directory
         run: mkdir -p /tmp/pandoc-e2e-artifacts
