@@ -236,6 +236,41 @@ jobs:
         run: |
           python3 "${GITHUB_WORKSPACE}/mediawiki/extensions/PandocUltimateConverter/tests/e2e/test_e2e_conversion.py"
 
+      - name: Screenshot of converted article page
+        if: success()
+        run: |
+          # Capture a browser screenshot of the converted wiki article as visual
+          # proof that the end-to-end conversion produced a real, readable page.
+          # google-chrome-stable is pre-installed on GitHub Actions ubuntu-latest.
+          CHROME_BIN=""
+          for bin in google-chrome-stable google-chrome chromium-browser chromium; do
+            if command -v "$bin" >/dev/null 2>&1; then
+              CHROME_BIN="$bin"
+              break
+            fi
+          done
+          if [ -z "$CHROME_BIN" ]; then
+            echo "No chromium/chrome found — skipping screenshot"
+            exit 0
+          fi
+          echo "Using browser: $CHROME_BIN"
+          "$CHROME_BIN" \
+            --headless \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --screenshot=/tmp/e2e_article_screenshot.png \
+            --window-size=1280,960 \
+            "http://localhost:8080/index.php?title=E2ETestConvertedPage"
+          echo "Screenshot saved: /tmp/e2e_article_screenshot.png ($(wc -c < /tmp/e2e_article_screenshot.png) bytes)"
+
+      - name: Upload e2e screenshot
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshot-mw${{ matrix.mw }}-php${{ matrix.php }}
+          path: /tmp/e2e_article_screenshot.png
+          if-no-files-found: ignore
+
       - name: Upload e2e debug artifacts
         if: always()
         uses: actions/upload-artifact@v4
