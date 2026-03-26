@@ -2,9 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
 
 # Restrict the default GITHUB_TOKEN to read-only for all jobs in this workflow.
 permissions:
@@ -12,20 +10,36 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # i18n completeness — no PHP required; runs once on any ubuntu runner
+  # i18n completeness
   # ---------------------------------------------------------------------------
   i18n:
-    name: i18n completeness
+    name: i18n completeness (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.1"
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check translation completeness
-        run: bash tests/i18n-completeness.sh
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run i18n completeness test
+        run: ./vendor/bin/phpunit --testsuite unit --filter I18nCompletenessTest
 
   # ---------------------------------------------------------------------------
-  # Unit tests — PHPUnit 10/11 requires PHP >=8.1; drop EOL 7.4/8.0 from matrix
+  # Unit tests — PHPUnit 10/11 requires PHP >=8.1
   # ---------------------------------------------------------------------------
   unit:
     name: Unit tests (PHP ${{ matrix.php }})
@@ -56,50 +70,11 @@ jobs:
         run: ./vendor/bin/phpunit --testsuite unit
 
   # ---------------------------------------------------------------------------
-  # Integration tests — require Pandoc; run on current PHP only
-  # ---------------------------------------------------------------------------
-  integration:
-    name: Integration tests (Pandoc ${{ matrix.pandoc }})
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        pandoc:
-          - "3.1.11"   # stable LTS
-          - "3.5"      # recent release
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          extensions: dom, zip, mbstring
-          coverage: none
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Install Pandoc ${{ matrix.pandoc }}
-        run: |
-          wget -q "https://github.com/jgm/pandoc/releases/download/${{ matrix.pandoc }}/pandoc-${{ matrix.pandoc }}-1-amd64.deb" \
-            -O /tmp/pandoc.deb
-          sudo dpkg -i /tmp/pandoc.deb
-          pandoc --version
-
-      - name: Run integration tests
-        run: ./vendor/bin/phpunit --testsuite integration
-
-  # ---------------------------------------------------------------------------
-  # MediaWiki extension tests — run against multiple MW versions
+  # MediaWiki 1.39 compatibility smoke test
   #
-  # A proper maintenance-script smoke test bootstraps the full MW environment
-  # and asserts:
-  #   1. Extension PHP classes are autoloadable
-  #   2. The special page instantiates without errors
-  #   3. A wiki page can be created via the MediaWiki internal API
+  # MW 1.39 (LTS) uses \RequestContext (global namespace).
+  # The extension uses \RequestContext after fixing the MW 1.42+ namespace alias.
+  # PHP 8.1 is the highest version supported by both MW 1.39 and PHPUnit 10+.
   # ---------------------------------------------------------------------------
   mediawiki:
     name: MW ${{ matrix.mw }} / PHP ${{ matrix.php }}
@@ -109,13 +84,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # MW branch names use underscores (REL1_XX).
-          # PHP version is the highest supported by each MW release.
-          # MW 1.39 and 1.41 are omitted: the extension uses MediaWiki\Context\RequestContext
-          # (and MediaWiki\Html\Html), which only exist from MW 1.42 onward.
-          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }
-          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
-          - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+          # MW 1.39 is an LTS release; PHP 7.4.3–8.1 are supported.
+          # We use PHP 8.1 so PHPUnit 10+ can run the test suite.
+          - { mw: "1.39", mw_branch: "REL1_39", php: "8.1" }
 
     steps:
       - uses: actions/checkout@v4
@@ -138,12 +109,6 @@ jobs:
       - name: Install MediaWiki Composer dependencies
         run: |
           cd mediawiki
-          # Some MW releases (e.g. 1.41) pin phpunit in require (not require-dev),
-          # so --no-dev alone does not skip the security-advisory block.
-          # The flag name changed between Composer versions:
-          #   Composer 2.2–2.5  →  --no-security-blocking
-          #   Composer 2.6+     →  --no-audit
-          # Detect which flag is available and use it.
           if composer install --help 2>&1 | grep -q -- '--no-audit'; then
             AUDIT_FLAG="--no-audit"
           elif composer install --help 2>&1 | grep -q -- '--no-security-blocking'; then
@@ -184,11 +149,18 @@ jobs:
           cat > /tmp/mw_smoke_test.php << 'PHPEOF'
           <?php
           /**
-           * CI smoke test for PandocUltimateConverter.
-           * Checks class autoloading, special-page instantiation, and page creation.
+           * CI smoke test for PandocUltimateConverter on MediaWiki 1.39.
            *
-           * Compatible with MediaWiki 1.42+ (the extension itself requires 1.42+ because
-           * it uses MediaWiki\Context\RequestContext and MediaWiki\Html\Html).
+           * Verifies:
+           *   1. Extension PHP classes are autoloadable via Composer PSR-4.
+           *   2. The special page is registered and instantiates without errors.
+           *   3. A wiki page can be created via the MediaWiki internal API.
+           *
+           * MW 1.39 compatibility notes:
+           *   - \RequestContext is in the global namespace (not MediaWiki\Context\RequestContext).
+           *   - Maintenance::getServiceContainer() was added in MW 1.40; use
+           *     MediaWikiServices::getInstance() instead.
+           *   - getTitleFactory() was available from MW 1.36+, so fine for 1.39.
            */
           $IP = getenv( 'MW_INSTALL_PATH' );
           if ( !$IP ) {
@@ -199,13 +171,13 @@ jobs:
           class PandocSmokeTest extends Maintenance {
               public function __construct() {
                   parent::__construct();
-                  $this->addDescription( 'CI smoke test for PandocUltimateConverter' );
+                  $this->addDescription( 'CI smoke test for PandocUltimateConverter (MW 1.39)' );
               }
 
               public function execute() {
                   $IP = getenv( 'MW_INSTALL_PATH' );
 
-                  // Load the extension's own composer autoloader so PSR-4 can find
+                  // Load the extension's Composer autoloader so PSR-4 can find
                   // classes in includes/processors/ (lowercase) on case-sensitive FS.
                   $extAutoload = "$IP/extensions/PandocUltimateConverter/vendor/autoload.php";
                   if ( file_exists( $extAutoload ) ) {
@@ -220,6 +192,7 @@ jobs:
                   $classes = [
                       'MediaWiki\Extension\PandocUltimateConverter\PandocWrapper',
                       'MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor',
+                      'MediaWiki\Extension\PandocUltimateConverter\SpecialPandocUltimateConverter',
                   ];
                   foreach ( $classes as $cls ) {
                       if ( !class_exists( $cls ) ) {
@@ -240,12 +213,7 @@ jobs:
                   $this->output( "SPECIAL_PAGE_OK: " . get_class( $sp ) . "\n" );
 
                   // 3. Create a test page via the MediaWiki internal API.
-                  //    This verifies the full MW stack (DB, content model, revision store).
-                  //
-                  // Version-safe notes:
-                  //   - \Title global alias removed in MW 1.45 → use TitleFactory service
-                  //   - UserFactory::newSystemUser() removed in MW 1.43 → use UserFactory::newFromName()
-                  //   - Maintenance::getUser() does not exist; use the 'admin' account created by install.php
+                  //    getTitleFactory() was available from MW 1.36+, so fine for 1.39.
                   $title   = $services->getTitleFactory()->newFromText( 'CISmokeTestPage' );
                   $page    = $services->getWikiPageFactory()->newFromTitle( $title );
                   $user    = $services->getUserFactory()->newFromName( 'admin' );

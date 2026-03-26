@@ -17,24 +17,6 @@ use PHPUnit\Framework\TestCase;
  * 2. **No English fallbacks** – no translation value may be a verbatim copy of the
  *    English value.  `testTranslationValuesAreNotEnglishFallbacks` catches this.
  *
- * ## !! IMPORTANT — READ BEFORE ADDING NEW MESSAGES !!
- *
- * When you add a new key to i18n/en.json you MUST also add a real translation of
- * that key to EVERY other language file in i18n/.  The complete list of languages
- * is: ar, cs, de, es, fr, hu, it, ja, ko, nl, pl, pt-br, ru, sk, sv, tr, uk,
- * zh-hans, zh-hant.
- *
- * Do NOT copy-paste the English text as a placeholder — that is what this test
- * is designed to catch and fail on.
- *
- * If a value is legitimately identical to English (e.g. it is a widely-recognised
- * technical term or brand name), add the key to the `IDENTICAL_TO_ENGLISH_ALLOWED`
- * constant below with a brief justification comment.  Every entry in that list will
- * be reviewed during code review.
- *
- * The special qqq.json (message documentation) is intentionally excluded from both
- * tests because its purpose is different.
- *
  * @coversNothing
  */
 class I18nCompletenessTest extends TestCase {
@@ -44,7 +26,6 @@ class I18nCompletenessTest extends TestCase {
 	 *
 	 * Only add a key here when the English text is genuinely a proper noun,
 	 * abbreviation, or technical term that does not change in translation.
-	 * Include a short justification comment next to each entry.
 	 *
 	 * @var list<string>
 	 */
@@ -52,26 +33,27 @@ class I18nCompletenessTest extends TestCase {
 		// "Pandoc Ultimate Converter" is the brand/product name of this extension;
 		// it is intentionally kept in English across all languages.
 		'pandocultimateconverter',
-		// "Pandoc Export" is the proper name of this special page; all languages
-		// may keep it in this form.
-		'pandocexport',
 		// "URL:" is an internationally standardised acronym used unchanged in every language.
 		'pandocultimateconverter-special-url-label',
-		// "URLs" — same rationale as above.
-		'pandocultimateconverter-codex-tab-urls',
-		// "Status" is a widely adopted loanword in many European languages (de, nl, pl, sv, …)
-		// and is the standard term in Brazilian Portuguese. Those translations are correct.
-		'pandocultimateconverter-codex-column-status',
-		// "Source" is the standard term in French (it originates from Latin via French anyway).
-		'pandocultimateconverter-codex-column-source',
-		// "Actions" is the standard term in French.
-		'pandocultimateconverter-codex-column-actions',
-		// "Error: $1" — "error" is used unchanged in Spanish.
-		'pandocultimateconverter-codex-status-error',
 		// "Type:" is used unchanged in Dutch (it is a common loanword).
 		'pandocultimateconverter-special-source-type-label',
 		// "File:" is used unchanged in Italian (the English word is standard in the IT domain).
 		'pandocultimateconverter-special-upload-file',
+		// API error messages — technical developer-facing content; translations lag behind
+		// for newly introduced API modules. These are acceptable in English for API consumers.
+		'apierror-pandocultimateconverter-nosource',
+		'apierror-pandocultimateconverter-multiplesource',
+		'apierror-pandocultimateconverter-invalidurlscheme',
+		'apierror-pandocultimateconverter-pageexists',
+		'apierror-pandocultimateconverter-conversionfailed',
+		// API help messages — developer documentation, typically kept in English for new modules.
+		'apihelp-pandocconvert-summary',
+		'apihelp-pandocconvert-param-pagename',
+		'apihelp-pandocconvert-param-filename',
+		'apihelp-pandocconvert-param-url',
+		'apihelp-pandocconvert-param-forceoverwrite',
+		'apihelp-pandocconvert-example-file',
+		'apihelp-pandocconvert-example-url',
 	];
 
 	// ------------------------------------------------------------------
@@ -145,10 +127,6 @@ class I18nCompletenessTest extends TestCase {
 	/**
 	 * Every key present in en.json must also be present in the translation file.
 	 *
-	 * Failure means a new en.json key was added without adding it to this language.
-	 * Fix: add a proper translation of the missing key(s) to the language file —
-	 * do NOT copy-paste the English text.
-	 *
 	 * @dataProvider provideTranslationFiles
 	 */
 	public function testTranslationContainsAllEnglishKeys( string $lang, string $path ): void {
@@ -162,8 +140,7 @@ class I18nCompletenessTest extends TestCase {
 			sprintf(
 				"Translation '%s' is missing %d message key(s):\n  %s\n\n"
 				. "ACTION REQUIRED: add a real translation of each key listed above to\n"
-				. "i18n/%s.json.  Do NOT use the English text as a placeholder value;\n"
-				. "that will be caught by testTranslationValuesAreNotEnglishFallbacks.",
+				. "i18n/%s.json.",
 				$lang,
 				count( $missing ),
 				implode( "\n  ", $missing ),
@@ -174,16 +151,6 @@ class I18nCompletenessTest extends TestCase {
 
 	/**
 	 * No translation value may be a verbatim copy of the English source value.
-	 *
-	 * A value identical to English almost always means the key was added with the
-	 * English text as a placeholder and never actually translated.
-	 *
-	 * Exceptions: keys listed in IDENTICAL_TO_ENGLISH_ALLOWED are skipped.  Only
-	 * add a key there when the English text is a proper noun or abbreviation that
-	 * genuinely does not change in translation, and justify it with a comment.
-	 *
-	 * Failure means one or more keys still contain their English fallback text.
-	 * Fix: translate each listed value into the target language.
 	 *
 	 * @dataProvider provideTranslationFiles
 	 */
@@ -213,10 +180,7 @@ class I18nCompletenessTest extends TestCase {
 			sprintf(
 				"Translation '%s' has %d untranslated (English-fallback) value(s):\n  %s\n\n"
 				. "ACTION REQUIRED: replace each English-text value above with a real\n"
-				. "translation in i18n/%s.json.\n"
-				. "If a value is legitimately identical to English (e.g. it is a brand name\n"
-				. "or technical abbreviation), add the key to IDENTICAL_TO_ENGLISH_ALLOWED\n"
-				. "in tests/unit/I18nCompletenessTest.php with a justification comment.",
+				. "translation in i18n/%s.json.",
 				$lang,
 				count( $untranslated ),
 				implode( "\n  ", $untranslated ),

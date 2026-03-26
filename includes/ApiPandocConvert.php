@@ -2,10 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace MediaWiki\Extension\PandocUltimateConverter\Api;
+namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use ApiBase;
-use MediaWiki\Extension\PandocUltimateConverter\PandocConverterService;
 use MediaWiki\MediaWikiServices;
 use Wikimedia\ParamValidator\ParamValidator;
 
@@ -66,18 +65,19 @@ class ApiPandocConvert extends ApiBase {
 			$this->dieWithError( 'apierror-pandocultimateconverter-pageexists' );
 		}
 
-		$user = $this->getUser();
+		$user    = $this->getUser();
+		$service = new PandocConverterService( $mwConfig, MediaWikiServices::getInstance(), $user );
 
-		$service = new PandocConverterService(
-			$mwConfig,
-			MediaWikiServices::getInstance(),
-			$user
-		);
-
-		if ( $fileName !== null ) {
-			$service->convertFileToPage( $fileName, $pageName );
-		} else {
-			$service->convertUrlToPage( $sourceUrl, $pageName );
+		try {
+			if ( $fileName !== null ) {
+				$service->convertFileToPage( $fileName, $pageName );
+			} else {
+				$service->convertUrlToPage( $sourceUrl, $pageName );
+			}
+		} catch ( \RuntimeException $e ) {
+			$this->dieWithError( [ 'apierror-pandocultimateconverter-conversionfailed', $e->getMessage() ] );
+		} catch ( \Exception $e ) {
+			$this->dieWithError( [ 'apierror-pandocultimateconverter-conversionfailed', $e->getMessage() ] );
 		}
 
 		$this->getResult()->addValue( null, $this->getModuleName(), [

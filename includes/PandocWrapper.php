@@ -6,10 +6,8 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
-use MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor;
 
 class PandocWrapper
 {
@@ -19,10 +17,6 @@ class PandocWrapper
     private array $customPandocFilters;
     private string $filtersFolderPath;
     private bool $useColorProcessors;
-    private string $pdfToHtmlExecutablePath;
-    private string $libreofficeExecutablePath;
-    private string $tesseractExecutablePath;
-    private string $ocrLanguage;
 
     /** @var MediaWikiServices */
     private $mwServices;
@@ -50,18 +44,6 @@ class PandocWrapper
         $this->useColorProcessors = $wgPandocUltimateConverter_UseColorProcessors
             ?? $config->get( 'PandocUltimateConverter_UseColorProcessors' )
             ?? false;
-
-        $this->pdfToHtmlExecutablePath = $config->get( 'PandocUltimateConverter_PdfToHtmlExecutablePath' )
-            ?? 'pdftohtml';
-
-        $this->libreofficeExecutablePath = $config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
-            ?? 'libreoffice';
-
-        $this->tesseractExecutablePath = $config->get( 'PandocUltimateConverter_TesseractExecutablePath' )
-            ?? 'tesseract';
-
-        $this->ocrLanguage = $config->get( 'PandocUltimateConverter_OcrLanguage' )
-            ?? 'eng';
 
         $extensionsDir = $wgExtensionDirectory ?? ( $IP . DIRECTORY_SEPARATOR . 'extensions' );
         $this->filtersFolderPath = $extensionsDir
@@ -124,79 +106,15 @@ class PandocWrapper
         wfDebugLog( 'PandocUltimateConverter', "convertInternal: source=$source, baseName=$baseName, format=" . ( $format ?? 'null' ) );
 
         $fileExtension = strtolower( pathinfo( $source, PATHINFO_EXTENSION ) );
-        $isDoc  = $fileExtension === 'doc';
         $isOdt  = $format === 'odt'  || $fileExtension === 'odt';
         $isDocx = $format === 'docx' || $fileExtension === 'docx';
-        $isPdf  = $format === 'pdf'  || $fileExtension === 'pdf';
 
-        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, DOC=" . ( $isDoc ? 'yes' : 'no' ) . ', ODT=' . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) . ', PDF=' . ( $isPdf ? 'yes' : 'no' ) );
-
-        // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
-        if ( $isDoc ) {
-            wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .doc to .docx via LibreOffice for $source" );
-            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
-            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
-            $isDocx = true;
-            $format = 'docx';
-        }
+        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, ODT=" . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) );
 
         // Build lua filter args once — shared with colour preprocessors
         $luaFilterArgs = [];
         foreach ( $this->customPandocFilters as $filter ) {
             $luaFilterArgs[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
-        }
-
-        if ( $isPdf ) {
-            wfDebugLog( 'PandocUltimateConverter', "convertInternal: using PDF preprocessor for $source" );
-            // pdftotext and pdftoppm are part of the same poppler-utils package as pdftohtml.
-            // If pdftohtml is configured with a full path, derive sibling executables from
-            // the same directory; otherwise fall back to bare names (rely on PATH).
-            $pdfToHtmlDir = dirname( $this->pdfToHtmlExecutablePath );
-            if ( $pdfToHtmlDir !== '.' ) {
-                $pdfToTextPath = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftotext';
-                $pdftoppmPath  = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftoppm';
-            } else {
-                $pdfToTextPath = 'pdftotext';
-                $pdftoppmPath  = 'pdftoppm';
-            }
-            $preprocessor = new PDFPreprocessor(
-                $this->pdfToHtmlExecutablePath,
-                $pdfToTextPath,
-                $pdftoppmPath,
-                $this->tesseractExecutablePath,
-                $this->ocrLanguage
-            );
-
-            if ( $preprocessor->isScannedPdf( $source ) ) {
-                // Scanned PDF: OCR produces wikitext directly — no Pandoc step needed.
-                wfDebugLog( 'PandocUltimateConverter', "convertInternal: scanned PDF detected, using OCR pipeline for $source" );
-                $text = $preprocessor->processScannedPdfFile( $source, $mediaFolder );
-                return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
-            }
-
-            // Text-based PDF: pdftohtml → HTML → Pandoc → mediawiki wikitext.
-            wfDebugLog( 'PandocUltimateConverter', "convertInternal: text-based PDF detected, using pdftohtml pipeline for $source" );
-            $htmlFile = $preprocessor->processPDFFile( $source, $mediaFolder );
-
-            // Convert the intermediate HTML to mediawiki wikitext via Pandoc.
-            // --resource-path tells Pandoc where to find the images referenced
-            // in the HTML (pdftohtml places them next to the HTML file).
-            $commands = array_merge(
-                [
-                    $this->pandocExecutablePath,
-                    '--from=html',
-                    '--to=mediawiki',
-                    '--extract-media=' . $mediaFolder,
-                    '--resource-path=' . $mediaFolder,
-                ],
-                $luaFilterArgs,
-                [ $htmlFile ]
-            );
-
-            wfDebugLog( 'PandocUltimateConverter', 'convertInternal (PDF→HTML→MW): running ' . implode( ' ', $commands ) );
-
-            $text = self::invokePandoc( $commands );
-            return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
         }
 
         if ( $useColorProcessors && $isOdt ) {
@@ -277,15 +195,8 @@ class PandocWrapper
                 continue;
             }
 
-            $extension = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
-
-            // Always skip LibreOffice/ODF internal files that Pandoc may extract.
-            static $internalExtensions = [ 'xcu', 'rels', 'xml', 'rdf' ];
-            if ( in_array( $extension, $internalExtensions, true ) ) {
-                continue;
-            }
-
-            if ( in_array( $extension, array_map( 'strtolower', $this->mediaFilesExtensionsToSkip ), true ) ) {
+            $extension = pathinfo( $file, PATHINFO_EXTENSION );
+            if ( in_array( strtolower( $extension ), array_map( 'strtolower', $this->mediaFilesExtensionsToSkip ) ) ) {
                 continue;
             }
 
@@ -315,12 +226,6 @@ class PandocWrapper
         if ( $dupes ) {
             // Reuse existing identical file instead of uploading a duplicate
             return $dupes[0]->getName();
-        }
-
-        // If a file with the same title already exists (e.g. from a previous
-        // import attempt), reuse it to avoid archive-path collisions.
-        if ( $image->exists() ) {
-            return $filePageName;
         }
 
         $archive = $image->publish( $file, 0, [] );

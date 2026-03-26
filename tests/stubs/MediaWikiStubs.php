@@ -50,34 +50,7 @@ namespace {
 		}
 	}
 
-	if ( !function_exists( 'wfEscapeWikiText' ) ) {
-		/**
-		 * MediaWiki wfEscapeWikiText stub — escapes characters that have special
-		 * meaning in wikitext so the string is displayed literally.
-		 */
-		function wfEscapeWikiText( string $input ): string {
-			// Mirror the real MediaWiki implementation: escape the characters that are
-			// special in wikitext markup.
-			return strtr( $input, [
-				'['  => '&#91;',
-				']'  => '&#93;',
-				'{'  => '&#123;',
-				'}'  => '&#125;',
-				'|'  => '&#124;',
-				"'"  => '&#39;',
-				'='  => '&#61;',
-				'<'  => '&lt;',
-				'>'  => '&gt;',
-				'#'  => '&#35;',
-				'*'  => '&#42;',
-				';'  => '&#59;',
-				':'  => '&#58;',
-				"\n" => ' ',
-			] );
-		}
-	}
-
-	// MediaWiki namespace constants used by SpecialPandocExport.
+	// MediaWiki namespace constants used by the extension.
 	if ( !defined( 'NS_FILE' ) ) {
 		define( 'NS_FILE', 6 );
 	}
@@ -96,18 +69,11 @@ namespace {
 	if ( !class_exists( 'SpecialPage' ) ) {
 		/**
 		 * Minimal stub for MediaWiki's SpecialPage base class.
-		 * Only the members referenced by SpecialPandocExport need to exist here.
 		 */
 		class SpecialPage {
 			public function __construct( string $name = '', string $restriction = '' ) {}
 			public function setHeaders(): void {}
 			public function checkPermissions(): void {}
-			public function getRequest(): object {
-				return new class {
-					public function getVal( string $key, mixed $default = null ): mixed { return $default; }
-					public function getArray( string $key ): ?array { return null; }
-				};
-			}
 			public function getOutput(): object {
 				return new class {
 					public function disable(): void {}
@@ -120,6 +86,33 @@ namespace {
 			public function getPageTitle(): object {
 				return new class {
 					public function getLocalURL(): string { return ''; }
+				};
+			}
+		}
+	}
+
+	if ( !class_exists( 'RequestContext' ) ) {
+		/**
+		 * Minimal stub for MediaWiki's RequestContext (global namespace, as in MW ≤ 1.41).
+		 */
+		class RequestContext {
+			public static function getMain(): static {
+				static $instance = null;
+				if ( $instance === null ) {
+					$instance = new static();
+				}
+				return $instance;
+			}
+			public function getUser(): object {
+				return new class {
+					public function getName(): string { return 'TestUser'; }
+				};
+			}
+			public function getRequest(): object {
+				return new class {
+					public function getVal( string $key, mixed $default = null ): mixed { return $default; }
+					public function getRawVal( string $key ): ?string { return null; }
+					public function getBool( string $key ): bool { return false; }
 				};
 			}
 		}

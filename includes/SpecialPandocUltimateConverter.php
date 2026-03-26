@@ -2,17 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
+namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Config\Config;
-use MediaWiki\Context\RequestContext;
-use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
-use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
-use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\SlotRecord;
+use RequestContext;
 
 class SpecialPandocUltimateConverter extends \SpecialPage
 {
@@ -28,7 +25,6 @@ class SpecialPandocUltimateConverter extends \SpecialPage
     private $repoGroup;
     private Config $config;
     private PandocWrapper $pandocWrapper;
-    private bool $useCodex;
 
     public function __construct()
     {
@@ -44,13 +40,6 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $this->repoGroup    = $this->mwServices->getRepoGroup();
         $this->config       = $mwConfig;
         $this->pandocWrapper = new PandocWrapper( $this->config, $this->mwServices, $this->user );
-        // Codex UI is the default on MW 1.43+; use ?codex=0 to opt out
-        $request = $this->context->getRequest();
-        $mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
-        $defaultCodex = version_compare( $mwVersion, '1.43', '>=' );
-        $this->useCodex = $request->getRawVal( 'codex' ) !== null
-            ? $request->getBool( 'codex' )
-            : $defaultCodex;
     }
 
     protected function getGroupName(): string
@@ -64,19 +53,6 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $this->checkPermissions();
 
         $output = $this->getOutput();
-
-        if ( $this->useCodex ) {
-            $output->addModules( 'ext.PandocUltimateConverter.codex' );
-            $llmAvailable = LlmPolishService::newFromConfig( $this->config ) !== null;
-            $output->addJsConfigVars( [
-                'pandocCodexTitleMinLength' => self::TITLE_MIN_LENGTH,
-                'pandocCodexTitleMaxLength' => self::TITLE_MAX_LENGTH,
-                'pandocCodexLlmAvailable'   => $llmAvailable,
-            ] );
-            $output->addHTML( Html::element( 'div', [ 'class' => 'mw-pandoc-codex-root' ] ) );
-            return;
-        }
-
         $output->addModules( 'ext.PandocUltimateConverter' );
 
         $output->addWikiTextAsInterface( wfMessage( 'pandocultimateconverter-special-upload-description' ) );
@@ -164,13 +140,6 @@ class SpecialPandocUltimateConverter extends \SpecialPage
             $fileName = (string)( $formData['UploadedFileName'] ?? '' );
             try {
                 $this->convertFileToPage( $fileName, $pageName );
-            } catch ( \Exception $e ) {
-                $this->getOutput()->showErrorPage(
-                    'pandocultimateconverter-error-title',
-                    'pandocultimateconverter-error-conversion',
-                    [ $e->getMessage() ]
-                );
-                return;
             } finally {
                 if ( $fileName !== '' ) {
                     $this->deleteFile( $fileName );
@@ -181,16 +150,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         }
 
         if ( $sourceType === 'url' ) {
-            try {
-                $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
-            } catch ( \Exception $e ) {
-                $this->getOutput()->showErrorPage(
-                    'pandocultimateconverter-error-title',
-                    'pandocultimateconverter-error-conversion',
-                    [ $e->getMessage() ]
-                );
-                return;
-            }
+            $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
             $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
         }
     }

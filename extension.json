@@ -1,251 +1,99 @@
 {
-  "name": "PandocUltimateConverter",
-  "version": "0.6.0",
-  "author": [
-    "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
-  ],
-  "description": "Pandoc extension which imports not only text, but also images",
-  "license-name": "MIT",
-  "type": "other",
-  "AutoloadNamespaces": {
-    "MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
-  },
-  "HookHandlers": {
-    "PandocHooks": {
-      "class": "MediaWiki\\Extension\\PandocUltimateConverter\\HookHandler"
-    }
-  },
-  "Hooks": {
-    "SkinTemplateNavigation::Universal": "PandocHooks"
-  },
-  "APIModules": {
-    "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
-    "pandocllmpolish": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocLlmPolish",
-    "pandocurltitle": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocUrlTitle"
-  },
-  "ExtensionMessagesFiles": {
-    "SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
-  },
-  "MessagesDirs": {
-    "PandocUltimateConverter": [
-      "i18n"
-    ]
-  },
-  "SpecialPages": {
-    "PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocUltimateConverter",
-    "PandocExport": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPages\\SpecialPandocExport"
-  },
-  "ResourceModules": {
-    "ext.PandocUltimateConverter": {
-      "scripts": [
-        "ext.pandocUltimateConverterSpecial.js"
-      ],
-      "styles": [
-        "ext.pandocUltimateConverterSpecial.css"
-      ],
-      "messages": [
-        "pandocultimateconverter-warning-page-name-length",
-        "pandocultimateconverter-warning-page-name-invalid-character",
-        "pandocultimateconverter-warning-file-not-selected",
-        "pandocultimateconverter-error-filetype-banned",
-        "pandocultimateconverter-error-uploaddisabled",
-        "pandocultimateconverter-error-mustbeloggedin",
-        "pandocultimateconverter-error-generic",
-        "pandocultimateconverter-loading"
-      ],
-      "dependencies": [
-        "mediawiki.jqueryMsg"
-      ]
-    },
-    "ext.PandocUltimateConverter.codex": {
-      "packageFiles": [
-        "codex/init.js",
-        "codex/App.vue",
-        "codex/stores/converter.js",
-        "codex/components/SourceSelector.vue",
-        "codex/components/ConversionQueue.vue",
-        "codex/components/PageNameInput.vue",
-        "codex/components/ConversionStatus.vue"
-      ],
-      "dependencies": [
-        "vue",
-        "@wikimedia/codex",
-        "pinia",
-        "mediawiki.api",
-        "mediawiki.jqueryMsg"
-      ],
-      "messages": [
-        "pandocultimateconverter-warning-page-name-length",
-        "pandocultimateconverter-warning-page-name-invalid-character",
-        "pandocultimateconverter-error-filetype-banned",
-        "pandocultimateconverter-error-uploaddisabled",
-        "pandocultimateconverter-error-mustbeloggedin",
-        "pandocultimateconverter-error-generic",
-        "pandocultimateconverter-codex-tab-files",
-        "pandocultimateconverter-codex-tab-urls",
-        "pandocultimateconverter-codex-dropzone-text",
-        "pandocultimateconverter-codex-dropzone-hint",
-        "pandocultimateconverter-codex-urls-placeholder",
-        "pandocultimateconverter-codex-urls-add",
-        "pandocultimateconverter-codex-urls-fetching",
-        "pandocultimateconverter-codex-queue-summary",
-        "pandocultimateconverter-codex-queue-overwrite-warning",
-        "pandocultimateconverter-codex-page-exists-warning",
-        "pandocultimateconverter-codex-convert-all",
-        "pandocultimateconverter-codex-clear-all",
-        "pandocultimateconverter-codex-overwrite-toggle",
-        "pandocultimateconverter-codex-status-uploading",
-        "pandocultimateconverter-codex-status-converting",
-        "pandocultimateconverter-codex-status-done-converted",
-        "pandocultimateconverter-codex-status-done-polished",
-        "pandocultimateconverter-codex-status-error",
-        "pandocultimateconverter-codex-retry",
-        "pandocultimateconverter-codex-column-source",
-        "pandocultimateconverter-codex-column-target",
-        "pandocultimateconverter-codex-column-status",
-        "pandocultimateconverter-codex-column-actions",
-        "pandocultimateconverter-codex-navigate-warning",
-        "pandocultimateconverter-codex-invalid-url",
-        "pandocultimateconverter-codex-description",
-        "pandocultimateconverter-codex-remove-item",
-        "pandocultimateconverter-codex-convert-one",
-        "pandocultimateconverter-codex-switch-classic",
-        "pandocultimateconverter-codex-stop",
-        "pandocultimateconverter-codex-stop-requested",
-        "pandocultimateconverter-codex-llm-polish-toggle",
-        "pandocultimateconverter-codex-llm-polish-btn",
-        "pandocultimateconverter-codex-status-polishing",
-        "pandocultimateconverter-codex-status-polish-error",
-        "pandocultimateconverter-conversion-complete-comment"
-      ]
-    },
-    "ext.PandocUltimateConverter.export": {
-      "packageFiles": [
-        "export/init.js",
-        "export/App.vue",
-        "export/components/PageSearchInput.vue"
-      ],
-      "dependencies": [
-        "vue",
-        "@wikimedia/codex",
-        "mediawiki.api",
-        "mediawiki.jqueryMsg"
-      ],
-      "messages": [
-        "pandocultimateconverter-export-description",
-        "pandocultimateconverter-export-items-label",
-        "pandocultimateconverter-export-add-item",
-        "pandocultimateconverter-export-page-placeholder",
-        "pandocultimateconverter-export-format-label",
-        "pandocultimateconverter-export-remove-page",
-        "pandocultimateconverter-export-button",
-        "pandocultimateconverter-export-preparing",
-        "pandocultimateconverter-export-error-no-pages",
-        "pandocultimateconverter-export-error-invalid-format",
-        "pandocultimateconverter-export-error-failed",
-        "pandocultimateconverter-export-separate-files",
-        "pandocultimateconverter-export-drag-hint"
-      ]
-    }
-  },
-  "ResourceFileModulePaths": {
-    "localBasePath": "modules",
-    "remoteExtPath": "PandocUltimateConverter"
-  },
-  "config": {
-    "PandocUltimateConverter_PandocExecutablePath": {
-      "value": null,
-      "path": false,
-      "description": "Full path to pandoc library. No need to specify if pandoc is in PATH env variable",
-      "public": true
-    },
-    "PandocUltimateConverter_TempFolderPath": {
-      "value": null,
-      "path": false,
-      "description": "Full path to temp folder where pandoc will unpack all the images. Will use system setting if not specified.",
-      "public": true
-    },
-    "PandocUltimateConverter_MediaFileExtensionsToSkip": {
-      "value": [],
-      "path": false,
-      "description": "Extensions speicified in this config, will be ignored during conversion -- media files will not be uploaded, but links to them will still exist in the converted doc",
-      "public": true
-    },
-    "PandocUltimateConverter_PandocCustomUserRight": {
-      "value": "",
-      "path": false,
-      "description": "Specify custom user rights for this extension. See list here: https://www.mediawiki.org/wiki/Manual:User_rights",
-      "public": true
-    },
-    "PandocUltimateConverter_FiltersToUse": {
-      "value": [],
-      "path": false,
-      "description": "Array of custom filters which will be applied during conversion.",
-      "public": true
-    },
-    "PandocUltimateConverter_UseColorProcessors": {
-      "value": false,
-      "path": false,
-      "description": "When true, use the ODT/DOCX color preprocessors to preserve text and background colours during conversion.",
-      "public": true
-    },
-    "PandocUltimateConverter_PdfToHtmlExecutablePath": {
-      "value": null,
-      "path": false,
-      "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
-      "public": true
-    },
-    "PandocUltimateConverter_LibreOfficeExecutablePath": {
-      "value": null,
-      "path": false,
-      "description": "Full path to the LibreOffice executable (soffice or libreoffice). No need to specify if LibreOffice is in PATH. Required for .doc import support.",
-      "public": true
-    },
-    "PandocUltimateConverter_TesseractExecutablePath": {
-      "value": null,
-      "path": false,
-      "description": "Full path to the tesseract OCR executable. No need to specify if tesseract is in PATH. Required for scanned PDF (OCR) support.",
-      "public": true
-    },
-    "PandocUltimateConverter_OcrLanguage": {
-      "value": "eng",
-      "path": false,
-      "description": "Tesseract language code(s) used for OCR of scanned PDFs. Use '+' to combine multiple languages, e.g. 'eng+deu'. Defaults to 'eng'.",
-      "public": true
-    },
-    "PandocUltimateConverter_ShowExportInPageTools": {
-      "value": true,
-      "path": false,
-      "description": "When true, show an 'Export' action in the page tools menu (Actions tab) on content pages.",
-      "public": true
-    },
-    "PandocUltimateConverter_LlmProvider": {
-      "value": null,
-      "path": false,
-      "description": "LLM provider to use for optional wikitext cleanup. Supported values: 'openai' or 'claude'. Leave null to disable LLM polishing.",
-      "public": false
-    },
-    "PandocUltimateConverter_LlmApiKey": {
-      "value": null,
-      "path": false,
-      "description": "API key for the configured LLM provider. Required when LlmProvider is set.",
-      "public": false
-    },
-    "PandocUltimateConverter_LlmModel": {
-      "value": null,
-      "path": false,
-      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
-      "public": false
-    },
-    "PandocUltimateConverter_LlmPrompt": {
-      "value": null,
-      "path": false,
-      "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
-      "public": false
-    }
-  },
-  "ConfigRegistry": {
-    "PandocUltimateConverter": "GlobalVarConfig::newInstance"
-  },
-  "manifest_version": 2
+	"name": "PandocUltimateConverter",
+	"version": "0.3.0",
+	"author": [
+		"[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
+	],
+	"description": "Pandoc extension which imports not only text, but also images",
+	"license-name": "MIT",
+	"type": "other",
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
+	},
+	"APIModules": {
+		"pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\ApiPandocConvert"
+	},
+	"ExtensionMessagesFiles": {
+		"SpecialPandocUltimateConverter": "PandocUltimateConverter.alias.php"
+	},
+	"MessagesDirs": {
+		"PandocUltimateConverter": [
+			"i18n"
+		]
+	},
+	"SpecialPages": {
+		"PandocUltimateConverter": "MediaWiki\\Extension\\PandocUltimateConverter\\SpecialPandocUltimateConverter"
+	},
+	"ResourceModules": {
+		"ext.PandocUltimateConverter": {
+			"scripts": [
+				"ext.pandocUltimateConverterSpecial.js"
+			],
+			"styles": [
+				"ext.pandocUltimateConverterSpecial.css"
+			],
+			"messages": [
+				"pandocultimateconverter-warning-page-name-length",
+				"pandocultimateconverter-warning-page-name-invalid-character",
+				"pandocultimateconverter-warning-file-not-selected",
+				"pandocultimateconverter-error-filetype-banned",
+				"pandocultimateconverter-error-uploaddisabled",
+				"pandocultimateconverter-error-mustbeloggedin",
+				"pandocultimateconverter-error-generic",
+				"pandocultimateconverter-loading"
+			],
+			"dependencies": [
+				"mediawiki.jqueryMsg"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "PandocUltimateConverter"
+	},
+	"config": {
+		"PandocUltimateConverter_PandocExecutablePath": {
+			"value": null,
+			"path": false,
+			"description": "Full path to pandoc library. No need to specify if pandoc is in PATH env variable",
+			"public": true
+		},
+		"PandocUltimateConverter_TempFolderPath": {
+			"value": null,
+			"path": false,
+			"description": "Full path to temp folder where pandoc will unpack all the images. Will use system setting if not specified.",
+			"public": true
+		},
+		"PandocUltimateConverter_MediaFileExtensionsToSkip": {
+			"value": [],
+			"path": false,
+			"description": "Extensions speicified in this config, will be ignored during conversion -- media files will not be uploaded, but links to them will still exist in the converted doc",
+			"public": true
+		},
+		"PandocUltimateConverter_PandocCustomUserRight": {
+			"value": "",
+			"path": false,
+			"description": "Specify custom user rights for this extension. See list here: https://www.mediawiki.org/wiki/Manual:User_rights",
+			"public": true
+		},
+		"PandocUltimateConverter_FiltersToUse": {
+			"value": [],
+			"path": false,
+			"description": "Array of custom filters which will be applied during conversion.",
+			"public": true
+		},
+		"PandocUltimateConverter_UseColorProcessors": {
+			"value": false,
+			"path": false,
+			"description": "When true, use the ODT/DOCX color preprocessors to preserve text and background colours during conversion.",
+			"public": true
+		}
+	},
+	"ConfigRegistry": {
+		"PandocUltimateConverter": "GlobalVarConfig::newInstance"
+	},
+	"manifest_version": 2,
+	"requires": {
+		"MediaWiki": ">= 1.39.0"
+	}
 }
