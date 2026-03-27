@@ -46,3 +46,4 @@ dist/
 coverage/
 coverage.xml
 coverage.html
+tests/_check_extra.php
