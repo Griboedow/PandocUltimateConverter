@@ -1,4 +1,4 @@
-name: E2E Tests – MediaWiki 1.39
+name: Tests
 
 on:
   push:
@@ -10,10 +10,38 @@ permissions:
   contents: read
 
 jobs:
+  i18n:
+    name: i18n JSON validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      # ------------------------------------------------------------------ #
+      # 1. Checkout
+      # ------------------------------------------------------------------ #
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------ #
+      # 2. Set up Node.js
+      # ------------------------------------------------------------------ #
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # ------------------------------------------------------------------ #
+      # 3. Run i18n validation tests
+      # ------------------------------------------------------------------ #
+      - name: Run i18n JSON validation tests
+        working-directory: tests/i18n
+        run: npm test
+
   e2e:
     name: Playwright E2E (MW 1.39 / PHP bundled)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: i18n
 
     steps:
       # ------------------------------------------------------------------ #

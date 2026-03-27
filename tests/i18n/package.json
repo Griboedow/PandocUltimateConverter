@@ -1,0 +1,12 @@
+{
+	"name": "pandocultimateconverter-i18n-tests",
+	"version": "1.0.0",
+	"description": "JSON validation tests for PandocUltimateConverter i18n files",
+	"type": "module",
+	"scripts": {
+		"test": "node --test i18n.test.js"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
+}

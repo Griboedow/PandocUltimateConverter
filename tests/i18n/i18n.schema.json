@@ -1,0 +1,36 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "MediaWiki i18n message file",
+	"description": "Schema for MediaWiki extension internationalisation JSON files stored in the i18n/ directory.",
+	"type": "object",
+	"required": ["@metadata"],
+	"properties": {
+		"@metadata": {
+			"type": "object",
+			"description": "File metadata recognised by MediaWiki and TranslateWiki.",
+			"required": ["authors"],
+			"properties": {
+				"authors": {
+					"type": "array",
+					"description": "List of translation authors.",
+					"items": {
+						"type": "string"
+					}
+				},
+				"message-documentation": {
+					"type": "string",
+					"description": "Language code of the message-documentation file (used in qqq.json)."
+				},
+				"last-author": {
+					"type": "string",
+					"description": "Username of the most recent author."
+				}
+			},
+			"additionalProperties": false
+		}
+	},
+	"additionalProperties": {
+		"type": "string",
+		"description": "Each message key maps to a localised string value."
+	}
+}
