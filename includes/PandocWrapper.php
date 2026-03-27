@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Shell\Shell;
+use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
@@ -307,7 +308,7 @@ class PandocWrapper
     {
         $base          = wfBaseName( $file );
         $filePageName  = $baseName . '-' . $base;
-        $title         = \Title::makeTitleSafe( NS_FILE, $filePageName );
+        $title         = Title::makeTitleSafe( NS_FILE, $filePageName );
         $image         = $this->mwServices->getRepoGroup()->getLocalRepo()->newFile( $title );
 
         $sha1  = \FSFile::getSha1Base36FromPath( $file );
