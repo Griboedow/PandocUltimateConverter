@@ -261,6 +261,38 @@ jobs:
                       $this->fatalError( "Failed to create test page" );
                   }
                   $this->output( "PAGE_CREATED\n" );
+
+                  // 4. Verify that the HookHandler adds the Export action to the page toolbar.
+                  //    We call the hook directly with lightweight stubs so no skin rendering
+                  //    is needed.
+                  $handler = new \MediaWiki\Extension\PandocUltimateConverter\HookHandler();
+
+                  // Minimal SkinTemplate stub
+                  $sktemplate = new class {
+                      public function getRelevantTitle() {
+                          return new class {
+                              public function isSpecialPage() { return false; }
+                              public function exists()        { return true; }
+                              public function getPrefixedDBkey() { return 'CISmokeTestPage'; }
+                          };
+                      }
+                      public function msg( string $key ) {
+                          return new class( $key ) {
+                              public function __construct( private string $k ) {}
+                              public function text(): string { return $this->k; }
+                          };
+                      }
+                  };
+
+                  $links = [ 'actions' => [] ];
+                  // ShowExportInPageTools must be true for the link to be added
+                  $GLOBALS['wgPandocUltimateConverter_ShowExportInPageTools'] = true;
+                  $handler->onSkinTemplateNavigation__Universal( $sktemplate, $links );
+
+                  if ( empty( $links['actions']['pandocexport'] ) ) {
+                      $this->fatalError( "HookHandler did not add the pandocexport action to the toolbar" );
+                  }
+                  $this->output( "HOOK_EXPORT_ACTION_OK: href=" . $links['actions']['pandocexport']['href'] . "\n" );
               }
           }
 
@@ -268,3 +300,214 @@ jobs:
           require_once RUN_MAINTENANCE_IF_MAIN;
           PHPEOF
           php /tmp/mw_smoke_test.php
+
+  # ---------------------------------------------------------------------------
+  # E2E + MediaWiki integration tests — run the full import/export pipeline
+  # inside a real MediaWiki installation for each supported MW version.
+  #
+  # This job combines the "mediawiki" smoke-test setup (real MW environment)
+  # with the "e2e" pipeline tests (Pandoc + poppler + tesseract + LibreOffice).
+  #
+  # Matrix:
+  #   MW 1.42 / PHP 8.2
+  #   MW 1.43 / PHP 8.3
+  #   MW 1.45 / PHP 8.3
+  #
+  # After the tests run, exported binary files (DOCX, ODT, PDF) are rendered
+  # to PNG screenshots using LibreOffice + pdftoppm so reviewers can see the
+  # actual visual output in the uploaded artifacts.
+  # ---------------------------------------------------------------------------
+  e2e-mw:
+    name: E2E tests (MW ${{ matrix.mw }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mw: "1.42", mw_branch: "REL1_42", php: "8.2" }
+          - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
+          - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: extensions/PandocUltimateConverter
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip, mbstring, intl, fileinfo, gd
+          coverage: none
+
+      - name: Clone MediaWiki ${{ matrix.mw }}
+        run: |
+          git clone --depth 1 \
+            --branch "${{ matrix.mw_branch }}" \
+            https://github.com/wikimedia/mediawiki.git mediawiki
+
+      - name: Install MediaWiki Composer dependencies
+        run: |
+          cd mediawiki
+          if composer install --help 2>&1 | grep -q -- '--no-audit'; then
+            AUDIT_FLAG="--no-audit"
+          elif composer install --help 2>&1 | grep -q -- '--no-security-blocking'; then
+            AUDIT_FLAG="--no-security-blocking"
+          else
+            AUDIT_FLAG=""
+          fi
+          composer install --no-interaction --prefer-dist --no-dev $AUDIT_FLAG
+
+      - name: Move extension into MW tree
+        run: mv extensions/PandocUltimateConverter mediawiki/extensions/PandocUltimateConverter
+
+      - name: Install extension Composer dependencies
+        run: |
+          cd mediawiki/extensions/PandocUltimateConverter
+          composer install --no-interaction --prefer-dist
+
+      - name: Install Pandoc 3.5
+        run: |
+          wget -q "https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb" \
+            -O /tmp/pandoc.deb
+          sudo dpkg -i /tmp/pandoc.deb
+          pandoc --version
+
+      - name: Install optional tools (poppler, tesseract, libreoffice, texlive)
+        run: |
+          sudo apt-get update -q
+          # poppler-utils               → pdftohtml, pdftotext, pdftoppm  (PDF import)
+          # tesseract-ocr               → tesseract                        (OCR import)
+          # imagemagick                 → convert                          (build scanned-PDF fixture)
+          # libreoffice                 → libreoffice --headless           (DOC import)
+          # texlive-xetex               → xelatex binary                  (PDF export)
+          # lmodern                     → lmodern.sty (Pandoc LaTeX template)
+          # texlive-fonts-recommended   → pzdr.tfm / ZapfDingbats (hyperref bookmarks)
+          # texlive-latex-recommended   → microtype, upquote, and other common packages
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils \
+            tesseract-ocr tesseract-ocr-eng \
+            imagemagick \
+            libreoffice \
+            texlive-xetex \
+            lmodern \
+            texlive-fonts-recommended \
+            texlive-latex-recommended
+
+      - name: Create artifacts directory
+        run: mkdir -p /tmp/pandoc-e2e-artifacts
+
+      - name: Run e2e tests (within MW tree)
+        env:
+          E2E_ARTIFACTS_DIR: /tmp/pandoc-e2e-artifacts
+        working-directory: mediawiki/extensions/PandocUltimateConverter
+        run: ./vendor/bin/phpunit -c phpunit-e2e.xml.dist --testdox
+
+      # -------------------------------------------------------------------
+      # Set up a real MediaWiki instance for the Playwright Web UI tests.
+      # The PHPUnit e2e tests above run against stubs; they do not need a
+      # database.  The Playwright tests hit a live HTTP server, so we
+      # bootstrap MW here (SQLite, port 8080) after the pipeline tests.
+      # -------------------------------------------------------------------
+
+      - name: Set up MediaWiki database for Playwright tests
+        run: |
+          cd mediawiki
+          php maintenance/install.php \
+            --dbtype sqlite \
+            --dbpath /tmp/mwdb-ui \
+            --server http://localhost:8080 \
+            --scriptpath "" \
+            --lang en \
+            TestWiki admin \
+            --pass adminpassword
+          echo 'wfLoadExtension("PandocUltimateConverter");' >> LocalSettings.php
+          echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> LocalSettings.php
+
+      - name: Create content page for page-tools screenshot
+        run: |
+          export MW_INSTALL_PATH="${GITHUB_WORKSPACE}/mediawiki"
+          cat > /tmp/create-ui-test-page.php << 'PHPEOF'
+          <?php
+          $IP = getenv( 'MW_INSTALL_PATH' );
+          require_once "$IP/maintenance/Maintenance.php";
+          class CreateUITestPage extends Maintenance {
+              public function __construct() { parent::__construct(); }
+              public function execute() {
+                  $s   = \MediaWiki\MediaWikiServices::getInstance();
+                  $t   = $s->getTitleFactory()->newFromText( 'PandocUITestPage' );
+                  $p   = $s->getWikiPageFactory()->newFromTitle( $t );
+                  $u   = $s->getUserFactory()->newFromName( 'admin' );
+                  $upd = $p->newPageUpdater( $u );
+                  $upd->setContent(
+                      \MediaWiki\Revision\SlotRecord::MAIN,
+                      \ContentHandler::makeContent( '= UI Test Page =\n\nUsed for Web UI screenshots.', $t )
+                  );
+                  $upd->saveRevision( \CommentStoreComment::newUnsavedComment( 'UI screenshot setup' ) );
+                  $this->output( $upd->wasSuccessful() ? "PAGE_CREATED\n" : "PAGE_CREATION_FAILED\n" );
+              }
+          }
+          $maintClass = CreateUITestPage::class;
+          require_once RUN_MAINTENANCE_IF_MAIN;
+          PHPEOF
+          php /tmp/create-ui-test-page.php
+
+      - name: Start PHP built-in web server
+        run: |
+          cd mediawiki
+          php -S 0.0.0.0:8080 > /tmp/php-server.log 2>&1 &
+          echo "PHP server PID: $!"
+          # Wait up to 30 s for the server to respond
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/index.php -o /dev/null; then
+              echo "Server ready after ${i}s"
+              break
+            fi
+            echo "Waiting... (${i}/30)"
+            sleep 1
+          done
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright dependencies
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        run: npm ci
+
+      - name: Install Playwright Chromium browser
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Playwright Web UI screenshot tests
+        if: always()
+        continue-on-error: true
+        working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
+        env:
+          MW_BASE_URL: http://localhost:8080
+          MW_ADMIN_USER: admin
+          MW_ADMIN_PASS: adminpassword
+          UI_SCREENSHOTS_DIR: /tmp/pandoc-ui-screenshots
+        run: |
+          mkdir -p /tmp/pandoc-ui-screenshots
+          npx playwright test
+          echo "=== Screenshots ==="
+          ls -lh /tmp/pandoc-ui-screenshots/ || true
+
+      - name: Upload conversion artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-mw-artifacts-mw-${{ matrix.mw }}
+          path: /tmp/pandoc-e2e-artifacts/
+          if-no-files-found: warn
+
+      - name: Upload Web UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots-mw-${{ matrix.mw }}
+          path: /tmp/pandoc-ui-screenshots/
+          if-no-files-found: warn

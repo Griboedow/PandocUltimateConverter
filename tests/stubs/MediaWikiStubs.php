@@ -152,3 +152,22 @@ namespace MediaWiki\Shell {
 	}
 
 } // end namespace MediaWiki\Shell
+
+// ---------------------------------------------------------------------------
+// MediaWiki\Hook namespace — hook interface stubs
+// ---------------------------------------------------------------------------
+
+namespace MediaWiki\Hook {
+
+	if ( !interface_exists( SkinTemplateNavigation__UniversalHook::class ) ) {
+		/**
+		 * Stub for the MediaWiki hook interface used by HookHandler.
+		 * The real interface lives in MediaWiki core and is not available
+		 * in the standalone unit-test environment.
+		 */
+		interface SkinTemplateNavigation__UniversalHook {
+			public function onSkinTemplateNavigation__Universal( $sktemplate, &$links ): void;
+		}
+	}
+
+} // end namespace MediaWiki\Hook
