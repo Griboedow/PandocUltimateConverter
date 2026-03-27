@@ -2,7 +2,6 @@
 	"@metadata": {
 		"authors": []
 	},
-	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Opção de conversão de arquivo em artigo durante o processo de upload",
 	"pandocultimateconverter-summary": "Opção de conversão de arquivo em artigo durante o processo de upload",
 	"pandocultimateconverter-warning-page-name-length": "O título do artigo é muito curto ou muito longo. O comprimento deve ser entre $1 e $2 caracteres.",
@@ -14,7 +13,6 @@
 	"pandocultimateconverter-special-upload-file-section": "Escolha o que deseja converter em uma página wiki",
 	"pandocultimateconverter-special-upload-file": "Arquivo:",
 	"pandocultimateconverter-special-source-type-label": "Tipo:",
-	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Página:",
 	"pandocultimateconverter-special-page-placeholder": "Digite o título do artigo a ser criado. O artigo existente será substituído.",
 	"pandocultimateconverter-special-upload-target-page-section": "Nome da página de destino (será substituída se existir)",
@@ -24,17 +22,5 @@
 	"pandocultimateconverter-error-filetype-banned": "O tipo de arquivo $1 não é permitido neste wiki. Você pode corrigir isso adicionando esta linha ao LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "O envio de arquivos está desativado neste wiki. Ative-o adicionando '$wgEnableUploads = true;' ao LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Apenas usuários conectados podem enviar arquivos para este wiki. Por favor, faça login para continuar.",
-	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1",
-	"apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
-	"apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
-	"apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
-	"apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
-	"apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
-	"apihelp-pandocconvert-summary": "Convert an uploaded file or URL to a wiki page using Pandoc.",
-	"apihelp-pandocconvert-param-pagename": "Target wiki page title. Existing content will be overwritten when forceoverwrite is set.",
-	"apihelp-pandocconvert-param-filename": "Name of an already-uploaded file in the wiki repository (e.g. \"Document.docx\"). Mutually exclusive with 'url'.",
-	"apihelp-pandocconvert-param-url": "Remote http/https URL to fetch and convert. Mutually exclusive with 'filename'.",
-	"apihelp-pandocconvert-param-forceoverwrite": "If set, overwrite the target page if it already exists.",
-	"apihelp-pandocconvert-example-file": "Convert an already-uploaded file named Document.docx to the page MyArticle.",
-	"apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle."
+	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1"
 }

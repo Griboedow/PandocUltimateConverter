@@ -2,7 +2,6 @@
 	"@metadata": {
 		"authors": []
 	},
-	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
 	"pandocultimateconverter-summary": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
 	"pandocultimateconverter-warning-page-name-length": "De paginatitel is te kort of te lang. De lengte moet tussen $1 en $2 tekens zijn.",
@@ -13,8 +12,6 @@
 	"pandocultimateconverter-special-upload-description": "Geef het bestand en de naam van de doelpagina op. Als de pagina al bestaat, wordt de inhoud overschreven.",
 	"pandocultimateconverter-special-upload-file-section": "Kies wat u wilt omzetten naar een wikipagina",
 	"pandocultimateconverter-special-upload-file": "Bestand:",
-	"pandocultimateconverter-special-source-type-label": "Type:",
-	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Pagina:",
 	"pandocultimateconverter-special-page-placeholder": "Typ de titel van het te maken artikel. Een bestaand artikel wordt overschreven.",
 	"pandocultimateconverter-special-upload-target-page-section": "Naam van de doelpagina (wordt overschreven als deze bestaat)",
@@ -24,17 +21,5 @@
 	"pandocultimateconverter-error-filetype-banned": "Het bestandstype $1 is niet toegestaan op dit wiki. U kunt dit oplossen door deze regel toe te voegen aan LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Uploaden van bestanden is uitgeschakeld op dit wiki. Schakel het in door '$wgEnableUploads = true;' toe te voegen aan LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Alleen ingelogde gebruikers kunnen bestanden uploaden naar dit wiki. Log in om door te gaan.",
-	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1",
-	"apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
-	"apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
-	"apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
-	"apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
-	"apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
-	"apihelp-pandocconvert-summary": "Convert an uploaded file or URL to a wiki page using Pandoc.",
-	"apihelp-pandocconvert-param-pagename": "Target wiki page title. Existing content will be overwritten when forceoverwrite is set.",
-	"apihelp-pandocconvert-param-filename": "Name of an already-uploaded file in the wiki repository (e.g. \"Document.docx\"). Mutually exclusive with 'url'.",
-	"apihelp-pandocconvert-param-url": "Remote http/https URL to fetch and convert. Mutually exclusive with 'filename'.",
-	"apihelp-pandocconvert-param-forceoverwrite": "If set, overwrite the target page if it already exists.",
-	"apihelp-pandocconvert-example-file": "Convert an already-uploaded file named Document.docx to the page MyArticle.",
-	"apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle."
+	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1"
 }

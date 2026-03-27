@@ -12,6 +12,11 @@
  * Checks performed for every translation file (all files except en.json):
  *  7. Every message key present in the file also exists in en.json
  *     (no stray keys that MediaWiki would never load).
+ *  8. No message value is verbatim identical to the corresponding en.json
+ *     value – copy-pasted English text is not a translation. MediaWiki
+ *     falls back to English automatically for missing keys, so untranslated
+ *     messages must simply be omitted rather than duplicated.
+ *     (qqq.json is exempt: its values are translator notes, not strings.)
  */
 
 import { test, describe } from 'node:test';
@@ -172,6 +177,25 @@ for (const filename of i18nFiles) {
 					unknownKeys,
 					[],
 					`${filename}: contains keys not found in en.json: ${unknownKeys.join(', ')}`
+				);
+			});
+		}
+
+		// ------------------------------------------------------------------
+		// 8. No verbatim English copies (translation files only, not qqq.json)
+		// ------------------------------------------------------------------
+		if (filename !== 'en.json' && filename !== 'qqq.json') {
+			test('must not contain values that are verbatim copies of the English source', () => {
+				const copiedKeys = Object.entries(parsed)
+					.filter(([k]) => k !== '@metadata')
+					.filter(([k, v]) => enMessages[k] !== undefined && v === enMessages[k])
+					.map(([k]) => k);
+				assert.deepEqual(
+					copiedKeys,
+					[],
+					`${filename}: the following keys have values identical to en.json ` +
+					`(remove them so MediaWiki falls back to English automatically): ` +
+					copiedKeys.join(', ')
 				);
 			});
 		}
