@@ -342,10 +342,16 @@ class SpecialPandocExport extends \SpecialPage {
 		$mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
 		$qb = $dbr->newSelectQueryBuilder()
 			->select( [ 'cl_from' ] )
-			->from( 'categorylinks' )
-			->join('category', 'c')
-			->where( [ 'cat_title' => $dbKey ] )
-			->caller( __METHOD__ )
+			->from( 'categorylinks' );
+
+		if ( version_compare( $mwVersion, '1.44', '>=' ) ) {
+			$qb->join( 'category', null, 'cl_cat = cat_id' )
+				->where( [ 'cat_title' => $dbKey ] );
+		} else {
+			$qb->where( [ 'cl_to' => $dbKey ] );
+		}
+
+		$res = $qb->caller( __METHOD__ )
 			->fetchResultSet();
 
 		foreach ( $res as $row ) {
