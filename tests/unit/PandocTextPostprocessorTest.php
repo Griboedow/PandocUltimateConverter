@@ -151,4 +151,66 @@ WIKI;
 		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
 		$this->assertSame( '[[File:WinDoc-img.png|thumb]]', $result );
 	}
+
+	// ------------------------------------------------------------------
+	// Span-placeholder rewriting (Confluence / unresolvable images)
+	// ------------------------------------------------------------------
+
+	public function testSpanPlaceholderIsRewrittenToFileLink(): void {
+		$text  = '<span class="image placeholder" original-image-src="image-20260327-182256.png" original-image-title="" width="760">image-20260327-182256.png</span>';
+		$vocab = [ '/tmp/att/image-20260327-182256.png' => 'Confluence-image-20260327-182256.png' ];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertSame( '[[File:Confluence-image-20260327-182256.png]]', $result );
+	}
+
+	public function testSpanPlaceholderFallsBackToRawFilename(): void {
+		$text  = '<span class="image placeholder" original-image-src="unknown.png">unknown.png</span>';
+		$vocab = [ '/tmp/att/other.png' => 'Confluence-other.png' ];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertSame( '[[File:unknown.png]]', $result );
+	}
+
+	public function testMultipleSpanPlaceholdersAreAllRewritten(): void {
+		$text  = '<p>Text <span class="image placeholder" original-image-src="a.png">a.png</span> '
+			. 'mid <span class="image placeholder" original-image-src="b.jpg">b.jpg</span> end</p>';
+		$vocab = [
+			'/tmp/att/a.png' => 'Page-a.png',
+			'/tmp/att/b.jpg' => 'Page-b.jpg',
+		];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertStringContainsString( '[[File:Page-a.png]]', $result );
+		$this->assertStringContainsString( '[[File:Page-b.jpg]]', $result );
+		$this->assertStringNotContainsString( '<span', $result );
+	}
+
+	// ------------------------------------------------------------------
+	// Bare <img> tag rewriting
+	// ------------------------------------------------------------------
+
+	public function testBareImgTagIsRewrittenToFileLink(): void {
+		$text  = '<img src="diagram.png" />';
+		$vocab = [ '/tmp/att/diagram.png' => 'Page-diagram.png' ];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertSame( '[[File:Page-diagram.png]]', $result );
+	}
+
+	public function testExternalImgUrlIsLeftUnchanged(): void {
+		$text  = '<img src="https://example.com/badge.svg" />';
+		$vocab = [ '/tmp/att/badge.svg' => 'Page-badge.svg' ];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertSame( '<img src="https://example.com/badge.svg" />', $result );
+	}
+
+	public function testImgWithAttributesIsRewritten(): void {
+		$text  = '<img src="photo.jpg" width="400" height="300" alt="A photo" />';
+		$vocab = [ '/tmp/att/photo.jpg' => 'Page-photo.jpg' ];
+
+		$result = PandocTextPostprocessor::postprocess( $text, $vocab );
+		$this->assertSame( '[[File:Page-photo.jpg]]', $result );
+	}
 }

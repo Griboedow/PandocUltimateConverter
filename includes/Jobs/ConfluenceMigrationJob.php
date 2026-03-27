@@ -191,7 +191,7 @@ class ConfluenceMigrationJob extends Job {
 			);
 			$imagesVocabulary = array_merge(
 				$imagesVocabulary,
-				$this->migrateAttachments( $page['id'], $client, $wrapper, $services, $user )
+				$this->migrateAttachments( $page['id'], $client, $wrapper, $pandocOutput['baseName'], $services, $user )
 			);
 		} finally {
 			PandocWrapper::deleteDirectory( $pandocOutput['mediaFolder'] );
@@ -232,6 +232,7 @@ class ConfluenceMigrationJob extends Job {
 		string $pageId,
 		ConfluenceClient $client,
 		PandocWrapper $wrapper,
+		string $baseName,
 		MediaWikiServices $services,
 		mixed $user
 	): array {
@@ -259,7 +260,7 @@ class ConfluenceMigrationJob extends Job {
 				}
 			}
 
-			return $wrapper->processImages( $tempDir, 'confluence' );
+			return $wrapper->processImages( $tempDir, $baseName );
 		} finally {
 			PandocWrapper::deleteDirectory( $tempDir );
 		}
@@ -289,6 +290,49 @@ class ConfluenceMigrationJob extends Job {
 		$html = preg_replace(
 			'/<ac:structured-macro[^>]*ac:name="(?:info|note|warning|tip)"[^>]*>(.*?)<\/ac:structured-macro>/si',
 			'<blockquote>$1</blockquote>',
+			$html
+		) ?? $html;
+
+		// <ac:image …><ri:attachment ri:filename="X" /></ac:image> → <img src="X" />
+		// Must run BEFORE the generic <ac:*>/<ri:*> stripping so image refs survive.
+		$html = preg_replace_callback(
+			'/<ac:image([^>]*)>\s*<ri:attachment\s+[^>]*ri:filename="([^"]+)"[^>]*(?:\/>|>[\s\S]*?<\/ri:attachment>)\s*<\/ac:image>/si',
+			static function ( array $m ): string {
+				$attrs    = $m[1];
+				$filename = htmlspecialchars( $m[2], ENT_QUOTES );
+				$imgAttrs = "src=\"$filename\"";
+				if ( preg_match( '/ac:alt="([^"]*)"/', $attrs, $a ) ) {
+					$imgAttrs .= ' alt="' . htmlspecialchars( $a[1], ENT_QUOTES ) . '"';
+				}
+				if ( preg_match( '/ac:width="(\d+)"/', $attrs, $w ) ) {
+					$imgAttrs .= ' width="' . $w[1] . '"';
+				}
+				if ( preg_match( '/ac:height="(\d+)"/', $attrs, $h ) ) {
+					$imgAttrs .= ' height="' . $h[1] . '"';
+				}
+				return "<img $imgAttrs />";
+			},
+			$html
+		) ?? $html;
+
+		// <ac:image …><ri:url ri:value="URL" /></ac:image> → <img src="URL" />
+		$html = preg_replace_callback(
+			'/<ac:image([^>]*)>\s*<ri:url\s+[^>]*ri:value="([^"]+)"[^>]*(?:\/>|>[\s\S]*?<\/ri:url>)\s*<\/ac:image>/si',
+			static function ( array $m ): string {
+				$attrs    = $m[1];
+				$url      = htmlspecialchars( $m[2], ENT_QUOTES );
+				$imgAttrs = "src=\"$url\"";
+				if ( preg_match( '/ac:alt="([^"]*)"/', $attrs, $a ) ) {
+					$imgAttrs .= ' alt="' . htmlspecialchars( $a[1], ENT_QUOTES ) . '"';
+				}
+				if ( preg_match( '/ac:width="(\d+)"/', $attrs, $w ) ) {
+					$imgAttrs .= ' width="' . $w[1] . '"';
+				}
+				if ( preg_match( '/ac:height="(\d+)"/', $attrs, $h ) ) {
+					$imgAttrs .= ' height="' . $h[1] . '"';
+				}
+				return "<img $imgAttrs />";
+			},
 			$html
 		) ?? $html;
 
