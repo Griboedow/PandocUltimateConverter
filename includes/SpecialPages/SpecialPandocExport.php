@@ -8,7 +8,6 @@ use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Html\Html;
-use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
 
 /**
@@ -158,7 +157,7 @@ class SpecialPandocExport extends \SpecialPage {
 		// Auto-detect categories vs pages and resolve category members.
 		$pages = [];
 		foreach ( $items as $itemName ) {
-			$title = Title::newFromText( $itemName );
+			$title = \Title::newFromText( $itemName );
 			if ( $title !== null && $title->getNamespace() === NS_CATEGORY ) {
 				$visited = [];
 				$categoryPages = $this->getCategoryPages( $title->getText(), $visited );
@@ -312,7 +311,7 @@ class SpecialPandocExport extends \SpecialPage {
 	 * @return string[] Page titles (main namespace) found in the category tree.
 	 */
 	private function getCategoryPages( string $categoryName, array &$visited ): array {
-		$title = Title::newFromText( $categoryName, NS_CATEGORY );
+		$title = \Title::newFromText( $categoryName, NS_CATEGORY );
 		if ( $title === null ) {
 			return [];
 		}
@@ -337,7 +336,7 @@ class SpecialPandocExport extends \SpecialPage {
 			->fetchResultSet();
 
 		foreach ( $res as $row ) {
-			$memberTitle = Title::newFromID( (int)$row->cl_from );
+			$memberTitle = \Title::newFromID( (int)$row->cl_from );
 			if ( $memberTitle === null ) {
 				continue;
 			}
@@ -455,7 +454,7 @@ class SpecialPandocExport extends \SpecialPage {
 
 			// Expand templates / parser functions while keeping the result as wikitext
 			// so that {{TemplateName}} and {{#if:…}} are resolved before Pandoc sees them.
-			$title    = Title::newFromText( $pageName );
+			$title    = \Title::newFromText( $pageName );
 			$wikitext = $parser->preprocess( $wikitext, $title, $parserOptions );
 
 			$wikitexts[] = $wikitext;
@@ -628,7 +627,7 @@ class SpecialPandocExport extends \SpecialPage {
 	 * @throws \RuntimeException If the page does not exist or contains no wikitext.
 	 */
 	private function getPageWikitext( string $pageName ): string {
-		$title = Title::newFromText( $pageName );
+		$title = \Title::newFromText( $pageName );
 		if ( $title === null || !$title->exists() ) {
 			throw new \RuntimeException( "Page not found: $pageName" );
 		}
@@ -666,7 +665,7 @@ class SpecialPandocExport extends \SpecialPage {
 		$candidates = self::extractWikilinkTargets( $wikitext );
 
 		foreach ( $candidates as $rawLink ) {
-			$title = Title::newFromText( $rawLink );
+			$title = \Title::newFromText( $rawLink );
 			if ( $title === null ) {
 				continue;
 			}
@@ -679,7 +678,7 @@ class SpecialPandocExport extends \SpecialPage {
 			// Media: links point at the same underlying files as File: links.
 			// Convert to NS_FILE so RepoGroup::findFile() can locate the file.
 			$fileTitle = $ns === NS_MEDIA
-				? Title::makeTitleSafe( NS_FILE, $title->getDBkey() )
+				? \Title::makeTitleSafe( NS_FILE, $title->getDBkey() )
 				: $title;
 
 			if ( $fileTitle === null ) {
