@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "エクスポートするページ",
 	"pandocultimateconverter-export-add-page": "別のページを追加",
 	"pandocultimateconverter-export-page-placeholder": "ページを検索…",
+	"pandocultimateconverter-export-page-not-found": "このページまたはカテゴリは存在しません。",
 	"pandocultimateconverter-export-format-label": "エクスポート形式",
 	"pandocultimateconverter-export-remove-page": "削除",
 	"pandocultimateconverter-export-button": "エクスポート",

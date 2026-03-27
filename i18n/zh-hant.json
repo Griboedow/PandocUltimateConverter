@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "要匯出的頁面",
 	"pandocultimateconverter-export-add-page": "新增另一頁",
 	"pandocultimateconverter-export-page-placeholder": "搜尋頁面…",
+	"pandocultimateconverter-export-page-not-found": "此頁面或分類不存在。",
 	"pandocultimateconverter-export-format-label": "匯出格式",
 	"pandocultimateconverter-export-remove-page": "移除",
 	"pandocultimateconverter-export-button": "匯出",

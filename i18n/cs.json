@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Stránky k exportu",
 	"pandocultimateconverter-export-add-page": "Přidat další stránku",
 	"pandocultimateconverter-export-page-placeholder": "Hledat stránku…",
+	"pandocultimateconverter-export-page-not-found": "Tato stránka nebo kategorie neexistuje.",
 	"pandocultimateconverter-export-format-label": "Formát exportu",
 	"pandocultimateconverter-export-remove-page": "Odebrat",
 	"pandocultimateconverter-export-button": "Exportovat",

@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "หน้าและหมวดหมู่สำหรับส่งออก",
 	"pandocultimateconverter-export-add-item": "เพิ่มรายการอื่น",
 	"pandocultimateconverter-export-page-placeholder": "ค้นหาหน้าหรือหมวดหมู่…",
+	"pandocultimateconverter-export-page-not-found": "หน้าหรือหมวดหมู่นี้ไม่มีอยู่",
 	"pandocultimateconverter-export-format-label": "รูปแบบส่งออก",
 	"pandocultimateconverter-export-remove-page": "นำออก",
 	"pandocultimateconverter-export-button": "ส่งออก",

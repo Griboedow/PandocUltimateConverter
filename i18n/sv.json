@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Sidor att exportera",
 	"pandocultimateconverter-export-add-page": "Lägg till ytterligare en sida",
 	"pandocultimateconverter-export-page-placeholder": "Sök efter en sida…",
+	"pandocultimateconverter-export-page-not-found": "Denna sida eller kategori finns inte.",
 	"pandocultimateconverter-export-format-label": "Exportformat",
 	"pandocultimateconverter-export-remove-page": "Ta bort",
 	"pandocultimateconverter-export-button": "Exportera",

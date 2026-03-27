@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "Sider og kategorier til eksport",
 	"pandocultimateconverter-export-add-item": "Tilføj endnu et element",
 	"pandocultimateconverter-export-page-placeholder": "Søg efter en side eller kategori…",
+	"pandocultimateconverter-export-page-not-found": "Denne side eller kategori findes ikke.",
 	"pandocultimateconverter-export-format-label": "Eksportformat",
 	"pandocultimateconverter-export-remove-page": "Fjern",
 	"pandocultimateconverter-export-button": "Eksportér",
