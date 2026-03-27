@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "الصفحات المراد تصديرها",
 	"pandocultimateconverter-export-add-page": "إضافة صفحة أخرى",
 	"pandocultimateconverter-export-page-placeholder": "ابحث عن صفحة…",
+	"pandocultimateconverter-export-page-not-found": "هذه الصفحة أو التصنيف غير موجود.",
 	"pandocultimateconverter-export-format-label": "تنسيق التصدير",
 	"pandocultimateconverter-export-remove-page": "إزالة",
 	"pandocultimateconverter-export-button": "تصدير",

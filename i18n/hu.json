@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Exportálandó oldalak",
 	"pandocultimateconverter-export-add-page": "Másik oldal hozzáadása",
 	"pandocultimateconverter-export-page-placeholder": "Oldal keresése…",
+	"pandocultimateconverter-export-page-not-found": "Ez az oldal vagy kategória nem létezik.",
 	"pandocultimateconverter-export-format-label": "Exportformátum",
 	"pandocultimateconverter-export-remove-page": "Eltávolítás",
 	"pandocultimateconverter-export-button": "Exportálás",

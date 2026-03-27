@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "Pagini și categorii de exportat",
 	"pandocultimateconverter-export-add-item": "Adaugă alt element",
 	"pandocultimateconverter-export-page-placeholder": "Căutați o pagină sau categorie…",
+	"pandocultimateconverter-export-page-not-found": "Această pagină sau categorie nu există.",
 	"pandocultimateconverter-export-format-label": "Format de export",
 	"pandocultimateconverter-export-remove-page": "Elimină",
 	"pandocultimateconverter-export-button": "Exportă",

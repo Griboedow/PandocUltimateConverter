@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "내보낼 페이지",
 	"pandocultimateconverter-export-add-page": "다른 페이지 추가",
 	"pandocultimateconverter-export-page-placeholder": "페이지 검색…",
+	"pandocultimateconverter-export-page-not-found": "이 문서 또는 분류가 존재하지 않습니다.",
 	"pandocultimateconverter-export-format-label": "내보내기 형식",
 	"pandocultimateconverter-export-remove-page": "제거",
 	"pandocultimateconverter-export-button": "내보내기",

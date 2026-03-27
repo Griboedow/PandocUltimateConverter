@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Páginas para exportar",
 	"pandocultimateconverter-export-add-page": "Adicionar outra página",
 	"pandocultimateconverter-export-page-placeholder": "Procurar uma página…",
+	"pandocultimateconverter-export-page-not-found": "Esta página ou categoria não existe.",
 	"pandocultimateconverter-export-format-label": "Formato de exportação",
 	"pandocultimateconverter-export-remove-page": "Remover",
 	"pandocultimateconverter-export-button": "Exportar",

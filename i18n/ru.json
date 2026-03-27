@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Страницы для экспорта",
 	"pandocultimateconverter-export-add-page": "Добавить ещё одну страницу",
 	"pandocultimateconverter-export-page-placeholder": "Поиск страницы…",
+	"pandocultimateconverter-export-page-not-found": "Эта страница или категория не существует.",
 	"pandocultimateconverter-export-format-label": "Формат экспорта",
 	"pandocultimateconverter-export-remove-page": "Удалить",
 	"pandocultimateconverter-export-button": "Экспорт",

@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "Halaman dan kategori untuk diekspor",
 	"pandocultimateconverter-export-add-item": "Tambahkan item lain",
 	"pandocultimateconverter-export-page-placeholder": "Cari halaman atau kategori…",
+	"pandocultimateconverter-export-page-not-found": "Halaman atau kategori ini tidak ada.",
 	"pandocultimateconverter-export-format-label": "Format ekspor",
 	"pandocultimateconverter-export-remove-page": "Hapus",
 	"pandocultimateconverter-export-button": "Ekspor",

@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "Vietävät sivut ja luokat",
 	"pandocultimateconverter-export-add-item": "Lisää toinen kohde",
 	"pandocultimateconverter-export-page-placeholder": "Hae sivua tai luokkaa…",
+	"pandocultimateconverter-export-page-not-found": "Tätä sivua tai luokkaa ei ole olemassa.",
 	"pandocultimateconverter-export-format-label": "Vientimuoto",
 	"pandocultimateconverter-export-remove-page": "Poista",
 	"pandocultimateconverter-export-button": "Vie",

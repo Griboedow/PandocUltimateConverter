@@ -91,6 +91,7 @@
 	"pandocultimateconverter-export-pages-label": "Te exporteren pagina's",
 	"pandocultimateconverter-export-add-page": "Nog een pagina toevoegen",
 	"pandocultimateconverter-export-page-placeholder": "Zoek een pagina…",
+	"pandocultimateconverter-export-page-not-found": "Deze pagina of categorie bestaat niet.",
 	"pandocultimateconverter-export-format-label": "Exportformaat",
 	"pandocultimateconverter-export-remove-page": "Verwijderen",
 	"pandocultimateconverter-export-button": "Exporteren",
