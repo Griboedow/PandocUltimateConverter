@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 
 use MediaWiki\Config\Config;
+use MediaWiki\Title\Title;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
@@ -140,7 +141,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
     private function deleteFile( string $fileName ): void
     {
-        $fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
+        $fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
         $reason    = wfMessage( 'pandocultimateconverter-conversion-complete-comment' )->text();
 
         $fileOnDisk = $this->repoGroup->findFile( $fileTitle, [ 'ignoreRedirect' => true ] );
@@ -176,7 +177,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
                     $this->deleteFile( $fileName );
                 }
             }
-            $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
+            $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
             return;
         }
 
@@ -191,7 +192,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
                 );
                 return;
             }
-            $this->getOutput()->redirect( \Title::newFromText( $pageName )->getFullURL() );
+            $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
         }
     }
 
@@ -219,7 +220,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
         $postprocessedText = PandocTextPostprocessor::postprocess( $pandocOutput['text'], $imagesVocabulary );
 
-        $title       = \Title::newFromText( $pageName );
+        $title       = Title::newFromText( $pageName );
         $pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );
         $content     = new \WikitextContent( $postprocessedText );
         $pageUpdater->setContent( SlotRecord::MAIN, $content );
@@ -237,7 +238,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
 
     private function convertFileToPage( string $fileName, string $pageName ): void
     {
-        $fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
+        $fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
         $localFile = $this->repoGroup->findFile( $fileTitle );
         $filePath  = $localFile->getLocalRefPath();
 

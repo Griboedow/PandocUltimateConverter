@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
+use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
@@ -53,7 +54,7 @@ class PandocConverterService {
 	 * @throws \RuntimeException If the file cannot be found or conversion fails.
 	 */
 	public function convertFileToPage( string $fileName, string $pageName, bool $llmPolish = false ): void {
-		$fileTitle = \Title::newFromTextThrow( $fileName, NS_FILE );
+		$fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
 		$localFile = $this->repoGroup->findFile( $fileTitle );
 
 		if ( !$localFile || !$localFile->exists() ) {
@@ -108,7 +109,7 @@ class PandocConverterService {
 			}
 		}
 
-		$title       = \Title::newFromText( $pageName );
+		$title       = Title::newFromText( $pageName );
 		$pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );
 		$content     = new \WikitextContent( $postprocessedText );
 		$pageUpdater->setContent( SlotRecord::MAIN, $content );
