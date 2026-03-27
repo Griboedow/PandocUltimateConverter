@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "निर्यात के लिए पृष्ठ और श्रेणियाँ",
 	"pandocultimateconverter-export-add-item": "एक और आइटम जोड़ें",
 	"pandocultimateconverter-export-page-placeholder": "पृष्ठ या श्रेणी खोजें…",
+	"pandocultimateconverter-export-page-not-found": "यह पृष्ठ या श्रेणी मौजूद नहीं है।",
 	"pandocultimateconverter-export-format-label": "निर्यात प्रारूप",
 	"pandocultimateconverter-export-remove-page": "हटाएं",
 	"pandocultimateconverter-export-button": "निर्यात करें",

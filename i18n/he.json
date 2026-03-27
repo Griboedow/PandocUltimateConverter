@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "דפים וקטגוריות לייצוא",
 	"pandocultimateconverter-export-add-item": "הוספת פריט נוסף",
 	"pandocultimateconverter-export-page-placeholder": "חיפוש דף או קטגוריה…",
+	"pandocultimateconverter-export-page-not-found": "דף או קטגוריה זו אינם קיימים.",
 	"pandocultimateconverter-export-format-label": "פורמט ייצוא",
 	"pandocultimateconverter-export-remove-page": "הסרה",
 	"pandocultimateconverter-export-button": "ייצוא",

@@ -88,6 +88,7 @@
 	"pandocultimateconverter-export-items-label": "Trang và danh mục để xuất",
 	"pandocultimateconverter-export-add-item": "Thêm mục khác",
 	"pandocultimateconverter-export-page-placeholder": "Tìm kiếm trang hoặc danh mục…",
+	"pandocultimateconverter-export-page-not-found": "Trang hoặc danh mục này không tồn tại.",
 	"pandocultimateconverter-export-format-label": "Định dạng xuất",
 	"pandocultimateconverter-export-remove-page": "Xóa",
 	"pandocultimateconverter-export-button": "Xuất",

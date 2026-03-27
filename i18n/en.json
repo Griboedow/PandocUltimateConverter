@@ -97,6 +97,7 @@
 	"pandocultimateconverter-export-items-label": "Pages and categories to export",
 	"pandocultimateconverter-export-add-item": "Add another item",
 	"pandocultimateconverter-export-page-placeholder": "Search for a page or category\u2026",
+	"pandocultimateconverter-export-page-not-found": "This page or category does not exist.",
 	"pandocultimateconverter-export-format-label": "Export format",
 	"pandocultimateconverter-export-remove-page": "Remove",
 	"pandocultimateconverter-export-button": "Export",

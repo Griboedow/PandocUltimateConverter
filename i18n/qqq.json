@@ -81,6 +81,7 @@
 	"pandocultimateconverter-export-pages-label": "Label for the section where the user selects which pages to export.",
 	"pandocultimateconverter-export-add-page": "Label for the button that adds another page name input to the export form.",
 	"pandocultimateconverter-export-page-placeholder": "Placeholder text inside a page name input field on the export form.",
+	"pandocultimateconverter-export-page-not-found": "Error message shown below the page search input when the entered page or category does not exist.",
 	"pandocultimateconverter-export-format-label": "Label for the format selector dropdown on the export form.",
 	"pandocultimateconverter-export-remove-page": "Accessible label for the button that removes a page from the export list.",
 	"pandocultimateconverter-export-button": "Label for the main Export submit button.",
