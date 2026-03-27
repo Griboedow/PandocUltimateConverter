@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Tests\Unit;
 
 use MediaWiki\Extension\PandocUltimateConverter\ConfluenceClient;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 /**
  * Unit tests for ConfluenceClient pure-logic helpers.
@@ -17,6 +18,60 @@ use PHPUnit\Framework\TestCase;
  * @covers \MediaWiki\Extension\PandocUltimateConverter\ConfluenceClient
  */
 class ConfluenceClientTest extends TestCase {
+
+	// -----------------------------------------------------------------------
+	// parseStatusCode()
+	// -----------------------------------------------------------------------
+
+	private function parseStatusCode( array $headers ): int {
+		$client = new ConfluenceClient( 'https://example.atlassian.net', 'user', 'token' );
+		$method = new ReflectionMethod( $client, 'parseStatusCode' );
+		$method->setAccessible( true );
+		return $method->invoke( $client, $headers );
+	}
+
+	public function testParseStatusCode200(): void {
+		$this->assertSame( 200, $this->parseStatusCode( [ 'HTTP/1.1 200 OK' ] ) );
+	}
+
+	public function testParseStatusCode401(): void {
+		$this->assertSame( 401, $this->parseStatusCode( [ 'HTTP/1.1 401 Unauthorized' ] ) );
+	}
+
+	public function testParseStatusCode403(): void {
+		$this->assertSame( 403, $this->parseStatusCode( [ 'HTTP/1.1 403 Forbidden' ] ) );
+	}
+
+	public function testParseStatusCode404(): void {
+		$this->assertSame( 404, $this->parseStatusCode( [ 'HTTP/1.1 404 Not Found' ] ) );
+	}
+
+	public function testParseStatusCode500(): void {
+		$this->assertSame( 500, $this->parseStatusCode( [ 'HTTP/1.1 500 Internal Server Error' ] ) );
+	}
+
+	public function testParseStatusCodeHttp10(): void {
+		$this->assertSame( 200, $this->parseStatusCode( [ 'HTTP/1.0 200 OK' ] ) );
+	}
+
+	public function testParseStatusCodeHttp2(): void {
+		$this->assertSame( 200, $this->parseStatusCode( [ 'HTTP/2 200' ] ) );
+	}
+
+	public function testParseStatusCodePicksFirstStatusLine(): void {
+		// PHP puts the final status line first (after redirect follow), but we
+		// always want to parse the first match in the array.
+		$headers = [ 'HTTP/1.1 200 OK', 'Content-Type: application/json' ];
+		$this->assertSame( 200, $this->parseStatusCode( $headers ) );
+	}
+
+	public function testParseStatusCodeEmptyArrayReturnsZero(): void {
+		$this->assertSame( 0, $this->parseStatusCode( [] ) );
+	}
+
+	public function testParseStatusCodeNoStatusLineReturnsZero(): void {
+		$this->assertSame( 0, $this->parseStatusCode( [ 'Content-Type: application/json' ] ) );
+	}
 
 	// -----------------------------------------------------------------------
 	// isCloud() / API base path detection
