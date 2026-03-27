@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Alternativ för fil-till-artikel-konvertering vid uppladdning",
 	"pandocultimateconverter-summary": "Alternativ för fil-till-artikel-konvertering vid uppladdning",
 	"pandocultimateconverter-warning-page-name-length": "Artikelns titel är för kort eller för lång. Längden måste vara mellan $1 och $2 tecken.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Välj vad du vill konvertera till en wikisida",
 	"pandocultimateconverter-special-upload-file": "Fil:",
 	"pandocultimateconverter-special-source-type-label": "Typ:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Sida:",
 	"pandocultimateconverter-special-page-placeholder": "Ange titeln på artikeln som ska skapas. En befintlig artikel skrivs över.",
 	"pandocultimateconverter-special-upload-target-page-section": "Målsidans namn (skrivs över om den finns)",

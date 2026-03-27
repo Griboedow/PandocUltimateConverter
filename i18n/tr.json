@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Yükleme sürecinde dosyayı makaleye dönüştürme seçeneği",
 	"pandocultimateconverter-summary": "Yükleme sürecinde dosyayı makaleye dönüştürme seçeneği",
 	"pandocultimateconverter-warning-page-name-length": "Makale başlığı çok kısa veya çok uzun. Uzunluk $1 ile $2 karakter arasında olmalıdır.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Wiki sayfasına dönüştürmek istediğinizi seçin",
 	"pandocultimateconverter-special-upload-file": "Dosya:",
 	"pandocultimateconverter-special-source-type-label": "Tür:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Sayfa:",
 	"pandocultimateconverter-special-page-placeholder": "Oluşturulacak makalenin başlığını yazın. Mevcut makale üzerine yazılacak.",
 	"pandocultimateconverter-special-upload-target-page-section": "Hedef sayfa adı (mevcutsa üzerine yazılacak)",

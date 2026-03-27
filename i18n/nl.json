@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
 	"pandocultimateconverter-summary": "Optie voor het omzetten van een bestand naar een artikel tijdens het uploaden",
 	"pandocultimateconverter-warning-page-name-length": "De paginatitel is te kort of te lang. De lengte moet tussen $1 en $2 tekens zijn.",
@@ -12,6 +13,8 @@
 	"pandocultimateconverter-special-upload-description": "Geef het bestand en de naam van de doelpagina op. Als de pagina al bestaat, wordt de inhoud overschreven.",
 	"pandocultimateconverter-special-upload-file-section": "Kies wat u wilt omzetten naar een wikipagina",
 	"pandocultimateconverter-special-upload-file": "Bestand:",
+	"pandocultimateconverter-special-source-type-label": "Type:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Pagina:",
 	"pandocultimateconverter-special-page-placeholder": "Typ de titel van het te maken artikel. Een bestaand artikel wordt overschreven.",
 	"pandocultimateconverter-special-upload-target-page-section": "Naam van de doelpagina (wordt overschreven als deze bestaat)",

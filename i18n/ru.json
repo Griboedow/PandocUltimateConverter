@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Конвертация файлов в статьи в процессе загрузки",
 	"pandocultimateconverter-summary": "Конвертация файлов в статьи в процессе загрузки",
 	"pandocultimateconverter-warning-page-name-length": "Заголовок статьи слишком короткий или слишком длинный. Допустимая длина — от $1 до $2 символов.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Выберите, что вы хотите конвертировать в вики-страницу",
 	"pandocultimateconverter-special-upload-file": "Файл:",
 	"pandocultimateconverter-special-source-type-label": "Тип:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Страница:",
 	"pandocultimateconverter-special-page-placeholder": "Введите заголовок создаваемой статьи. Существующая статья будет перезаписана.",
 	"pandocultimateconverter-special-upload-target-page-section": "Название целевой страницы (будет перезаписана, если существует)",

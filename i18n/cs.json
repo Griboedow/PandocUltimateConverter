@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Možnost převodu souboru na článek při nahrávání",
 	"pandocultimateconverter-summary": "Možnost převodu souboru na článek při nahrávání",
 	"pandocultimateconverter-warning-page-name-length": "Název článku je příliš krátký nebo příliš dlouhý. Délka musí být mezi $1 a $2 znaky.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Vyberte, co chcete převést na stránku wiki",
 	"pandocultimateconverter-special-upload-file": "Soubor:",
 	"pandocultimateconverter-special-source-type-label": "Typ:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Stránka:",
 	"pandocultimateconverter-special-page-placeholder": "Zadejte název článku, který bude vytvořen. Existující článek bude přepsán.",
 	"pandocultimateconverter-special-upload-target-page-section": "Název cílové stránky (bude přepsána, pokud existuje)",

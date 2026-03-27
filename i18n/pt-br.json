@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Opção de conversão de arquivo em artigo durante o processo de upload",
 	"pandocultimateconverter-summary": "Opção de conversão de arquivo em artigo durante o processo de upload",
 	"pandocultimateconverter-warning-page-name-length": "O título do artigo é muito curto ou muito longo. O comprimento deve ser entre $1 e $2 caracteres.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Escolha o que deseja converter em uma página wiki",
 	"pandocultimateconverter-special-upload-file": "Arquivo:",
 	"pandocultimateconverter-special-source-type-label": "Tipo:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Página:",
 	"pandocultimateconverter-special-page-placeholder": "Digite o título do artigo a ser criado. O artigo existente será substituído.",
 	"pandocultimateconverter-special-upload-target-page-section": "Nome da página de destino (será substituída se existir)",

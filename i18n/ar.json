@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "خيار تحويل الملف إلى مقالة أثناء عملية الرفع",
 	"pandocultimateconverter-summary": "خيار تحويل الملف إلى مقالة أثناء عملية الرفع",
 	"pandocultimateconverter-warning-page-name-length": "عنوان المقالة قصير جداً أو طويل جداً. يجب أن يكون الطول بين $1 و$2 حرفاً.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "اختر ما تريد تحويله إلى صفحة ويكي",
 	"pandocultimateconverter-special-upload-file": "الملف:",
 	"pandocultimateconverter-special-source-type-label": "النوع:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "الصفحة:",
 	"pandocultimateconverter-special-page-placeholder": "اكتب عنوان المقالة التي ستُنشأ. ستُستبدل المقالة الحالية.",
 	"pandocultimateconverter-special-upload-target-page-section": "اسم الصفحة المستهدفة (سيتم الكتابة فوقها إن وُجدت)",

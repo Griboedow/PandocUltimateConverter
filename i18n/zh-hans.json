@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "上传过程中将文件转换为文章的选项",
 	"pandocultimateconverter-summary": "上传过程中将文件转换为文章的选项",
 	"pandocultimateconverter-warning-page-name-length": "文章标题过短或过长。长度限制为 $1 至 $2 个字符。",

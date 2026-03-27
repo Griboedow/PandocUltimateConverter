@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Option de conversion de fichier en article lors du téléversement",
 	"pandocultimateconverter-summary": "Option de conversion de fichier en article lors du téléversement",
 	"pandocultimateconverter-warning-page-name-length": "Le titre de l'article est trop court ou trop long. La longueur doit être comprise entre $1 et $2 caractères.",

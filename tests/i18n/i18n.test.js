@@ -16,7 +16,10 @@
  *     value – copy-pasted English text is not a translation. MediaWiki
  *     falls back to English automatically for missing keys, so untranslated
  *     messages must simply be omitted rather than duplicated.
- *     (qqq.json is exempt: its values are translator notes, not strings.)
+ *     (qqq.json is exempt: its values are translator notes, not strings.
+ *     A small set of keys is also exempt because their English value is
+ *     legitimately correct in many languages: the product brand name and
+ *     short universal labels that are used unchanged as loanwords.)
  */
 
 import { test, describe } from 'node:test';
@@ -41,6 +44,19 @@ assert.ok(i18nFiles.includes('en.json'), 'en.json must exist in i18n/');
 const enRaw = fs.readFileSync(path.join(I18N_DIR, 'en.json'), 'utf8').replace(/^\uFEFF/, '');
 const enMessages = JSON.parse(enRaw);
 const enKeys = new Set(Object.keys(enMessages).filter((k) => k !== '@metadata'));
+
+// Keys whose English value is legitimately identical in many languages and
+// therefore must not be flagged as untranslated copy-pastes:
+//   - pandocultimateconverter        : the product/brand name (proper noun)
+//   - pandocultimateconverter-special-url-label   : "URL:" is a universal acronym
+//   - pandocultimateconverter-special-upload-file : "File:" is a common loanword
+//   - pandocultimateconverter-special-source-type-label : "Type:" is a common loanword
+const ALLOWED_IDENTICAL_TO_EN = new Set([
+	'pandocultimateconverter',
+	'pandocultimateconverter-special-url-label',
+	'pandocultimateconverter-special-upload-file',
+	'pandocultimateconverter-special-source-type-label',
+]);
 
 // ---------------------------------------------------------------------------
 
@@ -188,6 +204,7 @@ for (const filename of i18nFiles) {
 			test('must not contain values that are verbatim copies of the English source', () => {
 				const copiedKeys = Object.entries(parsed)
 					.filter(([k]) => k !== '@metadata')
+					.filter(([k]) => !ALLOWED_IDENTICAL_TO_EN.has(k))
 					.filter(([k, v]) => enMessages[k] !== undefined && v === enMessages[k])
 					.map(([k]) => k);
 				assert.deepEqual(

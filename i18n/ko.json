@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "업로드 과정에서 파일을 문서로 변환하는 옵션",
 	"pandocultimateconverter-summary": "업로드 과정에서 파일을 문서로 변환하는 옵션",
 	"pandocultimateconverter-warning-page-name-length": "문서 제목이 너무 짧거나 너무 깁니다. 길이는 $1자에서 $2자 사이여야 합니다.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "위키 문서로 변환할 대상을 선택하세요",
 	"pandocultimateconverter-special-upload-file": "파일:",
 	"pandocultimateconverter-special-source-type-label": "유형:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "문서:",
 	"pandocultimateconverter-special-page-placeholder": "생성할 문서의 제목을 입력하세요. 기존 문서는 덮어씌워집니다.",
 	"pandocultimateconverter-special-upload-target-page-section": "대상 문서 이름 (존재하면 덮어씌워집니다)",

@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Конвертація файлів у статті під час завантаження",
 	"pandocultimateconverter-summary": "Конвертація файлів у статті під час завантаження",
 	"pandocultimateconverter-warning-page-name-length": "Заголовок статті надто короткий або надто довгий. Допустима довжина — від $1 до $2 символів.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Оберіть, що ви хочете конвертувати у вікі-сторінку",
 	"pandocultimateconverter-special-upload-file": "Файл:",
 	"pandocultimateconverter-special-source-type-label": "Тип:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Сторінка:",
 	"pandocultimateconverter-special-page-placeholder": "Введіть заголовок статті, яку буде створено. Існуюча стаття буде перезаписана.",
 	"pandocultimateconverter-special-upload-target-page-section": "Назва цільової сторінки (буде перезаписана, якщо існує)",

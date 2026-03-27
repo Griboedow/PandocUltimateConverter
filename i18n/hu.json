@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": []
 	},
+	"pandocultimateconverter": "Pandoc Ultimate Converter",
 	"pandocultimateconverter-desc": "Fájl cikké konvertálása feltöltés közben",
 	"pandocultimateconverter-summary": "Fájl cikké konvertálása feltöltés közben",
 	"pandocultimateconverter-warning-page-name-length": "A cikk címe túl rövid vagy túl hosszú. A hossznak $1 és $2 karakter között kell lennie.",
@@ -13,6 +14,7 @@
 	"pandocultimateconverter-special-upload-file-section": "Válasza ki, mit szeretne wiki-oldallá konvertálni",
 	"pandocultimateconverter-special-upload-file": "Fájl:",
 	"pandocultimateconverter-special-source-type-label": "Típus:",
+	"pandocultimateconverter-special-url-label": "URL:",
 	"pandocultimateconverter-special-page-label": "Oldal:",
 	"pandocultimateconverter-special-page-placeholder": "Adja meg a létrehozandó cikk címét. A meglévő cikk felülírodásra kerül.",
 	"pandocultimateconverter-special-upload-target-page-section": "Céloldal neve (felülírja, ha már létezik)",
