@@ -141,9 +141,9 @@ test.describe( 'PandocExport — category export', () => {
 		const exportUrl = new URL( `${ BASE_URL }/index.php` );
 		exportUrl.searchParams.set( 'title', 'Special:PandocExport' );
 		exportUrl.searchParams.set( 'format', 'txt' );
-		// PHP recognises "pages%5B%5D" (the URLSearchParams-encoded form of "pages[]")
-		// as an array parameter, equivalent to the literal "pages[]" form.
-		exportUrl.searchParams.append( 'pages[]', `Category:${ TEST_CATEGORY }` );
+		// SpecialPandocExport reads $request->getArray('items'), matching what the
+		// Vue App.vue frontend also appends as "items[]".
+		exportUrl.searchParams.append( 'items[]', `Category:${ TEST_CATEGORY }` );
 		const response = await page.request.get( exportUrl.toString() );
 
 		expect( response.status() ).toBe( 200 );

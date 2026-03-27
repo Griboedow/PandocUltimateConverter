@@ -483,7 +483,6 @@ jobs:
 
       - name: Run Playwright Web UI screenshot tests
         if: always()
-        continue-on-error: true
         working-directory: mediawiki/extensions/PandocUltimateConverter/tests/playwright
         env:
           MW_BASE_URL: http://localhost:8080
