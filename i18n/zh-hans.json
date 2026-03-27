@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "此维基不允许 $1 类型的文件。您可以通过在 LocalSettings.php 中添加此行来修复：'$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "此维基已禁用文件上传。请在 LocalSettings.php 中添加 '$wgEnableUploads = true;' 来启用。",
 	"pandocultimateconverter-error-mustbeloggedin": "只有已登录的用户才能在此维基上传文件。请登录后继续。",
-	"pandocultimateconverter-error-generic": "文件上传失败：$1"
+	"pandocultimateconverter-error-generic": "文件上传失败：$1",
+	"apierror-pandocultimateconverter-nosource": "必须提供 'filename' 或 'url' 之一。",
+	"apierror-pandocultimateconverter-multiplesource": "提供 'filename' 或 'url'，而不是两者都提供。",
+	"apierror-pandocultimateconverter-invalidurlscheme": "仅支持 http 和 https URL。",
+	"apierror-pandocultimateconverter-pageexists": "目标页面已存在。传递 forceoverwrite=1 以覆盖它。",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc 转换失败：$1",
+	"apihelp-pandocconvert-summary": "使用 Pandoc 将已上传的文件或 URL 转换为维基页面。",
+	"apihelp-pandocconvert-param-pagename": "目标维基页面标题。设置 forceoverwrite 时，现有内容将被覆盖。",
+	"apihelp-pandocconvert-param-filename": "维基仓库中已上传文件的名称（例如“Document.docx”）。与 'url' 互斥。",
+	"apihelp-pandocconvert-param-url": "要获取并转换的远程 http/https URL。与 'filename' 互斥。",
+	"apihelp-pandocconvert-param-forceoverwrite": "如果设置，则在目标页面已存在时覆盖它。",
+	"apihelp-pandocconvert-example-file": "将已上传的名为 Document.docx 的文件转换为 MyArticle 页面。",
+	"apihelp-pandocconvert-example-url": "将 https://example.com 的内容转换为 MyArticle 页面。"
 }

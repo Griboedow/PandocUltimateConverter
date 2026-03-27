@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "El tipo de archivo $1 no está permitido en este wiki. Puedes solucionarlo añadiendo esta línea en LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "La carga de archivos está desactivada en este wiki. Actívala añadiendo '$wgEnableUploads = true;' en LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Solo los usuarios registrados pueden cargar archivos en este wiki. Por favor, inicia sesión para continuar.",
-	"pandocultimateconverter-error-generic": "Error al cargar el archivo: $1"
+	"pandocultimateconverter-error-generic": "Error al cargar el archivo: $1",
+	"apierror-pandocultimateconverter-nosource": "Debes proporcionar 'filename' o 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Proporciona 'filename' o 'url', no ambos.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Solo se admiten URL http y https.",
+	"apierror-pandocultimateconverter-pageexists": "La página de destino ya existe. Pasa forceoverwrite=1 para sobreescribirla.",
+	"apierror-pandocultimateconverter-conversionfailed": "Error en la conversión de Pandoc: $1",
+	"apihelp-pandocconvert-summary": "Convierte un archivo subido o una URL en una página wiki usando Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Título de la página wiki de destino. El contenido existente se sobreescribirá cuando forceoverwrite esté establecido.",
+	"apihelp-pandocconvert-param-filename": "Nombre de un archivo ya subido al repositorio wiki (p. ej. «Document.docx»). Mutuamente exclusivo con 'url'.",
+	"apihelp-pandocconvert-param-url": "URL http/https remota para obtener y convertir. Mutuamente exclusiva con 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Si se establece, sobreescribe la página de destino si ya existe.",
+	"apihelp-pandocconvert-example-file": "Convierte un archivo ya subido llamado Document.docx en la página MyArticle.",
+	"apihelp-pandocconvert-example-url": "Convierte el contenido de https://example.com en la página MyArticle."
 }

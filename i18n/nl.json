@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Het bestandstype $1 is niet toegestaan op dit wiki. U kunt dit oplossen door deze regel toe te voegen aan LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Uploaden van bestanden is uitgeschakeld op dit wiki. Schakel het in door '$wgEnableUploads = true;' toe te voegen aan LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Alleen ingelogde gebruikers kunnen bestanden uploaden naar dit wiki. Log in om door te gaan.",
-	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1"
+	"pandocultimateconverter-error-generic": "Uploaden van bestand mislukt: $1",
+	"apierror-pandocultimateconverter-nosource": "U moet 'filename' of 'url' opgeven.",
+	"apierror-pandocultimateconverter-multiplesource": "Geef 'filename' of 'url' op, niet beide.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Alleen http- en https-URL's worden ondersteund.",
+	"apierror-pandocultimateconverter-pageexists": "De doelpagina bestaat al. Geef forceoverwrite=1 mee om deze te overschrijven.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc-conversie mislukt: $1",
+	"apihelp-pandocconvert-summary": "Converteert een geüpload bestand of URL naar een wikipagina met behulp van Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Titel van de doel-wikipagina. Bestaande inhoud wordt overschreven wanneer forceoverwrite is ingesteld.",
+	"apihelp-pandocconvert-param-filename": "Naam van een reeds geüpload bestand in het wiki-repository (bijv. „Document.docx“). Wederzijds exclusief met 'url'.",
+	"apihelp-pandocconvert-param-url": "Externe http/https-URL om op te halen en te converteren. Wederzijds exclusief met 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Indien ingesteld, wordt de doelpagina overschreven als deze al bestaat.",
+	"apihelp-pandocconvert-example-file": "Converteert een reeds geüpload bestand genaamd Document.docx naar de pagina MyArticle.",
+	"apihelp-pandocconvert-example-url": "Converteert de inhoud van https://example.com naar de pagina MyArticle."
 }

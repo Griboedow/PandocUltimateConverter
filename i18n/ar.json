@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "نوع الملف $1 غير مسموح به في هذه الويكي. يمكنك إصلاح ذلك بإضافة هذا السطر إلى LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "رفع الملفات معطّل في هذه الويكي. فعّله بإضافة '$wgEnableUploads = true;' إلى LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "يمكن للمستخدمين المسجّلين فقط رفع الملفات إلى هذه الويكي. يرجى تسجيل الدخول للمتابعة.",
-	"pandocultimateconverter-error-generic": "فشل رفع الملف: $1"
+	"pandocultimateconverter-error-generic": "فشل رفع الملف: $1",
+	"apierror-pandocultimateconverter-nosource": "يجب تزويد إما 'filename' أو 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "زوّد إما 'filename' أو 'url'، وليس كليهما.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "يُدعم نظاما http وhttps فقط من عناوين URL.",
+	"apierror-pandocultimateconverter-pageexists": "الصفحة المستهدفة موجودة بالفعل. مرّر forceoverwrite=1 للكتابة فوقها.",
+	"apierror-pandocultimateconverter-conversionfailed": "فشل تحويل Pandoc: $1",
+	"apihelp-pandocconvert-summary": "يحوّل ملفًا مُرفَّقًا أو عنوان URL إلى صفحة ويكي باستخدام Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "عنوان صفحة الويكي المستهدفة. سيُكتَب فوق المحتوى الموجود عند تعيين forceoverwrite.",
+	"apihelp-pandocconvert-param-filename": "اسم ملف مُرفَّق مسبقًا في مستودع الويكي (مثال: «Document.docx»). حصري متبادل مع 'url'.",
+	"apihelp-pandocconvert-param-url": "عنوان URL بعيد من نوع http/https للجلب والتحويل. حصري متبادل مع 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "إذا تم تعيينه، يُكتَب فوق الصفحة المستهدفة إذا كانت موجودة بالفعل.",
+	"apihelp-pandocconvert-example-file": "يحوّل ملفًا مُرفَّقًا مسبقًا باسم Document.docx إلى الصفحة MyArticle.",
+	"apihelp-pandocconvert-example-url": "يحوّل المحتوى الموجود على https://example.com إلى الصفحة MyArticle."
 }

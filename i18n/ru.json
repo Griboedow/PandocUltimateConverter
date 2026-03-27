@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Тип файла $1 не разрешён на этой вики. Исправьте это, добавив следующую строку в LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Загрузка файлов отключена на вики. Включите её, добавив '$wgEnableUploads = true;' в LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Загружать файлы на эту вики могут только авторизованные пользователи. Пожалуйста, войдите в систему.",
-	"pandocultimateconverter-error-generic": "Не удалось загрузить файл: $1"
+	"pandocultimateconverter-error-generic": "Не удалось загрузить файл: $1",
+	"apierror-pandocultimateconverter-nosource": "Необходимо указать 'filename' или 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Укажите 'filename' или 'url', но не оба параметра.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Поддерживаются только URL-адреса http и https.",
+	"apierror-pandocultimateconverter-pageexists": "Целевая страница уже существует. Передайте forceoverwrite=1, чтобы перезаписать её.",
+	"apierror-pandocultimateconverter-conversionfailed": "Ошибка конвертации Pandoc: $1",
+	"apihelp-pandocconvert-summary": "Конвертирует загруженный файл или URL-адрес в страницу вики с помощью Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Заголовок целевой страницы вики. Существующее содержимое будет перезаписано, если задан forceoverwrite.",
+	"apihelp-pandocconvert-param-filename": "Имя уже загруженного файла в репозитории вики (например, «Document.docx»). Взаимоисключающее с 'url'.",
+	"apihelp-pandocconvert-param-url": "Удалённый URL-адрес http/https для получения и конвертации. Взаимоисключающее с 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Если задано, перезаписывает целевую страницу, если она уже существует.",
+	"apihelp-pandocconvert-example-file": "Конвертирует уже загруженный файл Document.docx в страницу MyArticle.",
+	"apihelp-pandocconvert-example-url": "Конвертирует содержимое https://example.com в страницу MyArticle."
 }

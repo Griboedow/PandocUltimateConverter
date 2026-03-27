@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "此維基不允許 $1 類型的檔案。您可以在 LocalSettings.php 中新增此行來修復：'$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "此維基已停用檔案上傳。請在 LocalSettings.php 中新增 '$wgEnableUploads = true;' 來啟用。",
 	"pandocultimateconverter-error-mustbeloggedin": "只有已登入的使用者才能在此維基上傳檔案。請登入後繼續。",
-	"pandocultimateconverter-error-generic": "檔案上傳失敗：$1"
+	"pandocultimateconverter-error-generic": "檔案上傳失敗：$1",
+	"apierror-pandocultimateconverter-nosource": "必須提供 'filename' 或 'url' 之一。",
+	"apierror-pandocultimateconverter-multiplesource": "提供 'filename' 或 'url'，而非兩者。",
+	"apierror-pandocultimateconverter-invalidurlscheme": "僅支援 http 和 https URL。",
+	"apierror-pandocultimateconverter-pageexists": "目標頁面已存在。傳遞 forceoverwrite=1 以覆寫它。",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc 轉換失敗：$1",
+	"apihelp-pandocconvert-summary": "使用 Pandoc 將已上傳的檔案或 URL 轉換為維基頁面。",
+	"apihelp-pandocconvert-param-pagename": "目標維基頁面標題。設定 forceoverwrite 時，現有內容將被覆寫。",
+	"apihelp-pandocconvert-param-filename": "維基儲存庫中已上傳檔案的名稱（例如「Document.docx」）。與 'url' 互斥。",
+	"apihelp-pandocconvert-param-url": "要擷取並轉換的遠端 http/https URL。與 'filename' 互斥。",
+	"apihelp-pandocconvert-param-forceoverwrite": "若設定，則在目標頁面已存在時覆寫它。",
+	"apihelp-pandocconvert-example-file": "將已上傳的名為 Document.docx 的檔案轉換為 MyArticle 頁面。",
+	"apihelp-pandocconvert-example-url": "將 https://example.com 的內容轉換為 MyArticle 頁面。"
 }

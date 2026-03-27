@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Typ souboru $1 není v tomto wiki povolen. Opravte to přidáním tohoto řádku do LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Nahrávání souborů je v tomto wiki zakázáno. Povolte ho přidáním '$wgEnableUploads = true;' do LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Soubory do tohoto wiki mohou nahrávat pouze přihlášení uživatelé. Přihlaste se prosím.",
-	"pandocultimateconverter-error-generic": "Soubor se nepodařilo nahrát: $1"
+	"pandocultimateconverter-error-generic": "Soubor se nepodařilo nahrát: $1",
+	"apierror-pandocultimateconverter-nosource": "Je nutné zadat buď 'filename', nebo 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Zadejte buď 'filename', nebo 'url', ne obojí.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Podporovány jsou pouze adresy URL http a https.",
+	"apierror-pandocultimateconverter-pageexists": "Cílová stránka již existuje. Předejte forceoverwrite=1 pro její přepsání.",
+	"apierror-pandocultimateconverter-conversionfailed": "Konverze Pandoc se nezdařila: $1",
+	"apihelp-pandocconvert-summary": "Převede nahraný soubor nebo URL na stránku wiki pomocí Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Název cílové stránky wiki. Stávající obsah bude přepsán, pokud je nastaveno forceoverwrite.",
+	"apihelp-pandocconvert-param-filename": "Název již nahraného souboru v repozitáři wiki (např. „Document.docx“). Vzájemně se vylučuje s 'url'.",
+	"apihelp-pandocconvert-param-url": "Vzdálená URL http/https k načtení a převodu. Vzájemně se vylučuje s 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Pokud je nastaveno, přepíše cílovou stránku, pokud již existuje.",
+	"apihelp-pandocconvert-example-file": "Převede již nahraný soubor s názvem Document.docx na stránku MyArticle.",
+	"apihelp-pandocconvert-example-url": "Převede obsah z https://example.com na stránku MyArticle."
 }

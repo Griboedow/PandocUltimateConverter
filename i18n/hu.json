@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "A(z) $1 fájltípus nem engedélyezett ezen a wikin. Javítsa ki, ha hozzáadja ezt a sort a LocalSettings.php fájlhoz: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "A fájlfeltöltés le van tiltva ezen a wikin. Engedélyezze a '$wgEnableUploads = true;' sor hozzáadásával a LocalSettings.php fájlhoz",
 	"pandocultimateconverter-error-mustbeloggedin": "Csak bejelentkezett felhasználók tölthetnek fel fájlokat erre a wikire. A folytatáshoz kérjük, jelentkezzen be.",
-	"pandocultimateconverter-error-generic": "A fájl feltöltése sikertelen: $1"
+	"pandocultimateconverter-error-generic": "A fájl feltöltése sikertelen: $1",
+	"apierror-pandocultimateconverter-nosource": "Meg kell adni a 'filename' vagy az 'url' paramétert.",
+	"apierror-pandocultimateconverter-multiplesource": "Add meg a 'filename' vagy az 'url' paramétert, ne mindkettőt.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Csak http és https URL-ek támogatottak.",
+	"apierror-pandocultimateconverter-pageexists": "A céloldal már létezik. A felülíráshoz add meg a forceoverwrite=1 értéket.",
+	"apierror-pandocultimateconverter-conversionfailed": "A Pandoc-konverzió sikertelen: $1",
+	"apihelp-pandocconvert-summary": "Feltöltött fájl vagy URL konvertálása wiki oldallá a Pandoc segítségével.",
+	"apihelp-pandocconvert-param-pagename": "A céloldal wiki-címe. A meglévő tartalom felülíródik, ha a forceoverwrite be van állítva.",
+	"apihelp-pandocconvert-param-filename": "Egy már feltöltött fájl neve a wiki-adatárban (pl. „Document.docx“). Kölcsönösen kizárja az 'url' paramétert.",
+	"apihelp-pandocconvert-param-url": "Távoli http/https URL letöltéshez és konvertáláshoz. Kölcsönösen kizárja a 'filename' paramétert.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Ha be van állítva, felülírja a céloldalt, ha az már létezik.",
+	"apihelp-pandocconvert-example-file": "Konvertálja a Document.docx nevű már feltöltött fájlt a MyArticle oldalra.",
+	"apihelp-pandocconvert-example-url": "Konvertálja a https://example.com tartalmát a MyArticle oldalra."
 }

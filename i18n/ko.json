@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "파일 형식 $1은(는) 이 위키에서 허용되지 않습니다. LocalSettings.php에 다음 줄을 추가하여 수정할 수 있습니다: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "이 위키에서는 파일 업로드가 비활성화되어 있습니다. LocalSettings.php에 '$wgEnableUploads = true;'를 추가하여 활성화하세요",
 	"pandocultimateconverter-error-mustbeloggedin": "이 위키에는 로그인한 사용자만 파일을 업로드할 수 있습니다. 계속하려면 로그인하세요.",
-	"pandocultimateconverter-error-generic": "파일 업로드 실패: $1"
+	"pandocultimateconverter-error-generic": "파일 업로드 실패: $1",
+	"apierror-pandocultimateconverter-nosource": "'filename' 또는 'url' 중 하나를 제공해야 합니다.",
+	"apierror-pandocultimateconverter-multiplesource": "'filename' 또는 'url' 중 하나만 제공하십시오. 둘 다 제공하지 마십시오.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "http 및 https URL만 지원됩니다.",
+	"apierror-pandocultimateconverter-pageexists": "대상 문서가 이미 존재합니다. 덮어쓰려면 forceoverwrite=1을 전달하십시오.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc 변환에 실패했습니다: $1",
+	"apihelp-pandocconvert-summary": "Pandoc을 사용하여 업로드된 파일 또는 URL을 위키 문서로 변환합니다.",
+	"apihelp-pandocconvert-param-pagename": "대상 위키 문서 제목. forceoverwrite가 설정된 경우 기존 내용이 덮어쓰여집니다.",
+	"apihelp-pandocconvert-param-filename": "위키 저장소에 이미 업로드된 파일의 이름 (예: \"Document.docx\"). 'url'과 상호 배타적입니다.",
+	"apihelp-pandocconvert-param-url": "가져오고 변환할 원격 http/https URL. 'filename'과 상호 배타적입니다.",
+	"apihelp-pandocconvert-param-forceoverwrite": "설정된 경우, 대상 문서가 이미 존재하면 덮어씁니다.",
+	"apihelp-pandocconvert-example-file": "Document.docx라는 이름의 이미 업로드된 파일을 MyArticle 문서로 변환합니다.",
+	"apihelp-pandocconvert-example-url": "https://example.com의 내용을 MyArticle 문서로 변환합니다."
 }

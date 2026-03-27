@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Filtypen $1 är inte tillåten på det här wikin. Du kan åtgärda detta genom att lägga till den här raden i LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Filuppladdning är inaktiverad på det här wikin. Aktivera det genom att lägga till '$wgEnableUploads = true;' i LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Endast inloggade användare kan ladda upp filer till det här wikin. Logga in för att fortsätta.",
-	"pandocultimateconverter-error-generic": "Det gick inte att ladda upp filen: $1"
+	"pandocultimateconverter-error-generic": "Det gick inte att ladda upp filen: $1",
+	"apierror-pandocultimateconverter-nosource": "Du måste ange antingen 'filename' eller 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Ange antingen 'filename' eller 'url', inte båda.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Endast http- och https-URL:er stöds.",
+	"apierror-pandocultimateconverter-pageexists": "Målsidan finns redan. Skicka forceoverwrite=1 för att skriva över den.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc-konvertering misslyckades: $1",
+	"apihelp-pandocconvert-summary": "Konverterar en uppladdad fil eller URL till en wikisida med Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Målsidans wikititel. Befintligt innehåll skrivs över när forceoverwrite är inställt.",
+	"apihelp-pandocconvert-param-filename": "Namn på en redan uppladdad fil i wiki-arkivet (t.ex. „Document.docx“). Ömsesidigt uteslutande med 'url'.",
+	"apihelp-pandocconvert-param-url": "Fjärr-http/https-URL att hämta och konvertera. Ömsesidigt uteslutande med 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Om inställt skrivs målsidan över om den redan finns.",
+	"apihelp-pandocconvert-example-file": "Konverterar en redan uppladdad fil med namnet Document.docx till sidan MyArticle.",
+	"apihelp-pandocconvert-example-url": "Konverterar innehållet på https://example.com till sidan MyArticle."
 }

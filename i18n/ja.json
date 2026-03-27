@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "ファイルタイプ $1 はこのWikiでは許可されていません。LocalSettings.php に次の行を追加することで修正できます: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "このWikiではファイルのアップロードが無効になっています。LocalSettings.php に '$wgEnableUploads = true;' を追加して有効にしてください",
 	"pandocultimateconverter-error-mustbeloggedin": "このWikiにファイルをアップロードできるのはログインユーザーのみです。続行するにはログインしてください。",
-	"pandocultimateconverter-error-generic": "ファイルのアップロードに失敗しました: $1"
+	"pandocultimateconverter-error-generic": "ファイルのアップロードに失敗しました: $1",
+	"apierror-pandocultimateconverter-nosource": "'filename' または 'url' のどちらかを指定する必要があります。",
+	"apierror-pandocultimateconverter-multiplesource": "'filename' または 'url' のどちらかを指定してください。両方は指定できません。",
+	"apierror-pandocultimateconverter-invalidurlscheme": "サポートされているのは http と https の URL のみです。",
+	"apierror-pandocultimateconverter-pageexists": "対象ページはすでに存在します。上書きするには forceoverwrite=1 を指定してください。",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc の変換に失敗しました: $1",
+	"apihelp-pandocconvert-summary": "Pandoc を使用してアップロードされたファイルまたは URL をウィキページに変換します。",
+	"apihelp-pandocconvert-param-pagename": "対象のウィキページのタイトル。forceoverwrite が設定されている場合、既存のコンテンツが上書きされます。",
+	"apihelp-pandocconvert-param-filename": "ウィキリポジトリにすでにアップロードされているファイルの名前（例：「Document.docx」）。'url' とは相互に排他です。",
+	"apihelp-pandocconvert-param-url": "取得して変換するリモートの http/https URL。'filename' とは相互に排他です。",
+	"apihelp-pandocconvert-param-forceoverwrite": "設定されている場合、対象ページがすでに存在すれば上書きします。",
+	"apihelp-pandocconvert-example-file": "Document.docx という名前のすでにアップロードされたファイルを MyArticle ページに変換します。",
+	"apihelp-pandocconvert-example-url": "https://example.com のコンテンツを MyArticle ページに変換します。"
 }

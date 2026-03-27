@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Typ pliku $1 nie jest dozwolony na tej wiki. Możesz to naprawić, dodając ten wiersz do LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Przesyłanie plików jest wyłączone na wiki. Włącz je, dodając '$wgEnableUploads = true;' do LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Pliki mogą przesyłać tylko zalogowani użytkownicy. Zaloguj się, aby kontynuować.",
-	"pandocultimateconverter-error-generic": "Nie udało się przesłać pliku: $1"
+	"pandocultimateconverter-error-generic": "Nie udało się przesłać pliku: $1",
+	"apierror-pandocultimateconverter-nosource": "Należy podać 'filename' lub 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Podaj 'filename' lub 'url', nie oba.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Obsługiwane są tylko adresy URL http i https.",
+	"apierror-pandocultimateconverter-pageexists": "Strona docelowa już istnieje. Przekaż forceoverwrite=1, aby ją nadpisać.",
+	"apierror-pandocultimateconverter-conversionfailed": "Konwersja Pandoc nie powiodła się: $1",
+	"apihelp-pandocconvert-summary": "Konwertuje przesłany plik lub URL na stronę wiki za pomocą Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Tytuł docelowej strony wiki. Istniejąca zawartość zostanie nadpisana, gdy forceoverwrite jest ustawiony.",
+	"apihelp-pandocconvert-param-filename": "Nazwa już przesłanego pliku w repozytorium wiki (np. „Document.docx“). Wzajemnie wyklucza się z 'url'.",
+	"apihelp-pandocconvert-param-url": "Zdalny adres URL http/https do pobrania i konwersji. Wzajemnie wyklucza się z 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Jeśli ustawiony, nadpisuje stronę docelową, jeśli już istnieje.",
+	"apihelp-pandocconvert-example-file": "Konwertuje już przesłany plik o nazwie Document.docx na stronę MyArticle.",
+	"apihelp-pandocconvert-example-url": "Konwertuje zawartość https://example.com na stronę MyArticle."
 }

@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Bu wikide $1 dosya türüne izin verilmiyor. LocalSettings.php dosyasına şu satırı ekleyerek düzeltebilirsiniz: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Bu wikide dosya yükleme devre dışı bırakılmış. LocalSettings.php dosyasına '$wgEnableUploads = true;' ekleyerek etkinleştirin",
 	"pandocultimateconverter-error-mustbeloggedin": "Bu wikiye yalnızca oturum açmış kullanıcılar dosya yükleyebilir. Devam etmek için lütfen oturum açın.",
-	"pandocultimateconverter-error-generic": "Dosya yüklenemedi: $1"
+	"pandocultimateconverter-error-generic": "Dosya yüklenemedi: $1",
+	"apierror-pandocultimateconverter-nosource": "'filename' veya 'url' parametrelerinden birini sağlamalısınız.",
+	"apierror-pandocultimateconverter-multiplesource": "'filename' veya 'url' parametrelerinden birini sağlayın, ikisini birden değil.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Yalnızca http ve https URL'leri desteklenmektedir.",
+	"apierror-pandocultimateconverter-pageexists": "Hedef sayfa zaten mevcut. Üzerine yazmak için forceoverwrite=1 değerini geçin.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc dönüştürmesi başarısız oldu: $1",
+	"apihelp-pandocconvert-summary": "Yüklenen bir dosyayı veya URL'yi Pandoc kullanarak bir wiki sayfasına dönüştürür.",
+	"apihelp-pandocconvert-param-pagename": "Hedef wiki sayfası başlığı. forceoverwrite ayarlandığında mevcut içerik üzerine yazılacaktır.",
+	"apihelp-pandocconvert-param-filename": "Wiki deposunda zaten yüklenmiş bir dosyanın adı (örn. \"Document.docx\"). 'url' ile birbirini dışlar.",
+	"apihelp-pandocconvert-param-url": "Alınacak ve dönüştürülecek uzak http/https URL'si. 'filename' ile birbirini dışlar.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Ayarlanırsa, hedef sayfa zaten mevcutsa üzerine yazar.",
+	"apihelp-pandocconvert-example-file": "Document.docx adıyla önceden yüklenmiş bir dosyayı MyArticle sayfasına dönüştürür.",
+	"apihelp-pandocconvert-example-url": "https://example.com adresindeki içeriği MyArticle sayfasına dönüştürür."
 }

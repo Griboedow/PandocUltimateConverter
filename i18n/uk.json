@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Тип файлу $1 не дозволений на цій вікі. Виправте це, додавши цей рядок до LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Завантаження файлів вимкнено на вікі. Увімкніть його, додавши '$wgEnableUploads = true;' до LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Завантажувати файли на цю вікі можуть лише авторизовані користувачі. Будь ласка, увійдіть у систему.",
-	"pandocultimateconverter-error-generic": "Не вдалося завантажити файл: $1"
+	"pandocultimateconverter-error-generic": "Не вдалося завантажити файл: $1",
+	"apierror-pandocultimateconverter-nosource": "Необхідно вказати 'filename' або 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Вкажіть 'filename' або 'url', але не обидва параметри.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Підтримуються лише URL-адреси http та https.",
+	"apierror-pandocultimateconverter-pageexists": "Цільова сторінка вже існує. Передайте forceoverwrite=1, щоб перезаписати її.",
+	"apierror-pandocultimateconverter-conversionfailed": "Помилка конвертації Pandoc: $1",
+	"apihelp-pandocconvert-summary": "Конвертує завантажений файл або URL-адресу у вікі-сторінку за допомогою Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Заголовок цільової вікі-сторінки. Наявний вміст буде перезаписано, якщо встановлено forceoverwrite.",
+	"apihelp-pandocconvert-param-filename": "Назва вже завантаженого файлу у репозиторії вікі (наприклад, «Document.docx»). Взаємовиключне з 'url'.",
+	"apihelp-pandocconvert-param-url": "Віддалена URL-адреса http/https для отримання та конвертації. Взаємовиключне з 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Якщо встановлено, перезаписує цільову сторінку, якщо вона вже існує.",
+	"apihelp-pandocconvert-example-file": "Конвертує вже завантажений файл Document.docx у сторінку MyArticle.",
+	"apihelp-pandocconvert-example-url": "Конвертує вміст https://example.com у сторінку MyArticle."
 }

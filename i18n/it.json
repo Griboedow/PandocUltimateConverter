@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Il tipo di file $1 non è consentito in questo wiki. Puoi risolvere il problema aggiungendo questa riga a LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Il caricamento di file è disabilitato in questo wiki. Abilitalo aggiungendo '$wgEnableUploads = true;' a LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Solo gli utenti registrati possono caricare file in questo wiki. Accedi per continuare.",
-	"pandocultimateconverter-error-generic": "Caricamento del file non riuscito: $1"
+	"pandocultimateconverter-error-generic": "Caricamento del file non riuscito: $1",
+	"apierror-pandocultimateconverter-nosource": "È necessario fornire 'filename' o 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Fornisci 'filename' o 'url', non entrambi.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Sono supportati solo gli URL http e https.",
+	"apierror-pandocultimateconverter-pageexists": "La pagina di destinazione esiste già. Passa forceoverwrite=1 per sovrascriverla.",
+	"apierror-pandocultimateconverter-conversionfailed": "Conversione Pandoc non riuscita: $1",
+	"apihelp-pandocconvert-summary": "Converte un file caricato o un URL in una pagina wiki usando Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Titolo della pagina wiki di destinazione. Il contenuto esistente verrà sovrascritto quando forceoverwrite è impostato.",
+	"apihelp-pandocconvert-param-filename": "Nome di un file già caricato nel repository wiki (ad es. “Document.docx”). Mutuamente esclusivo con 'url'.",
+	"apihelp-pandocconvert-param-url": "URL http/https remoto da recuperare e convertire. Mutuamente esclusivo con 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Se impostato, sovrascrive la pagina di destinazione se esiste già.",
+	"apihelp-pandocconvert-example-file": "Converte un file già caricato denominato Document.docx nella pagina MyArticle.",
+	"apihelp-pandocconvert-example-url": "Converte il contenuto di https://example.com nella pagina MyArticle."
 }

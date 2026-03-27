@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "O tipo de arquivo $1 não é permitido neste wiki. Você pode corrigir isso adicionando esta linha ao LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "O envio de arquivos está desativado neste wiki. Ative-o adicionando '$wgEnableUploads = true;' ao LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Apenas usuários conectados podem enviar arquivos para este wiki. Por favor, faça login para continuar.",
-	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1"
+	"pandocultimateconverter-error-generic": "Falha ao enviar o arquivo: $1",
+	"apierror-pandocultimateconverter-nosource": "É necessário fornecer 'filename' ou 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Forneça 'filename' ou 'url', não ambos.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Apenas URLs http e https são suportadas.",
+	"apierror-pandocultimateconverter-pageexists": "A página de destino já existe. Passe forceoverwrite=1 para sobrescrever.",
+	"apierror-pandocultimateconverter-conversionfailed": "A conversão do Pandoc falhou: $1",
+	"apihelp-pandocconvert-summary": "Converte um arquivo enviado ou URL em uma página wiki usando o Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Título da página wiki de destino. O conteúdo existente será sobrescrito quando forceoverwrite estiver definido.",
+	"apihelp-pandocconvert-param-filename": "Nome de um arquivo já enviado no repositório wiki (ex.: \"Document.docx\"). Mutuamente exclusivo com 'url'.",
+	"apihelp-pandocconvert-param-url": "URL http/https remota para buscar e converter. Mutuamente exclusiva com 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Se definido, sobrescreve a página de destino se ela já existir.",
+	"apihelp-pandocconvert-example-file": "Converte um arquivo já enviado chamado Document.docx para a página MyArticle.",
+	"apihelp-pandocconvert-example-url": "Converte o conteúdo de https://example.com para a página MyArticle."
 }

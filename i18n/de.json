@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Der Dateityp $1 ist in diesem Wiki nicht erlaubt. Du kannst dies beheben, indem du diese Zeile in LocalSettings.php hinzufügst: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Das Hochladen von Dateien ist in diesem Wiki deaktiviert. Aktiviere es, indem du '$wgEnableUploads = true;' in LocalSettings.php hinzufügst",
 	"pandocultimateconverter-error-mustbeloggedin": "Nur angemeldete Benutzer können Dateien in dieses Wiki hochladen. Bitte melde dich an.",
-	"pandocultimateconverter-error-generic": "Datei konnte nicht hochgeladen werden: $1"
+	"pandocultimateconverter-error-generic": "Datei konnte nicht hochgeladen werden: $1",
+	"apierror-pandocultimateconverter-nosource": "Du musst entweder 'filename' oder 'url' angeben.",
+	"apierror-pandocultimateconverter-multiplesource": "Gib entweder 'filename' oder 'url' an, nicht beides.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Nur http- und https-URLs werden unterstützt.",
+	"apierror-pandocultimateconverter-pageexists": "Die Zielseite existiert bereits. Übergib forceoverwrite=1, um sie zu überschreiben.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc-Konvertierung fehlgeschlagen: $1",
+	"apihelp-pandocconvert-summary": "Konvertiere eine hochgeladene Datei oder URL mit Pandoc in eine Wiki-Seite.",
+	"apihelp-pandocconvert-param-pagename": "Titel der Ziel-Wiki-Seite. Vorhandener Inhalt wird überschrieben, wenn forceoverwrite gesetzt ist.",
+	"apihelp-pandocconvert-param-filename": "Name einer bereits hochgeladenen Datei im Wiki-Repository (z. B. „Document.docx“). Schließt sich gegenseitig mit 'url' aus.",
+	"apihelp-pandocconvert-param-url": "Externe http/https-URL zum Abrufen und Konvertieren. Schließt sich gegenseitig mit 'filename' aus.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Wenn gesetzt, wird die Zielseite überschrieben, sofern sie bereits existiert.",
+	"apihelp-pandocconvert-example-file": "Konvertiere eine bereits hochgeladene Datei namens Document.docx in die Seite MyArticle.",
+	"apihelp-pandocconvert-example-url": "Konvertiere den Inhalt von https://example.com in die Seite MyArticle."
 }

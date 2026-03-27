@@ -24,5 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "Le type de fichier $1 n'est pas autorisé sur ce wiki. Vous pouvez y remédier en ajoutant cette ligne dans LocalSettings.php : '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "Le téléversement de fichiers est désactivé sur ce wiki. Activez-le en ajoutant '$wgEnableUploads = true;' dans LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Seuls les utilisateurs connectés peuvent téléverser des fichiers sur ce wiki. Veuillez vous connecter pour continuer.",
-	"pandocultimateconverter-error-generic": "Échec du téléversement du fichier : $1"
+	"pandocultimateconverter-error-generic": "Échec du téléversement du fichier : $1",
+	"apierror-pandocultimateconverter-nosource": "Vous devez fournir soit 'filename', soit 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Fournissez soit 'filename', soit 'url', pas les deux.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Seules les URL http et https sont prises en charge.",
+	"apierror-pandocultimateconverter-pageexists": "La page cible existe déjà. Passez forceoverwrite=1 pour l'écraser.",
+	"apierror-pandocultimateconverter-conversionfailed": "Échec de la conversion Pandoc : $1",
+	"apihelp-pandocconvert-summary": "Convertit un fichier téléversé ou une URL en page wiki à l'aide de Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Titre de la page wiki cible. Le contenu existant sera écrasé lorsque forceoverwrite est défini.",
+	"apihelp-pandocconvert-param-filename": "Nom d'un fichier déjà téléversé dans le dépôt wiki (par exemple « Document.docx »). Mutuellement exclusif avec 'url'.",
+	"apihelp-pandocconvert-param-url": "URL http/https distante à récupérer et convertir. Mutuellement exclusif avec 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "Si défini, écrase la page cible si elle existe déjà.",
+	"apihelp-pandocconvert-example-file": "Convertit un fichier déjà téléversé nommé Document.docx en la page MyArticle.",
+	"apihelp-pandocconvert-example-url": "Convertit le contenu de https://example.com en la page MyArticle."
 }
