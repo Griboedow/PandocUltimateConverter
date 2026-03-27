@@ -1,4 +1,4 @@
-﻿{
+{
 	"@metadata": {
 		"authors": []
 	},
@@ -24,20 +24,17 @@
 	"pandocultimateconverter-error-filetype-banned": "El tipo de archivo $1 no está permitido en este wiki. Puedes solucionarlo añadiendo esta línea en LocalSettings.php: '$2wgFileExtensions[] = \"$1\";'",
 	"pandocultimateconverter-error-uploaddisabled": "La carga de archivos está desactivada en este wiki. Actívala añadiendo '$wgEnableUploads = true;' en LocalSettings.php",
 	"pandocultimateconverter-error-mustbeloggedin": "Solo los usuarios registrados pueden cargar archivos en este wiki. Por favor, inicia sesión para continuar.",
-	"pandocultimateconverter-error-generic": "Error al cargar el archivo: $1"
-,
-
-    "apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
-    "apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
-    "apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
-    "apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
-    "apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
-
-    "apihelp-pandocconvert-summary": "Convert an uploaded file or URL to a wiki page using Pandoc.",
-    "apihelp-pandocconvert-param-pagename": "Target wiki page title. Existing content will be overwritten when forceoverwrite is set.",
-    "apihelp-pandocconvert-param-filename": "Name of an already-uploaded file in the wiki repository (e.g. \"Document.docx\"). Mutually exclusive with 'url'.",
-    "apihelp-pandocconvert-param-url": "Remote http/https URL to fetch and convert. Mutually exclusive with 'filename'.",
-    "apihelp-pandocconvert-param-forceoverwrite": "If set, overwrite the target page if it already exists.",
-    "apihelp-pandocconvert-example-file": "Convert an already-uploaded file named Document.docx to the page MyArticle.",
-    "apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle."
+	"pandocultimateconverter-error-generic": "Error al cargar el archivo: $1",
+	"apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
+	"apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
+	"apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
+	"apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
+	"apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
+	"apihelp-pandocconvert-summary": "Convert an uploaded file or URL to a wiki page using Pandoc.",
+	"apihelp-pandocconvert-param-pagename": "Target wiki page title. Existing content will be overwritten when forceoverwrite is set.",
+	"apihelp-pandocconvert-param-filename": "Name of an already-uploaded file in the wiki repository (e.g. \"Document.docx\"). Mutually exclusive with 'url'.",
+	"apihelp-pandocconvert-param-url": "Remote http/https URL to fetch and convert. Mutually exclusive with 'filename'.",
+	"apihelp-pandocconvert-param-forceoverwrite": "If set, overwrite the target page if it already exists.",
+	"apihelp-pandocconvert-example-file": "Convert an already-uploaded file named Document.docx to the page MyArticle.",
+	"apihelp-pandocconvert-example-url": "Convert the content at https://example.com to the page MyArticle."
 }

@@ -27,13 +27,11 @@
 	"pandocultimateconverter-error-uploaddisabled": "Error message shown when file uploads are disabled on the wiki. The PHP snippet '$wgEnableUploads = true;' is a code literal and must not be translated.",
 	"pandocultimateconverter-error-mustbeloggedin": "Error message shown when an anonymous user tries to upload a file.",
 	"pandocultimateconverter-error-generic": "Generic fallback error message when a file upload fails. $1 is the error detail returned by the server.",
-
 	"apierror-pandocultimateconverter-nosource": "API error shown when the caller omits both 'filename' and 'url' parameters.",
 	"apierror-pandocultimateconverter-multiplesource": "API error shown when the caller supplies both 'filename' and 'url' parameters simultaneously.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "API error shown when the provided URL uses a scheme other than http or https.",
 	"apierror-pandocultimateconverter-pageexists": "API error shown when the target page already exists and forceoverwrite was not set.",
 	"apierror-pandocultimateconverter-conversionfailed": "API error shown when Pandoc fails to convert the source. $1 is the error message from Pandoc.",
-
 	"apihelp-pandocconvert-summary": "One-line summary of the pandocconvert API module, shown in API help pages.",
 	"apihelp-pandocconvert-param-pagename": "Description of the 'pagename' parameter shown in API help.",
 	"apihelp-pandocconvert-param-filename": "Description of the 'filename' parameter shown in API help.",
