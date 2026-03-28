@@ -70,6 +70,7 @@ class ConfluenceMigrationJob extends Job {
 		$apiToken      = (string)( $this->params['apiToken']       ?? '' );
 		$targetPrefix  = (string)( $this->params['targetPrefix']   ?? '' );
 		$overwrite     = (bool)(   $this->params['overwrite']      ?? false );
+		$categorize    = (bool)(   $this->params['categorize']     ?? true );
 		$llmPolish     = (bool)(   $this->params['llmPolish']      ?? false );
 		$userId        = (int)(    $this->params['userId']         ?? 0 );
 
@@ -96,7 +97,7 @@ class ConfluenceMigrationJob extends Job {
 			$msg = 'Could not fetch page list from Confluence: ' . $e->getMessage();
 			wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: $msg" );
 			$this->notifyError( $user, $spaceKey, $msg );
-			$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, 0, [], [], [], $msg, $services, $user );
+			$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, 0, [], [], [], $msg, $services, $user, 0 );
 			$this->setLastError( $msg );
 			return false;
 		}
@@ -133,7 +134,24 @@ class ConfluenceMigrationJob extends Job {
 		}
 
 		$this->notifyDone( $user, $spaceKey, $migratedCount, $errors );
-		$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, $migratedCount, $migratedPages, $skippedEmpty, $errors, null, $services, $user );
+
+		// Auto-categorization: create MediaWiki categories mirroring the
+		// Confluence page hierarchy.
+		$categoriesCreated = 0;
+		if ( $categorize && $migratedCount > 0 ) {
+			try {
+				$categoriesCreated = $this->applyCategories(
+					$pages, $targetPrefix, $services, $user
+				);
+			} catch ( \RuntimeException $e ) {
+				wfDebugLog( 'PandocUltimateConverter',
+					'ConfluenceMigrationJob: categorization error: ' . $e->getMessage()
+				);
+				$errors[] = 'Categorization: ' . $e->getMessage();
+			}
+		}
+
+		$this->writeReportPage( $spaceKey, $confluenceUrl, $targetPrefix, $migratedCount, $migratedPages, $skippedEmpty, $errors, null, $services, $user, $categoriesCreated );
 
 		return true;
 	}
@@ -355,6 +373,139 @@ class ConfluenceMigrationJob extends Job {
 		return $title;
 	}
 
+	// -----------------------------------------------------------------------
+	// Auto-categorization
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Create MediaWiki categories that mirror the Confluence page hierarchy.
+	 *
+	 * For every page that has sub-pages a category is created with the same
+	 * name.  The page itself and each of its direct children are added to
+	 * that category.  When a child page also has children its own category
+	 * page is placed inside the parent category, producing nested categories.
+	 *
+	 * @param list<array{id: string, title: string, parentId: string|null}> $pages
+	 * @return int Number of category pages created/updated.
+	 */
+	private function applyCategories(
+		array $pages,
+		string $targetPrefix,
+		MediaWikiServices $services,
+		mixed $user
+	): int {
+		// Build lookup maps.
+		$pagesById  = [];    // id → page array
+		$childrenOf = [];    // parentId → [ childId, … ]
+		// Map Confluence page id → wiki page title used during migration.
+		$wikiTitles = [];
+
+		foreach ( $pages as $page ) {
+			$pagesById[ $page['id'] ] = $page;
+			$wikiTitles[ $page['id'] ] = $this->buildPageTitle( $page['title'], $targetPrefix );
+			if ( $page['parentId'] !== null && isset( $pagesById[ $page['parentId'] ] ) ) {
+				$childrenOf[ $page['parentId'] ][] = $page['id'];
+			}
+		}
+
+		// Second pass: some children may appear before their parents in the
+		// flat list, so re-check parentId links now that all pages are indexed.
+		foreach ( $pages as $page ) {
+			if (
+				$page['parentId'] !== null
+				&& isset( $pagesById[ $page['parentId'] ] )
+				&& !isset( $childrenOf[ $page['parentId'] ] )
+			) {
+				$childrenOf[ $page['parentId'] ] = [];
+			}
+			if (
+				$page['parentId'] !== null
+				&& isset( $pagesById[ $page['parentId'] ] )
+				&& !in_array( $page['id'], $childrenOf[ $page['parentId'] ] ?? [], true )
+			) {
+				$childrenOf[ $page['parentId'] ][] = $page['id'];
+			}
+		}
+
+		// Identify parent pages (pages that have at least one child within the space).
+		$parentIds = array_keys( $childrenOf );
+
+		if ( $parentIds === [] ) {
+			return 0;
+		}
+
+		$categorySummary = wfMessage( 'confluencemigration-category-comment' )->text();
+		$categoriesCreated = 0;
+
+		foreach ( $parentIds as $parentId ) {
+			$parentTitle = $wikiTitles[ $parentId ];
+			$categoryTag = "\n[[" . 'Category:' . $parentTitle . ']]';
+
+			// Append category tag to the parent page itself.
+			$this->appendToPage( $parentTitle, $categoryTag, $services, $user, $categorySummary );
+
+			// Append category tag to each direct child page.
+			foreach ( $childrenOf[ $parentId ] as $childId ) {
+				$childTitle = $wikiTitles[ $childId ];
+				$this->appendToPage( $childTitle, $categoryTag, $services, $user, $categorySummary );
+			}
+
+			// Create (or update) the category page.
+			$categoryPageTitle = 'Category:' . $parentTitle;
+
+			// If this parent is itself a child of another parent that also
+			// has children, nest the category inside the grandparent category.
+			$parentPage   = $pagesById[ $parentId ];
+			$grandparent  = $parentPage['parentId'];
+			$categoryBody = '';
+			if ( $grandparent !== null && isset( $childrenOf[ $grandparent ] ) ) {
+				$grandparentTitle = $wikiTitles[ $grandparent ];
+				$categoryBody = '[[Category:' . $grandparentTitle . ']]';
+			}
+
+			$this->savePage( $categoryPageTitle, $categoryBody, $services, $user, $categorySummary );
+			$categoriesCreated++;
+		}
+
+		return $categoriesCreated;
+	}
+
+	/**
+	 * Append text to an existing wiki page (creates a new revision).
+	 *
+	 * If the page does not exist the append is silently skipped — this can
+	 * happen when the page was skipped during migration (e.g. already existed
+	 * and overwrite was disabled).
+	 */
+	private function appendToPage(
+		string $pageTitle,
+		string $textToAppend,
+		MediaWikiServices $services,
+		mixed $user,
+		string $summary
+	): void {
+		$title = \Title::newFromText( $pageTitle );
+		if ( $title === null || !$title->exists() ) {
+			return;
+		}
+
+		$wikiPage = $services->getWikiPageFactory()->newFromTitle( $title );
+		$content  = $wikiPage->getContent();
+		if ( !( $content instanceof \WikitextContent ) ) {
+			return;
+		}
+
+		$existingText = $content->getText();
+
+		// Avoid adding a duplicate category tag if one is already present.
+		if ( str_contains( $existingText, trim( $textToAppend ) ) ) {
+			return;
+		}
+
+		$newText = $existingText . $textToAppend;
+		$this->savePage( $pageTitle, $newText, $services, $user, $summary );
+	}
+
 	/**
 	 * Save wikitext to a MediaWiki page, creating or overwriting it.
 	 *
@@ -408,7 +559,8 @@ class ConfluenceMigrationJob extends Job {
 		array $errors,
 		?string $fatalError,
 		MediaWikiServices $services,
-		mixed $user
+		mixed $user,
+		int $categoriesCreated = 0
 	): void {
 		$datetime = date( 'Y-m-d H:i:s' );
 		$pageTitle = "Migration from Confluence - $datetime";
@@ -429,6 +581,9 @@ class ConfluenceMigrationJob extends Job {
 			$lines[] = '<div class="error">' . htmlspecialchars( $fatalError ) . '</div>';
 		} else {
 			$lines[] = "* '''Pages migrated:''' $migratedCount";
+			if ( $categoriesCreated > 0 ) {
+				$lines[] = "* '''Categories created:''' $categoriesCreated";
+			}
 			if ( count( $errors ) > 0 ) {
 				$lines[] = "* '''Errors:''' " . count( $errors );
 				$lines[] = '';

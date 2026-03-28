@@ -173,6 +173,7 @@
         "confluencemigration-token-label",
         "confluencemigration-prefix-label",
         "confluencemigration-overwrite-label",
+        "confluencemigration-categorize-label",
         "confluencemigration-submit",
         "confluencemigration-submitting",
         "confluencemigration-queued",

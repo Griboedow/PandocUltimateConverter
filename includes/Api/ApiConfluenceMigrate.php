@@ -40,6 +40,7 @@ class ApiConfluenceMigrate extends ApiBase {
 		$apiToken      = $params['apitoken'];
 		$targetPrefix  = trim( $params['targetprefix'] ?? '' );
 		$overwrite     = (bool)$params['overwrite'];
+		$categorize    = (bool)$params['categorize'];
 		$llmPolish     = (bool)$params['llmpolish'];
 
 		// Validate that the feature is enabled
@@ -85,6 +86,7 @@ class ApiConfluenceMigrate extends ApiBase {
 			'apiToken'      => $apiToken,
 			'targetPrefix'  => $targetPrefix,
 			'overwrite'     => $overwrite,
+			'categorize'    => $categorize,
 			'llmPolish'     => $llmPolish,
 			'userId'        => $user->getId(),
 		] );
@@ -124,6 +126,10 @@ class ApiConfluenceMigrate extends ApiBase {
 			'overwrite' => [
 				ParamValidator::PARAM_TYPE    => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false,
+			],
+			'categorize' => [
+				ParamValidator::PARAM_TYPE    => 'boolean',
+				ParamValidator::PARAM_DEFAULT => true,
 			],
 			'llmpolish' => [
 				ParamValidator::PARAM_TYPE    => 'boolean',

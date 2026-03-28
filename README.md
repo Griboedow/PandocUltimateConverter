@@ -124,6 +124,7 @@ Go to `Special:ConfluenceMigration` and fill in:
 | **API token / Password** | API token (Cloud) or password / personal access token (Server) |
 | **Target page prefix** | Optional prefix prepended to every page title, e.g. `Confluence/DOCS` |
 | **Overwrite existing pages** | When checked, existing wiki pages are replaced |
+| **Auto-categorize** | Creates MediaWiki categories mirroring the Confluence page hierarchy (checked by default) |
 
 ### Cloud vs. Server
 
@@ -140,6 +141,7 @@ Go to `Special:ConfluenceMigration` and fill in:
 - Common Confluence macros (code blocks, info/note/warning/tip panels) are converted to their MediaWiki equivalents.
 - File attachments are downloaded from Confluence and uploaded to the MediaWiki file repository.
 - Pages are created with the edit summary "Imported from Confluence".
+- When auto-categorize is enabled, pages with sub-pages get a matching category; nested sub-pages produce nested categories.
 
 ### How it runs
 

@@ -135,6 +135,16 @@
 				</cdx-checkbox>
 			</div>
 
+			<!-- Auto-categorize checkbox -->
+			<div class="mw-confluence-migration-app__field mw-confluence-migration-app__field--checkbox">
+				<cdx-checkbox
+					v-model="form.categorize"
+					:disabled="isSubmitting"
+				>
+					{{ $i18n( 'confluencemigration-categorize-label' ).text() }}
+				</cdx-checkbox>
+			</div>
+
 			<!-- LLM polish checkbox (only if LLM is configured) -->
 			<div
 				v-if="llmAvailable"
@@ -265,6 +275,7 @@ module.exports = exports = defineComponent( {
 			apiToken: '',
 			targetPrefix: '',
 			overwrite: false,
+			categorize: true,
 			llmPolish: false
 		} );
 
@@ -406,6 +417,7 @@ module.exports = exports = defineComponent( {
 				apitoken: form.value.apiToken,
 				targetprefix: form.value.targetPrefix.trim(),
 				overwrite: form.value.overwrite ? '1' : '',
+				categorize: form.value.categorize ? '1' : '',
 				llmpolish: form.value.llmPolish ? '1' : ''
 			} ).then( () => {
 				successMessage.value = mw.msg(

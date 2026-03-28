@@ -170,9 +170,10 @@ class ConfluenceClient {
 	 * Fetch the IDs and titles of all pages in a Confluence space.
 	 *
 	 * Handles pagination automatically and returns a flat list.
+	 * Each page includes its immediate parent ID (null for top-level pages).
 	 *
 	 * @param string $spaceKey The Confluence space key (e.g. "DOCS").
-	 * @return list<array{id: string, title: string}> Pages with id and title.
+	 * @return list<array{id: string, title: string, parentId: string|null}> Pages with id, title, and parentId.
 	 * @throws \RuntimeException On API error.
 	 */
 	public function fetchAllPages( string $spaceKey ): array {
@@ -185,14 +186,22 @@ class ConfluenceClient {
 				'type'     => 'page',
 				'start'    => (string)$start,
 				'limit'    => (string)self::PAGINATION_LIMIT,
-				'expand'   => 'title',
+				'expand'   => 'ancestors',
 			] );
 
 			$results = $data['results'] ?? [];
 			foreach ( $results as $result ) {
+				// The ancestors array is ordered from the root to the immediate parent.
+				// The last element is the direct parent of this page.
+				$ancestors = $result['ancestors'] ?? [];
+				$parentId  = $ancestors !== []
+					? (string)$ancestors[ count( $ancestors ) - 1 ]['id']
+					: null;
+
 				$pages[] = [
-					'id'    => (string)$result['id'],
-					'title' => (string)$result['title'],
+					'id'       => (string)$result['id'],
+					'title'    => (string)$result['title'],
+					'parentId' => $parentId,
 				];
 			}
 
