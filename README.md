@@ -5,6 +5,7 @@ MediaWiki extension for **importing** documents/webpages into wiki pages and **e
 - **Import**: convert DOCX, ODT, PDF, DOC, or a webpage URL into a wiki page (with images)
 - **Export**: download wiki pages as DOCX, ODT, EPUB, PDF, HTML, RTF, or TXT
 - **AI cleanup**: optional LLM-powered post-conversion wikitext polish (OpenAI or Claude)
+- **Confluence migration**: mass-import an entire Confluence space (Cloud or Server) into the wiki
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
@@ -109,6 +110,54 @@ Features:
 ![Pandoc-demo-export](https://github.com/user-attachments/assets/d06859b3-2851-41be-afb1-04724115d01f)
 
 
+## Confluence Migration (Special:ConfluenceMigration)
+
+Mass-migrate an entire Confluence space to this wiki in one operation.
+
+Go to `Special:ConfluenceMigration` and fill in:
+
+| Field | Description |
+|-------|-------------|
+| **Confluence URL** | Base URL of your Confluence instance (see below) |
+| **Space key** | Key of the Confluence space to migrate (e.g. `DOCS`, `DEV`) |
+| **Email / Username** | Your Confluence login email (Cloud) or username (Server) |
+| **API token / Password** | API token (Cloud) or password / personal access token (Server) |
+| **Target page prefix** | Optional prefix prepended to every page title, e.g. `Confluence/DOCS` |
+| **Overwrite existing pages** | When checked, existing wiki pages are replaced |
+| **Auto-categorize** | Creates MediaWiki categories mirroring the Confluence page hierarchy (checked by default) |
+
+### Cloud vs. Server
+
+| | Confluence Cloud | Confluence Server / Data Center |
+|---|---|---|
+| **Base URL** | `https://yourcompany.atlassian.net` | `https://confluence.yourcompany.com` |
+| **Username field** | Your Atlassian account email | Your Confluence username |
+| **Token field** | [Atlassian API token](https://id.atlassian.com/manage-profile/security/api-tokens) | Password or [Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) |
+
+### What gets migrated
+
+- All pages in the specified space are fetched via the Confluence REST API v1.
+- Page content (Confluence "storage format" HTML) is converted to MediaWiki wikitext using Pandoc.
+- Common Confluence macros (code blocks, info/note/warning/tip panels) are converted to their MediaWiki equivalents.
+- File attachments are downloaded from Confluence and uploaded to the MediaWiki file repository.
+- Pages are created with the edit summary "Imported from Confluence".
+- When auto-categorize is enabled, pages with sub-pages get a matching category; nested sub-pages produce nested categories.
+
+### How it runs
+
+The migration is processed as a **background job** via the MediaWiki job queue.  You do not have to keep your browser open.  When the migration finishes you receive an **Echo notification** (requires the [Echo extension](https://www.mediawiki.org/wiki/Extension:Echo)).
+
+Jobs are processed by `maintenance/runJobs.php` or automatically during regular wiki requests if `$wgJobRunRate > 0` (the default).
+
+### Disabling the feature
+
+```php
+// LocalSettings.php
+$wgPandocUltimateConverter_EnableConfluenceMigration = false;
+```
+
+Setting this to `false` hides `Special:ConfluenceMigration` entirely and displays a notice to users who navigate to it directly.
+
 ## Supported import formats
 
 Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested: **DOCX**, **ODT**, **PDF**, **DOC**.
@@ -141,6 +190,7 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
 | `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
 | `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
+| `PandocUltimateConverter_EnableConfluenceMigration` | `true` | Set to `false` to disable `Special:ConfluenceMigration`. |
 
 ### Built-in Lua filters
 

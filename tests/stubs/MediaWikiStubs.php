@@ -125,11 +125,38 @@ namespace {
 		}
 	}
 
-} // end namespace {}
+	if ( !class_exists( 'Title' ) ) {
+		/**
+		 * Minimal stub for MediaWiki's Title class.
+		 */
+		class Title {
+			private string $text;
+			public function __construct( string $text = '' ) { $this->text = $text; }
+			public static function newFromText( string $text ): ?self { return new self( $text ); }
+			public static function newMainPage(): self { return new self( 'Main Page' ); }
+			public static function makeTitleSafe( int $ns, string $title ): ?self { return new self( $title ); }
+			public function getText(): string { return $this->text; }
+			public function exists(): bool { return false; }
+			public function getNamespace(): int { return 0; }
+			public function getLocalURL(): string { return ''; }
+		}
+	}
 
-// ---------------------------------------------------------------------------
-// MediaWiki\Shell namespace — Shell class stub
-// ---------------------------------------------------------------------------
+	if ( !class_exists( 'Job' ) ) {
+		/**
+		 * Minimal stub for MediaWiki's Job base class.
+		 */
+		class Job {
+			public $params;
+			public $removeDuplicates = false;
+			public function __construct( string $type, $title, array $params = [] ) {
+				$this->params = $params;
+			}
+			public function setLastError( string $error ): void {}
+		}
+	}
+
+} // end namespace {}
 
 namespace MediaWiki\Shell {
 
