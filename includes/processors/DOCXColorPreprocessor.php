@@ -84,7 +84,7 @@ class DOCXColorPreprocessor extends AbstractColorPreprocessor
         $xmlContent = file_get_contents($documentXml);
 
         $dom = new \DOMDocument();
-        $dom->preserveWhiteSpace = false;
+        $dom->preserveWhiteSpace = true;
         $dom->formatOutput = false;
         $dom->loadXML($xmlContent);
 

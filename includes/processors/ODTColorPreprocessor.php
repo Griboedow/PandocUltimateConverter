@@ -95,7 +95,7 @@ class ODTColorPreprocessor extends AbstractColorPreprocessor
         $xmlContent = file_get_contents($contentXml);
 
         $dom = new \DOMDocument();
-        $dom->preserveWhiteSpace = false;
+        $dom->preserveWhiteSpace = true;
         $dom->formatOutput = false;
         $dom->loadXML($xmlContent);
 
