@@ -8,6 +8,7 @@ use ApiBase;
 use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 /**
@@ -34,7 +35,7 @@ class ApiPandocLlmPolish extends ApiBase {
 		}
 
 		// Validate target page title
-		$title = \Title::newFromText( $pageName );
+		$title = Title::newFromText( $pageName );
 		if ( $title === null || !$title->exists() ) {
 			$this->dieWithError( [ 'apierror-pandocllmpolish-pagenotfound', wfEscapeWikiText( $pageName ) ] );
 		}

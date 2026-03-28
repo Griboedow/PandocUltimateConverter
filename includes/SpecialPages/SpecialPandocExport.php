@@ -9,6 +9,7 @@ use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 
 /**
  * Special page for exporting wiki pages to external document formats (DOCX, ODT, EPUB, …)
@@ -157,12 +158,19 @@ class SpecialPandocExport extends \SpecialPage {
 		// Auto-detect categories vs pages and resolve category members.
 		$pages = [];
 		foreach ( $items as $itemName ) {
-			$title = \Title::newFromText( $itemName );
+			$title = Title::newFromText( $itemName );
 			if ( $title !== null && $title->getNamespace() === NS_CATEGORY ) {
+				wfDebugLog( 'PandocUltimateConverter',
+					'handleExportRequest: resolving category "' . $itemName . '"' );
 				$visited = [];
 				$categoryPages = $this->getCategoryPages( $title->getText(), $visited );
+				wfDebugLog( 'PandocUltimateConverter',
+					'handleExportRequest: category "' . $itemName
+					. '" resolved to ' . count( $categoryPages ) . ' pages');
 				$pages = array_merge( $pages, $categoryPages );
 			} else {
+				wfDebugLog( 'PandocUltimateConverter',
+					'handleExportRequest: direct page "' . $itemName . '"' );
 				$pages[] = $itemName;
 			}
 		}
@@ -311,32 +319,48 @@ class SpecialPandocExport extends \SpecialPage {
 	 * @return string[] Page titles (main namespace) found in the category tree.
 	 */
 	private function getCategoryPages( string $categoryName, array &$visited ): array {
-		$title = \Title::newFromText( $categoryName, NS_CATEGORY );
+		$title = Title::newFromText( $categoryName, NS_CATEGORY );
 		if ( $title === null ) {
 			return [];
 		}
 
 		$dbKey = $title->getDBkey();
 		if ( in_array( $dbKey, $visited, true ) ) {
-			// Cycle detected — stop recursion.
+			wfDebugLog( 'PandocUltimateConverter',
+				'getCategoryPages: cycle detected for "' . $categoryName . '" (dbKey=' . $dbKey . '), skipping' );
 			return [];
 		}
 		$visited[] = $dbKey;
 
-		$dbr = $this->mwServices->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		wfDebugLog( 'PandocUltimateConverter',
+			'getCategoryPages: querying members of category "' . $categoryName . '" (dbKey=' . $dbKey . ')' );
+
+		$dbr = $this->mwServices->getConnectionProvider()->getReplicaDatabase();
 		$pages = [];
 
-		// Fetch all members of this category.
-		$res = $dbr->newSelectQueryBuilder()
+		// MW 1.44+ removed cl_to from categorylinks; must JOIN category table.
+		// MW 1.42–1.43 still has cl_to so we can filter directly.
+		$mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
+		$qb = $dbr->newSelectQueryBuilder()
 			->select( [ 'cl_from' ] )
-			->from( 'categorylinks' )
-			->where( [ 'cl_to' => $dbKey ] )
-			->caller( __METHOD__ )
+			->from( 'categorylinks' );
+
+		if ( version_compare( $mwVersion, '1.44', '>=' ) ) {
+			$qb->join( 'linktarget', null, 'cl_target_id = lt_id' )
+				->where( [ 'lt_title' => $dbKey ] );
+		} else {
+			$qb->where( [ 'cl_to' => $dbKey ] );
+		}
+
+		$res = $qb->caller( __METHOD__ )
 			->fetchResultSet();
 
 		foreach ( $res as $row ) {
-			$memberTitle = \Title::newFromID( (int)$row->cl_from );
+			$memberTitle = Title::newFromID( (int)$row->cl_from );
 			if ( $memberTitle === null ) {
+				wfDebugLog( 'PandocUltimateConverter',
+					'getCategoryPages: cl_from=' . $row->cl_from
+					. ' resolved to NULL title (deleted page?) in category "' . $categoryName . '"' );
 				continue;
 			}
 
@@ -453,14 +477,17 @@ class SpecialPandocExport extends \SpecialPage {
 
 			// Expand templates / parser functions while keeping the result as wikitext
 			// so that {{TemplateName}} and {{#if:…}} are resolved before Pandoc sees them.
-			$title    = \Title::newFromText( $pageName );
+			$title    = Title::newFromText( $pageName );
 			$wikitext = $parser->preprocess( $wikitext, $title, $parserOptions );
-
+		
 			$wikitexts[] = $wikitext;
 			$this->gatherImages( $wikitext, $mediaDir );
 		}
 
 		$combinedWikitext = self::buildCombinedWikitext( $pages, $wikitexts );
+		wfDebugLog( 'PandocUltimateConverter',
+			'runExport: combinedWikitext=' . strlen( $combinedWikitext ) . ' bytes for '
+			. count( $pages ) . ' page(s)' );
 
 		// Write wikitext to a temp file for pandoc to read.
 		$inputFile = $workDir . DIRECTORY_SEPARATOR . 'input.mediawiki';
@@ -498,6 +525,8 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$cmd[] = $inputFile;
 
+		wfDebugLog( 'PandocUltimateConverter',
+			'runExport: pandoc command: ' . implode( ' ', $cmd ) );
 		PandocWrapper::invokePandoc( $cmd );
 
 		return $outputFile;
@@ -626,8 +655,12 @@ class SpecialPandocExport extends \SpecialPage {
 	 * @throws \RuntimeException If the page does not exist or contains no wikitext.
 	 */
 	private function getPageWikitext( string $pageName ): string {
-		$title = \Title::newFromText( $pageName );
+		$title = Title::newFromText( $pageName );
 		if ( $title === null || !$title->exists() ) {
+			wfDebugLog( 'PandocUltimateConverter',
+				'getPageWikitext: page NOT FOUND "' . $pageName . '"'
+				. ' (title=' . ( $title ? $title->getPrefixedText() : 'null' )
+				. ', exists=' . ( $title && $title->exists() ? 'yes' : 'no' ) . ')' );
 			throw new \RuntimeException( "Page not found: $pageName" );
 		}
 
@@ -635,6 +668,10 @@ class SpecialPandocExport extends \SpecialPage {
 		$content = $page->getContent();
 
 		if ( !( $content instanceof \WikitextContent ) ) {
+			$contentModel = $content ? $content->getModel() : 'null';
+			wfDebugLog( 'PandocUltimateConverter',
+				'getPageWikitext: page "' . $pageName . '" has non-wikitext content'
+				. ' (model=' . $contentModel . ')' );
 			throw new \RuntimeException( "Page '$pageName' does not contain wikitext." );
 		}
 
@@ -662,10 +699,15 @@ class SpecialPandocExport extends \SpecialPage {
 		// Use the static helper to extract candidate file-link targets (those with a ":").
 		// Title::newFromText() then does the authoritative namespace validation.
 		$candidates = self::extractWikilinkTargets( $wikitext );
+		wfDebugLog( 'PandocUltimateConverter',
+			'gatherImages: found ' . count( $candidates ) . ' link candidates: '
+			. json_encode( array_slice( $candidates, 0, 20 ) ) );
 
 		foreach ( $candidates as $rawLink ) {
-			$title = \Title::newFromText( $rawLink );
+			$title = Title::newFromText( $rawLink );
 			if ( $title === null ) {
+				wfDebugLog( 'PandocUltimateConverter',
+					'gatherImages: invalid title for link "' . $rawLink . '"' );
 				continue;
 			}
 
@@ -677,7 +719,7 @@ class SpecialPandocExport extends \SpecialPage {
 			// Media: links point at the same underlying files as File: links.
 			// Convert to NS_FILE so RepoGroup::findFile() can locate the file.
 			$fileTitle = $ns === NS_MEDIA
-				? \Title::makeTitleSafe( NS_FILE, $title->getDBkey() )
+				? Title::makeTitleSafe( NS_FILE, $title->getDBkey() )
 				: $title;
 
 			if ( $fileTitle === null ) {

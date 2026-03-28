@@ -7,6 +7,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Api;
 use ApiBase;
 use MediaWiki\Extension\PandocUltimateConverter\PandocConverterService;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 /**
@@ -56,7 +57,7 @@ class ApiPandocConvert extends ApiBase {
 		}
 
 		// Validate target page title
-		$title = \Title::newFromText( $pageName );
+		$title = Title::newFromText( $pageName );
 		if ( $title === null ) {
 			$this->dieWithError( [ 'apierror-invalidtitle', wfEscapeWikiText( $pageName ) ] );
 		}
