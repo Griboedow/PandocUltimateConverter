@@ -9,7 +9,7 @@ MediaWiki extension for **importing** documents/webpages into wiki pages and **e
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
-Supported on MediaWiki 1.42–1.45, Windows and Linux.
+Supported on MediaWiki 1.42–1.45, Windows and Linux. 1.39-1.41 are partially supported in branch REL1_39.
 
 ## Installation
 
