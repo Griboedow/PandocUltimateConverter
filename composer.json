@@ -11,7 +11,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"MediaWiki\\Extension\\PandocUltimateConverter\\Processors\\": "includes/processors/",
+			"MediaWiki\\Extension\\PandocUltimateConverter\\Processors\\": "includes/Processors/",
 			"MediaWiki\\Extension\\PandocUltimateConverter\\": "includes/"
 		}
 	},
