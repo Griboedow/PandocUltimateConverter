@@ -584,7 +584,7 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$loCmd = [
 			$libreofficePath,
-			'-env:UserInstallation=file:///' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
+			'-env:UserInstallation=' . self::buildLoUserInstallationUrl( $workDir ),
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $workDir,
@@ -754,6 +754,23 @@ class SpecialPandocExport extends \SpecialPage {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Build the file:// URL for LibreOffice's -env:UserInstallation option.
+	 *
+	 * On Linux the profile directory is an absolute path like /tmp/work/.lo_profile,
+	 * so the URL must be file:///tmp/work/.lo_profile (three slashes: two for the
+	 * scheme separator + one leading slash of the absolute path).
+	 * On Windows the path is e.g. C:/work/.lo_profile and becomes
+	 * file:///C:/work/.lo_profile (three slashes before the drive letter).
+	 *
+	 * @param string $workDir Absolute path to the Pandoc working directory.
+	 * @return string Correct file:// URL for the LibreOffice user-profile directory.
+	 */
+	public static function buildLoUserInstallationUrl( string $workDir ): string {
+		$profilePath = str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' );
+		return 'file:///' . $profilePath;
 	}
 
 	/**
