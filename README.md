@@ -178,6 +178,7 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_PandocExecutablePath` | `null` | Path to the Pandoc binary. Not needed if Pandoc is in PATH. |
 | `PandocUltimateConverter_TempFolderPath` | `null` | Temp folder for conversion files. Uses system default if not set. |
 | `PandocUltimateConverter_PdfToHtmlExecutablePath` | `null` | Path to poppler's `pdftohtml`. Not needed if in PATH. |
+| `PandocUltimateConverter_PdfToPpmExecutablePath` | `null` | Path to poppler's `pdftoppm`. Not needed if in PATH. |
 | `PandocUltimateConverter_LibreOfficeExecutablePath` | `null` | Path to `soffice`/`libreoffice`. Not needed if in PATH. |
 | `PandocUltimateConverter_TesseractExecutablePath` | `null` | Path to the Tesseract OCR binary. Not needed if in PATH. |
 | `PandocUltimateConverter_OcrLanguage` | `"eng"` | Tesseract language code(s). Use `+` for multiple, e.g. `"eng+deu"`. |
@@ -223,6 +224,7 @@ choco install poppler
 Or download manually from https://github.com/oschwartz10612/poppler-windows/releases and add `bin/` to PATH, or set:
 ```php
 $wgPandocUltimateConverter_PdfToHtmlExecutablePath = 'C:\poppler\Library\bin\pdftohtml.exe';
+$wgPandocUltimateConverter_PdfToPpmExecutablePath = 'C:\poppler\Library\bin\pdftoppm.exe';
 ```
 
 ### Installing Tesseract

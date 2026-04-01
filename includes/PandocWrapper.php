@@ -21,6 +21,7 @@ class PandocWrapper
     private string $filtersFolderPath;
     private bool $useColorProcessors;
     private string $pdfToHtmlExecutablePath;
+    private string $pdftoppmExecutablePath;
     private string $libreofficeExecutablePath;
     private string $tesseractExecutablePath;
     private string $ocrLanguage;
@@ -54,6 +55,9 @@ class PandocWrapper
 
         $this->pdfToHtmlExecutablePath = $config->get( 'PandocUltimateConverter_PdfToHtmlExecutablePath' )
             ?? 'pdftohtml';
+
+        $this->pdftoppmExecutablePath = $config->get( 'PandocUltimateConverter_PdfToPpmExecutablePath' )
+            ?? 'pdftoppm';
 
         $this->libreofficeExecutablePath = $config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
             ?? 'libreoffice';
@@ -149,21 +153,19 @@ class PandocWrapper
 
         if ( $isPdf ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: using PDF preprocessor for $source" );
-            // pdftotext and pdftoppm are part of the same poppler-utils package as pdftohtml.
-            // If pdftohtml is configured with a full path, derive sibling executables from
-            // the same directory; otherwise fall back to bare names (rely on PATH).
+            // pdftotext is part of the same poppler-utils package as pdftohtml.
+            // If pdftohtml is configured with a full path, derive pdftotext from
+            // the same directory; otherwise fall back to bare name (rely on PATH).
             $pdfToHtmlDir = dirname( $this->pdfToHtmlExecutablePath );
             if ( $pdfToHtmlDir !== '.' ) {
                 $pdfToTextPath = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftotext';
-                $pdftoppmPath  = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftoppm';
             } else {
                 $pdfToTextPath = 'pdftotext';
-                $pdftoppmPath  = 'pdftoppm';
             }
             $preprocessor = new PDFPreprocessor(
                 $this->pdfToHtmlExecutablePath,
                 $pdfToTextPath,
-                $pdftoppmPath,
+                $this->pdftoppmExecutablePath,
                 $this->tesseractExecutablePath,
                 $this->ocrLanguage
             );
