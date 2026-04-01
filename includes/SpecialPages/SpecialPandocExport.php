@@ -584,7 +584,7 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$loCmd = [
 			$libreofficePath,
-			'-env:UserInstallation=file:///' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
+			'-env:UserInstallation=file://' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $workDir,
