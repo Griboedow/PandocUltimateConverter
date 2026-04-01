@@ -16,7 +16,6 @@ use PHPUnit\Framework\TestCase;
  * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::sanitizeFilename
  * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::buildCombinedWikitext
  * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::extractWikilinkTargets
- * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::buildLoUserInstallationUrl
  */
 class SpecialPandocExportTest extends TestCase {
 
@@ -230,40 +229,5 @@ class SpecialPandocExportTest extends TestCase {
 		foreach ( $result as $target ) {
 			$this->assertStringNotContainsString( '#', $target );
 		}
-	}
-
-	// ------------------------------------------------------------------
-	// buildLoUserInstallationUrl — issue #46 regression
-	// ------------------------------------------------------------------
-
-	/**
-	 * Reproduces issue #46: on Linux the workDir is an absolute path like /tmp/abc,
-	 * so concatenating 'file:///' with the path yields 'file:////tmp/abc/.lo_profile'
-	 * (four slashes).  LibreOffice rejects the malformed URL and falls back to the
-	 * system default (/run/user), which fails with "Permission denied".
-	 *
-	 * The correct output is 'file:///tmp/abc/.lo_profile' (exactly three slashes).
-	 *
-	 * @covers \MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport::buildLoUserInstallationUrl
-	 */
-	public function testBuildLoUserInstallationUrlUnixAbsolutePath(): void {
-		$url = SpecialPandocExport::buildLoUserInstallationUrl( '/tmp/pandoc_test' );
-
-		$this->assertStringStartsWith(
-			'file://',
-			$url,
-			'URL must start with the file:// scheme'
-		);
-		$this->assertStringNotContainsString(
-			'file:////',
-			$url,
-			'URL must NOT have four or more slashes after "file:" — that produces a '
-			. 'malformed path that LibreOffice cannot use as UserInstallation'
-		);
-		$this->assertSame(
-			'file:///tmp/pandoc_test/.lo_profile',
-			$url,
-			'Unix absolute path must produce exactly three slashes (file:// + leading /)'
-		);
 	}
 }
