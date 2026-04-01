@@ -166,7 +166,7 @@ class ImportE2ETest extends TestCase {
 		$this->assertFileExists( $htmlFile, 'pdftohtml should produce an HTML file' );
 
 		// Step 2: HTML → MediaWiki wikitext via Pandoc
-		$wikitextOutput = PandocWrapper::invokePandoc( [
+		$wikitextOutput = PandocWrapper::invokeShell( [
 			$this->pandocBin,
 			'--from=html',
 			'--to=mediawiki',
@@ -247,7 +247,7 @@ class ImportE2ETest extends TestCase {
 		$this->assertFileExists( $resultDocxPath, 'DOCPreprocessor must produce a .docx file' );
 
 		// Convert the resulting DOCX to MediaWiki wikitext
-		$wikitextOutput = PandocWrapper::invokePandoc( [
+		$wikitextOutput = PandocWrapper::invokeShell( [
 			$this->pandocBin,
 			'--from=docx',
 			'--to=mediawiki',

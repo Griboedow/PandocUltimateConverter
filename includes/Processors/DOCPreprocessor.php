@@ -4,7 +4,7 @@ declare( strict_types=1 );
 
 namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 
-use MediaWiki\Shell\Shell;
+use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 
 /**
  * Converts legacy .doc files to .docx using LibreOffice's headless mode
@@ -55,48 +55,33 @@ class DOCPreprocessor {
 			'DOCPreprocessor: running ' . implode( ' ', $cmd )
 		);
 
-		$result = Shell::command( $cmd )
-			->includeStderr()
-			->environment( self::getLibreOfficeEnv() )
-			->execute();
+		// LibreOffice may crash during shutdown but still produce the file,
+		// so use invokeShellRaw which does not throw on non-zero exit.
+		$result = PandocWrapper::invokeShellRaw( $cmd, true );
 
 		$baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
 		$docxPath = $outDir . DIRECTORY_SEPARATOR . $baseName . '.docx';
 
-		// LibreOffice may crash during shutdown but still produce the file.
 		// Check for the output file first; only fail if it's actually missing.
 		if ( !file_exists( $docxPath ) ) {
-			$exitCode = $result->getExitCode();
-			$output = trim( $result->getStdout() );
+			$output = trim( $result['output'] );
 			$detail = $output !== '' ? $output
 				: 'LibreOffice crashed with no output';
 			throw new \RuntimeException(
 				'LibreOffice .doc→.docx conversion failed (exit '
-				. $exitCode . '): ' . $detail
+				. $result['exitCode'] . '): ' . $detail
 			);
 		}
 
-		if ( $result->getExitCode() !== 0 ) {
+		if ( $result['exitCode'] !== 0 ) {
 			wfDebugLog(
 				'PandocUltimateConverter',
-				'DOCPreprocessor: LibreOffice exited with code ' . $result->getExitCode()
+				'DOCPreprocessor: LibreOffice exited with code ' . $result['exitCode']
 				. ' but output file was produced; continuing. stderr/stdout: '
-				. $result->getStdout()
+				. $result['output']
 			);
 		}
 
 		return $docxPath;
-	}
-
-	/**
-	 * Build an environment array suitable for running LibreOffice under Apache.
-	 * Under non-CLI SAPIs the parent environment is mostly empty, so we pass
-	 * through the current process env to ensure PATH, TEMP, etc. are available.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function getLibreOfficeEnv(): array {
-		$env = getenv();
-		return is_array( $env ) ? $env : [];
 	}
 }

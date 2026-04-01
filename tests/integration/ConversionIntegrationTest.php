@@ -149,14 +149,14 @@ class ConversionIntegrationTest extends TestCase {
 	}
 
 	// ------------------------------------------------------------------
-	// PandocWrapper::invokePandoc integration
+	// PandocWrapper::invokeShell integration
 	// ------------------------------------------------------------------
 
 	public function testPandocExitsNonZeroOnInvalidInput(): void {
 		$this->expectException( \RuntimeException::class );
 
 		// Pass a non-existent file — Pandoc will exit non-zero.
-		// We use the exec-based runPandoc helper (not PandocWrapper::invokePandoc,
+		// We use the exec-based runPandoc helper (not PandocWrapper::invokeShell,
 		// which relies on MediaWiki\Shell\Shell that is stubbed in the test bootstrap).
 		$this->runPandoc( [
 			$this->pandocBin,

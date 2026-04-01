@@ -193,7 +193,7 @@ class PandocWrapper
 
             wfDebugLog( 'PandocUltimateConverter', 'convertInternal (PDF→HTML→MW): running ' . implode( ' ', $commands ) );
 
-            $text = self::invokePandoc( $commands );
+            $text = self::invokeShell( $commands );
             return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
         }
 
@@ -228,7 +228,7 @@ class PandocWrapper
         wfDebugLog( 'PandocUltimateConverter', 'convertInternal: running ' . implode( ' ', $commands ) );
 
         return [
-            'text'        => self::invokePandoc( $commands, true ),
+            'text'        => self::invokeShell( $commands, true ),
             'baseName'    => $baseName,
             'mediaFolder' => $mediaFolder,
         ];
@@ -342,27 +342,58 @@ class PandocWrapper
     }
 
     /**
-     * Execute Pandoc and return its stdout. This is the single place in the codebase
-     * that invokes Shell::command() for Pandoc.
+     * Execute a shell command and return its stdout.
      *
-     * @param string[] $cmd         Full command array starting with the pandoc executable.
+     * This is the single place in the codebase that invokes Shell::command().
+     * Use this for Pandoc, LibreOffice, and any other external tool.
+     *
+     * @param string[] $cmd         Full command array starting with the executable.
      * @param bool     $inheritEnv  Pass the current process environment to the child process.
-     *                              Required for URL fetching; not needed for local file processing.
-     * @return string Pandoc stdout.
+     * @param array    $extraEnv    Additional environment variables merged on top of the inherited env.
+     * @return string Command stdout.
      * @throws \RuntimeException On non-zero exit code.
      */
-    public static function invokePandoc( array $cmd, bool $inheritEnv = false ): string
+    public static function invokeShell( array $cmd, bool $inheritEnv = false, array $extraEnv = [] ): string
+    {
+        $result = self::invokeShellRaw( $cmd, $inheritEnv, $extraEnv );
+        if ( $result['exitCode'] !== 0 ) {
+            throw new \RuntimeException(
+                'Shell command failed (exit ' . $result['exitCode'] . '): ' . $result['output']
+            );
+        }
+        return $result['output'];
+    }
+
+    /**
+     * Execute a shell command and return the raw result without throwing on errors.
+     *
+     * Useful for tools like LibreOffice that may exit non-zero yet still produce
+     * a valid output file.
+     *
+     * @param string[] $cmd         Full command array starting with the executable.
+     * @param bool     $inheritEnv  Pass the current process environment to the child process.
+     * @param array    $extraEnv    Additional environment variables merged on top of the inherited env.
+     * @return array{exitCode: int, output: string}
+     */
+    public static function invokeShellRaw( array $cmd, bool $inheritEnv = false, array $extraEnv = [] ): array
     {
         $runner = Shell::command( $cmd )->includeStderr();
+        $env = [];
         if ( $inheritEnv ) {
             $envArr = getenv();
-            $runner = $runner->environment( is_array( $envArr ) ? $envArr : [] );
+            $env = is_array( $envArr ) ? $envArr : [];
+        }
+        if ( $extraEnv !== [] ){
+            $env = array_merge( $env, $extraEnv );
+        }
+        if ( $env !== [] ) {
+            $runner = $runner->environment( $env );
         }
         $result = $runner->execute();
-        if ( $result->getExitCode() !== 0 ) {
-            throw new \RuntimeException( 'Pandoc conversion failed: ' . $result->getStdout() );
-        }
-        return $result->getStdout();
+        return [
+            'exitCode' => $result->getExitCode(),
+            'output'   => $result->getStdout(),
+        ];
     }
 
     /**

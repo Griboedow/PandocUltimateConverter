@@ -92,7 +92,7 @@ WIKI;
 		$inputFile  = $this->writeWikitextFile( 'export_test.mediawiki' );
 		$outputFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'export.docx';
 
-		PandocWrapper::invokePandoc( [
+		PandocWrapper::invokeShell( [
 			$this->pandocBin,
 			'--from=mediawiki',
 			'--to=docx',
@@ -135,7 +135,7 @@ WIKI;
 		$inputFile  = $this->writeWikitextFile( 'export_test.mediawiki' );
 		$outputFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'export.odt';
 
-		PandocWrapper::invokePandoc( [
+		PandocWrapper::invokeShell( [
 			$this->pandocBin,
 			'--from=mediawiki',
 			'--to=odt',
@@ -187,7 +187,7 @@ WIKI;
 		$inputFile  = $this->writeWikitextFile( 'export_test.mediawiki' );
 		$outputFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'export.pdf';
 
-		PandocWrapper::invokePandoc( [
+		PandocWrapper::invokeShell( [
 			$this->pandocBin,
 			'--from=mediawiki',
 			'--to=pdf',

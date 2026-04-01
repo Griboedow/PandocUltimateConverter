@@ -495,9 +495,9 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$pandocPath = $this->config->get( 'PandocUltimateConverter_PandocExecutablePath' ) ?? 'pandoc';
 
-		// PDF: Pandoc needs a LaTeX engine for --to=pdf which is often absent.
-		// Use a two-step pipeline instead: mediawiki → docx (Pandoc) → pdf (LibreOffice).
-		if ( $format === 'pdf' ) {
+		// PDF export: choose between LibreOffice pipeline or Pandoc's --pdf-engine.
+		$pdfEngine = $this->config->get( 'PandocUltimateConverter_PdfExportEngine' ) ?? 'libreoffice';
+		if ( $format === 'pdf' && $pdfEngine === 'libreoffice' ) {
 			return $this->exportPdfViaLibreOffice( $pages, $inputFile, $mediaDir, $workDir, $pandocPath );
 		}
 
@@ -513,6 +513,11 @@ class SpecialPandocExport extends \SpecialPage {
 			'--standalone',
 		];
 
+		// For PDF output, pass the configured engine to Pandoc.
+		if ( $format === 'pdf' ) {
+			$cmd[] = '--pdf-engine=' . $pdfEngine;
+		}
+
 		// Add title metadata into the document; passed as separate arguments so that
 		// Shell::command() (which uses proc_open, not a shell) handles quoting correctly.
 		if ( count( $pages ) === 1 ) {
@@ -527,7 +532,12 @@ class SpecialPandocExport extends \SpecialPage {
 
 		wfDebugLog( 'PandocUltimateConverter',
 			'runExport: pandoc command: ' . implode( ' ', $cmd ) );
-		PandocWrapper::invokePandoc( $cmd );
+
+		PandocWrapper::invokeShell( $cmd, true, [
+			'TEMP'   => $workDir,
+			'TMP'    => $workDir,
+			'TMPDIR' => $workDir,
+		] );
 
 		return $outputFile;
 	}
@@ -569,7 +579,7 @@ class SpecialPandocExport extends \SpecialPage {
 		}
 
 		$cmd[] = $inputFile;
-		PandocWrapper::invokePandoc( $cmd );
+		PandocWrapper::invokeShell( $cmd );
 
 		if ( !file_exists( $docxFile ) ) {
 			throw new \RuntimeException(
@@ -597,16 +607,17 @@ class SpecialPandocExport extends \SpecialPage {
 
 		wfDebugLog( 'PandocUltimateConverter', 'exportPdfViaLibreOffice: running ' . implode( ' ', $loCmd ) );
 
-		// Pass through environment so LibreOffice gets TEMP, PATH, etc.
-		$envArr = getenv();
-		$result = \MediaWiki\Shell\Shell::command( $loCmd )
-			->includeStderr()
-			->environment( is_array( $envArr ) ? $envArr : [] )
-			->execute();
+		// LibreOffice may exit non-zero yet still produce a valid file,
+		// so use invokeShellRaw which does not throw on error.
+		$result = PandocWrapper::invokeShellRaw( $loCmd, true, [
+			'TEMP'   => $workDir,
+			'TMP'    => $workDir,
+			'TMPDIR' => $workDir,
+		] );
 
 		wfDebugLog( 'PandocUltimateConverter',
-			'exportPdfViaLibreOffice: exit=' . $result->getExitCode()
-			. ' stdout=' . $result->getStdout()
+			'exportPdfViaLibreOffice: exit=' . $result['exitCode']
+			. ' stdout=' . $result['output']
 		);
 
 		// LibreOffice places the output file in --outdir with the same base name
@@ -631,11 +642,11 @@ class SpecialPandocExport extends \SpecialPage {
 		if ( !file_exists( $pdfFile ) ) {
 			// List what LibreOffice actually produced for debugging
 			$files = implode( ', ', array_diff( scandir( $workDir ), [ '.', '..' ] ) );
-			$output = trim( $result->getStdout() );
+			$output = trim( $result['output'] );
 			$detail = $output !== '' ? $output : 'No output from LibreOffice';
 			throw new \RuntimeException(
 				'LibreOffice docx→pdf conversion failed (exit '
-				. $result->getExitCode() . '): ' . $detail
+				. $result['exitCode'] . '): ' . $detail
 				. ' | Files in workDir: ' . $files
 			);
 		}
