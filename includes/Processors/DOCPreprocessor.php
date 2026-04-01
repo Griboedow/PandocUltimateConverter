@@ -39,7 +39,7 @@ class DOCPreprocessor {
 		if ( !is_dir( $profileDir ) ) {
 			mkdir( $profileDir, 0755, true );
 		}
-		$profileUrl = 'file:///' . str_replace( '\\', '/', $profileDir );
+		$profileUrl = self::buildFileUrl( $profileDir );
 
 		$cmd = [
 			$this->libreofficePath,
@@ -57,7 +57,7 @@ class DOCPreprocessor {
 
 		$result = Shell::command( $cmd )
 			->includeStderr()
-			->environment( self::getLibreOfficeEnv() )
+			->environment( self::getLibreOfficeEnv( $profileDir ) )
 			->execute();
 
 		$baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
@@ -93,10 +93,38 @@ class DOCPreprocessor {
 	 * Under non-CLI SAPIs the parent environment is mostly empty, so we pass
 	 * through the current process env to ensure PATH, TEMP, etc. are available.
 	 *
+	 * @param string $runtimeDir Writable directory to use as XDG_RUNTIME_DIR.
+	 *   If empty, sys_get_temp_dir() is used as a safe fallback.
 	 * @return array<string, string>
 	 */
-	public static function getLibreOfficeEnv(): array {
+	public static function getLibreOfficeEnv( string $runtimeDir = '' ): array {
 		$env = getenv();
-		return is_array( $env ) ? $env : [];
+		$env = is_array( $env ) ? $env : [];
+		// Ensure XDG_RUNTIME_DIR is always set to a writable path.
+		// Under Apache (www-data) it is unset, causing LibreOffice to attempt
+		// "mkdir /run/user" which fails with "Permission denied".
+		$xdg = $runtimeDir !== '' ? $runtimeDir : sys_get_temp_dir();
+		if ( !isset( $env['XDG_RUNTIME_DIR'] ) || !is_writable( $env['XDG_RUNTIME_DIR'] ) ) {
+			$env['XDG_RUNTIME_DIR'] = $xdg;
+		}
+		return $env;
+	}
+
+	/**
+	 * Build a well-formed file:// URL from an absolute file-system path.
+	 *
+	 * `str_replace('\\','/',…)` alone gives 'file:////path' on Linux because
+	 * the path already starts with '/'.  We normalise by using exactly two
+	 * slashes for the authority (empty host) and let the path's own leading
+	 * slash complete the canonical three-slash form.
+	 *
+	 * @param string $path Absolute path (Linux or Windows).
+	 * @return string Properly formed file:// URL.
+	 */
+	public static function buildFileUrl( string $path ): string {
+		$normalised = str_replace( '\\', '/', $path );
+		// Linux: '/tmp/foo' → 'file:///tmp/foo'
+		// Windows: 'C:/foo'  → 'file:///C:/foo'
+		return 'file://' . ( str_starts_with( $normalised, '/' ) ? '' : '/' ) . $normalised;
 	}
 }

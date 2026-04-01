@@ -7,6 +7,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\SpecialPages;
 use MediaWiki\Config\Config;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
@@ -583,7 +584,7 @@ class SpecialPandocExport extends \SpecialPage {
 
 		$loCmd = [
 			$libreofficePath,
-			'-env:UserInstallation=file:///' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
+			'-env:UserInstallation=' . DOCPreprocessor::buildFileUrl( $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $workDir,
@@ -597,11 +598,9 @@ class SpecialPandocExport extends \SpecialPage {
 
 		wfDebugLog( 'PandocUltimateConverter', 'exportPdfViaLibreOffice: running ' . implode( ' ', $loCmd ) );
 
-		// Pass through environment so LibreOffice gets TEMP, PATH, etc.
-		$envArr = getenv();
 		$result = \MediaWiki\Shell\Shell::command( $loCmd )
 			->includeStderr()
-			->environment( is_array( $envArr ) ? $envArr : [] )
+			->environment( DOCPreprocessor::getLibreOfficeEnv( $loProfileDir ) )
 			->execute();
 
 		wfDebugLog( 'PandocUltimateConverter',
