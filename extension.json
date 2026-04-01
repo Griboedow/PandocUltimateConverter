@@ -243,6 +243,18 @@
       "description": "Full path to poppler's pdftohtml executable. No need to specify if pdftohtml is in PATH. Required for PDF import support.",
       "public": true
     },
+    "PandocUltimateConverter_PdfToPpmExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to poppler's pdftoppm executable. No need to specify if pdftoppm is in PATH. Required for scanned PDF (OCR) support.",
+      "public": true
+    },
+    "PandocUltimateConverter_PdfToTextExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to poppler's pdftotext executable. No need to specify if pdftotext is in PATH. Used to detect whether a PDF is text-based or scanned.",
+      "public": true
+    },
     "PandocUltimateConverter_LibreOfficeExecutablePath": {
       "value": null,
       "path": false,
