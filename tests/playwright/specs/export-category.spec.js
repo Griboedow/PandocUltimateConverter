@@ -57,10 +57,8 @@ async function login( page ) {
 	await page.goto( `${ BASE_URL }/index.php?title=Special:UserLogin` );
 	await page.locator( '#wpName1' ).fill( ADMIN_USER );
 	await page.locator( '#wpPassword1' ).fill( ADMIN_PASS );
-	await Promise.all( [
-		page.waitForNavigation( { waitUntil: 'networkidle', timeout: 30000 } ),
-		page.locator( '#wpLoginAttempt' ).click(),
-	] );
+	await page.locator( '#wpLoginAttempt' ).click();
+	await page.waitForLoadState( 'networkidle', { timeout: 30_000 } );
 }
 
 /**

@@ -7,6 +7,7 @@
 			:disabled="disabled"
 			:status="inputStatus"
 			class="mw-pandoc-page-search__lookup"
+			@input="onInput"
 			@update:input-value="onInput"
 			@update:selected="onSelect"
 		></cdx-lookup>
