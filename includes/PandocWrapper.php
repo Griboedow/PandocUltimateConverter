@@ -350,12 +350,13 @@ class PandocWrapper
      * @param string[] $cmd         Full command array starting with the executable.
      * @param bool     $inheritEnv  Pass the current process environment to the child process.
      * @param array    $extraEnv    Additional environment variables merged on top of the inherited env.
+     * @param string|null $cwd      Working directory for the child process.
      * @return string Command stdout.
      * @throws \RuntimeException On non-zero exit code.
      */
-    public static function invokeShell( array $cmd, bool $inheritEnv = false, array $extraEnv = [] ): string
+    public static function invokeShell( array $cmd, bool $inheritEnv = false, array $extraEnv = [], ?string $cwd = null ): string
     {
-        $result = self::invokeShellRaw( $cmd, $inheritEnv, $extraEnv );
+        $result = self::invokeShellRaw( $cmd, $inheritEnv, $extraEnv, $cwd );
         if ( $result['exitCode'] !== 0 ) {
             throw new \RuntimeException(
                 'Shell command failed (exit ' . $result['exitCode'] . '): ' . $result['output']
@@ -373,9 +374,10 @@ class PandocWrapper
      * @param string[] $cmd         Full command array starting with the executable.
      * @param bool     $inheritEnv  Pass the current process environment to the child process.
      * @param array    $extraEnv    Additional environment variables merged on top of the inherited env.
+     * @param string|null $cwd      Working directory for the child process.
      * @return array{exitCode: int, output: string}
      */
-    public static function invokeShellRaw( array $cmd, bool $inheritEnv = false, array $extraEnv = [] ): array
+    public static function invokeShellRaw( array $cmd, bool $inheritEnv = false, array $extraEnv = [], ?string $cwd = null ): array
     {
         $runner = Shell::command( $cmd )->includeStderr();
         $env = [];
@@ -388,6 +390,9 @@ class PandocWrapper
         }
         if ( $env !== [] ) {
             $runner = $runner->environment( $env );
+        }
+        if ( $cwd !== null ) {
+            $runner = $runner->workingDirectory( $cwd );
         }
         $result = $runner->execute();
         return [

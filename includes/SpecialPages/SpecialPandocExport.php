@@ -516,6 +516,22 @@ class SpecialPandocExport extends \SpecialPage {
 		// For PDF output, pass the configured engine to Pandoc.
 		if ( $format === 'pdf' ) {
 			$cmd[] = '--pdf-engine=' . $pdfEngine;
+
+			// Pandoc's default LaTeX template uses \IfDocumentMetadataTF which
+			// requires a LaTeX kernel from 2022-06 or later.  Older TeX
+			// distributions (e.g. MiKTeX that hasn't been updated) don't have
+			// this command, causing "Undefined control sequence" at build time.
+			// Inject a compatibility shim that defines the command as a no-op
+			// (always takes the "false" branch) when it doesn't already exist.
+			static $latexEngines = [ 'pdflatex', 'xelatex', 'lualatex', 'tectonic' ];
+			$engineBase = strtolower( basename( $pdfEngine, '.exe' ) );
+			if ( in_array( $engineBase, $latexEngines, true ) ) {
+				$shimFile = $workDir . DIRECTORY_SEPARATOR . 'compat-shim.tex';
+				file_put_contents( $shimFile,
+					"\\providecommand{\\IfDocumentMetadataTF}[2]{#2}\n"
+				);
+				$cmd[] = '--include-in-header=' . $shimFile;
+			}
 		}
 
 		// Add title metadata into the document; passed as separate arguments so that
@@ -537,7 +553,7 @@ class SpecialPandocExport extends \SpecialPage {
 			'TEMP'   => $workDir,
 			'TMP'    => $workDir,
 			'TMPDIR' => $workDir,
-		] );
+		], $mediaDir );
 
 		return $outputFile;
 	}
