@@ -123,8 +123,10 @@ class DOCPreprocessor {
 	 */
 	public static function buildFileUrl( string $path ): string {
 		$normalised = str_replace( '\\', '/', $path );
-		// Linux: '/tmp/foo' → 'file:///tmp/foo'
-		// Windows: 'C:/foo'  → 'file:///C:/foo'
+		// Paths on Linux already start with '/' (e.g. '/tmp/foo'), so prefixing
+		// with 'file://' directly gives the correct 'file:///tmp/foo'.
+		// Windows paths start with a drive letter ('C:/foo') and need an extra
+		// '/' to produce the canonical 'file:///C:/foo'.
 		return 'file://' . ( str_starts_with( $normalised, '/' ) ? '' : '/' ) . $normalised;
 	}
 }

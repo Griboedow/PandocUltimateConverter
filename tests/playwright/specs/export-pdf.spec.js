@@ -4,28 +4,37 @@
  * Playwright end-to-end tests for PandocUltimateConverter PDF export.
  *
  * These tests verify that Special:PandocExport correctly produces a valid PDF
- * for a single wiki page, exercising the full production pipeline:
+ * for a single wiki page by exercising the full web UI:
  *
- *   wiki page wikitext
- *     → Pandoc (mediawiki → docx)
- *     → LibreOffice (docx → pdf)
- *     → HTTP response with Content-Type: application/pdf
+ *   1. Navigate to Special:PandocExport
+ *   2. Type the page name into the lookup input
+ *   3. Select "PDF (.pdf)" in the format dropdown
+ *   4. Click the Export button
+ *   5. Capture and verify the downloaded PDF
+ *
+ * The downloaded PDF is saved to UI_SCREENSHOTS_DIR so CI uploads it as an
+ * artifact alongside the UI screenshots.
  *
  * A test page is created via the MediaWiki API in beforeAll so the test is
  * fully self-contained and does not require pre-seeded wiki data.
  *
  * Environment variables
  * ---------------------
- * MW_BASE_URL     Base URL of the running MediaWiki instance  (default: http://localhost:8080)
- * MW_ADMIN_USER   Admin username                               (default: admin)
- * MW_ADMIN_PASS   Admin password                               (default: adminpassword)
+ * MW_BASE_URL        Base URL of the running MediaWiki instance  (default: http://localhost:8080)
+ * MW_ADMIN_USER      Admin username                               (default: admin)
+ * MW_ADMIN_PASS      Admin password                               (default: adminpassword)
+ * UI_SCREENSHOTS_DIR Directory where the PDF artifact is saved    (default: ./screenshots)
  */
 
 const { test, expect } = require( '@playwright/test' );
+const path = require( 'path' );
+const fs = require( 'fs' );
 
 const BASE_URL = process.env.MW_BASE_URL || 'http://localhost:8080';
 const ADMIN_USER = process.env.MW_ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.MW_ADMIN_PASS || 'adminpassword';
+const ARTIFACTS_DIR =
+	process.env.UI_SCREENSHOTS_DIR || path.join( __dirname, '..', 'screenshots' );
 
 /** Title of the wiki page created for the PDF export test. */
 const PDF_TEST_PAGE = 'PandocPdfExportTestPage';
@@ -61,10 +70,8 @@ async function login( page ) {
 	await page.goto( `${ BASE_URL }/index.php?title=Special:UserLogin` );
 	await page.locator( '#wpName1' ).fill( ADMIN_USER );
 	await page.locator( '#wpPassword1' ).fill( ADMIN_PASS );
-	await Promise.all( [
-		page.waitForNavigation( { waitUntil: 'networkidle', timeout: 30000 } ),
-		page.locator( '#wpLoginAttempt' ).click(),
-	] );
+	await page.locator( '#wpLoginAttempt' ).click();
+	await page.waitForLoadState( 'networkidle', { timeout: 30_000 } );
 }
 
 /**
@@ -120,26 +127,44 @@ test.describe( 'PandocExport — PDF export (full LibreOffice pipeline)', () => 
 		await login( page );
 	} );
 
-	test( 'exports a single wiki page to PDF via the LibreOffice pipeline', async ( { page } ) => {
+	test( 'exports a single wiki page to PDF via the web UI', async ( { page } ) => {
 		// LibreOffice conversion can be slow; allow extra time for this test.
 		test.setTimeout( 120_000 );
 
-		const exportUrl = new URL( `${ BASE_URL }/index.php` );
-		exportUrl.searchParams.set( 'title', 'Special:PandocExport' );
-		exportUrl.searchParams.set( 'format', 'pdf' );
-		exportUrl.searchParams.append( 'items[]', PDF_TEST_PAGE );
+		// 1. Navigate to Special:PandocExport and wait for the Vue app to mount.
+		await page.goto( `${ BASE_URL }/index.php?title=Special:PandocExport`, {
+			waitUntil: 'networkidle',
+		} );
+		await page.waitForSelector( '.mw-pandoc-export-app', { timeout: 30_000 } );
 
-		const response = await page.request.get( exportUrl.toString() );
+		// 2. Type the page name into the CdxLookup input.
+		await page.locator( '.mw-pandoc-page-search__lookup input' ).first().fill( PDF_TEST_PAGE );
 
-		// The export must succeed.
-		expect( response.status() ).toBe( 200 );
+		// 3. Open the CdxSelect format dropdown and choose PDF.
+		//    CdxSelect renders a <button class="cdx-select-vue__handle"> that opens a
+		//    listbox; options carry role="option".
+		await page.locator( '#mw-pandoc-export-format .cdx-select-vue__handle' ).click();
+		await page.locator( '[role="option"]' ).filter( { hasText: 'PDF (.pdf)' } ).click();
 
-		// The response must be delivered as a PDF.
-		const contentType = response.headers()[ 'content-type' ] ?? '';
-		expect( contentType ).toContain( 'application/pdf' );
+		// 4. Click Export and capture the browser download event.
+		//    The Vue app uses fetch() + URL.createObjectURL() + <a download> to
+		//    trigger the file save, which Playwright surfaces as a 'download' event.
+		if ( !fs.existsSync( ARTIFACTS_DIR ) ) {
+			fs.mkdirSync( ARTIFACTS_DIR, { recursive: true } );
+		}
+		const artifactPath = path.join( ARTIFACTS_DIR, 'playwright-pdf-libreoffice.pdf' );
 
-		// The response body must start with the PDF magic bytes.
-		const buffer = await response.body();
+		const downloadPromise = page.waitForEvent( 'download', { timeout: 120_000 } );
+		await page.locator( '.mw-pandoc-export-app__actions button' )
+			.filter( { hasText: 'Export' } )
+			.click();
+		const download = await downloadPromise;
+
+		// 5. Persist the PDF so CI can upload it as an artifact.
+		await download.saveAs( artifactPath );
+
+		// 6. Verify the file is a valid PDF (starts with %PDF magic bytes).
+		const buffer = fs.readFileSync( artifactPath );
 		const magic = buffer.slice( 0, 4 ).toString( 'latin1' );
 		expect( magic ).toBe( '%PDF' );
 	} );

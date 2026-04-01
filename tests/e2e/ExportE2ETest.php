@@ -5,6 +5,7 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter\Tests\E2E;
 
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\SpecialPages\SpecialPandocExport;
 use PHPUnit\Framework\TestCase;
 use ZipArchive;
@@ -250,21 +251,23 @@ WIKI;
 		// Step 2: docx → pdf via LibreOffice headless
 		$loProfileDir = $this->tmpDir . DIRECTORY_SEPARATOR . '.lo_profile';
 		mkdir( $loProfileDir, 0755, true );
-		$profileUrl = 'file:///' . str_replace( '\\', '/', $loProfileDir );
 
 		$loCmd = [
 			$libreoffice,
-			'-env:UserInstallation=' . $profileUrl,
+			'-env:UserInstallation=' . DOCPreprocessor::buildFileUrl( $loProfileDir ),
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $this->tmpDir,
 			$docxFile,
 		];
 
-		$envArr = getenv();
+		// Use the production helper so XDG_RUNTIME_DIR is always set to a
+		// writable path — mirroring the fix for the web-server permission error.
+		$env = DOCPreprocessor::getLibreOfficeEnv( $loProfileDir );
+
 		$result = \MediaWiki\Shell\Shell::command( $loCmd )
 			->includeStderr()
-			->environment( is_array( $envArr ) ? $envArr : [] )
+			->environment( $env )
 			->execute();
 
 		// LibreOffice may exit non-zero on shutdown but still produce the file.
