@@ -141,9 +141,11 @@ test.describe( 'PandocExport — PDF export (full LibreOffice pipeline)', () => 
 		await page.locator( '.mw-pandoc-page-search__lookup input' ).first().fill( PDF_TEST_PAGE );
 
 		// 3. Open the CdxSelect format dropdown and choose PDF.
-		//    CdxSelect renders a <button class="cdx-select-vue__handle"> that opens a
-		//    listbox; options carry role="option".
-		await page.locator( '#mw-pandoc-export-format .cdx-select-vue__handle' ).click();
+		//    CdxSelect renders a <div class="cdx-select-vue__handle" role="combobox"> that
+		//    opens a listbox; options carry role="option".
+		//    Note: the `id` attribute on <cdx-select> is NOT forwarded to its root DOM
+		//    element in all Codex versions, so we target the handle directly by class.
+		await page.locator( '.cdx-select-vue__handle' ).click();
 		await page.locator( '[role="option"]' ).filter( { hasText: 'PDF (.pdf)' } ).click();
 
 		// 4. Click Export and capture the browser download event.
