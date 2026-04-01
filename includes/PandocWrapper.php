@@ -22,6 +22,7 @@ class PandocWrapper
     private bool $useColorProcessors;
     private string $pdfToHtmlExecutablePath;
     private string $pdftoppmExecutablePath;
+    private string $pdfToTextExecutablePath;
     private string $libreofficeExecutablePath;
     private string $tesseractExecutablePath;
     private string $ocrLanguage;
@@ -58,6 +59,9 @@ class PandocWrapper
 
         $this->pdftoppmExecutablePath = $config->get( 'PandocUltimateConverter_PdfToPpmExecutablePath' )
             ?? 'pdftoppm';
+
+        $this->pdfToTextExecutablePath = $config->get( 'PandocUltimateConverter_PdfToTextExecutablePath' )
+            ?? 'pdftotext';
 
         $this->libreofficeExecutablePath = $config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
             ?? 'libreoffice';
@@ -153,18 +157,9 @@ class PandocWrapper
 
         if ( $isPdf ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: using PDF preprocessor for $source" );
-            // pdftotext is part of the same poppler-utils package as pdftohtml.
-            // If pdftohtml is configured with a full path, derive pdftotext from
-            // the same directory; otherwise fall back to bare name (rely on PATH).
-            $pdfToHtmlDir = dirname( $this->pdfToHtmlExecutablePath );
-            if ( $pdfToHtmlDir !== '.' ) {
-                $pdfToTextPath = $pdfToHtmlDir . DIRECTORY_SEPARATOR . 'pdftotext';
-            } else {
-                $pdfToTextPath = 'pdftotext';
-            }
             $preprocessor = new PDFPreprocessor(
                 $this->pdfToHtmlExecutablePath,
-                $pdfToTextPath,
+                $this->pdfToTextExecutablePath,
                 $this->pdftoppmExecutablePath,
                 $this->tesseractExecutablePath,
                 $this->ocrLanguage
