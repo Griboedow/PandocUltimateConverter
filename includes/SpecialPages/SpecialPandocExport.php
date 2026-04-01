@@ -338,14 +338,15 @@ class SpecialPandocExport extends \SpecialPage {
 		$dbr = $this->mwServices->getConnectionProvider()->getReplicaDatabase();
 		$pages = [];
 
-		// MW 1.44+ removed cl_to from categorylinks; must JOIN category table.
-		// MW 1.42–1.43 still has cl_to so we can filter directly.
+		// MW 1.45 removed cl_to from categorylinks and requires a JOIN with the
+		// linktarget table via cl_target_id.  MW 1.42–1.44 still populate cl_to
+		// on every write, so we can filter directly and avoid the JOIN.
 		$mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
 		$qb = $dbr->newSelectQueryBuilder()
 			->select( [ 'cl_from' ] )
 			->from( 'categorylinks' );
 
-		if ( version_compare( $mwVersion, '1.44', '>=' ) ) {
+		if ( version_compare( $mwVersion, '1.45', '>=' ) ) {
 			$qb->join( 'linktarget', null, 'cl_target_id = lt_id' )
 				->where( [ 'lt_title' => $dbKey ] );
 		} else {
