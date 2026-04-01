@@ -165,13 +165,22 @@ class PandocWrapper
                 $this->ocrLanguage
             );
 
-            if ( $preprocessor->isScannedPdf( $source ) ) {
+            try {
+                $isScanned = $preprocessor->isScannedPdf( $source );
+            } catch ( \Throwable $e ) {
+                wfDebugLog( 'PandocUltimateConverter',
+                    "convertInternal: failed to detect scanned PDF, assuming text-based: " . $e->getMessage()
+                );
+                $isScanned = false;
+            }
+
+            if ( $isScanned ) {
                 // Scanned PDF: OCR produces wikitext directly — no Pandoc step needed.
                 wfDebugLog( 'PandocUltimateConverter', "convertInternal: scanned PDF detected, using OCR pipeline for $source" );
                 $text = $preprocessor->processScannedPdfFile( $source, $mediaFolder );
                 return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
             }
-
+            
             // Text-based PDF: pdftohtml → HTML → Pandoc → mediawiki wikitext.
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: text-based PDF detected, using pdftohtml pipeline for $source" );
             $htmlFile = $preprocessor->processPDFFile( $source, $mediaFolder );
