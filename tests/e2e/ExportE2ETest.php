@@ -208,7 +208,95 @@ WIKI;
 	}
 
 	// ------------------------------------------------------------------
-	// 2.4  Export action is available in the supported-formats registry
+	// 2.4  Export to PDF via LibreOffice (two-step pipeline)
+	// ------------------------------------------------------------------
+
+	/**
+	 * Replicates the production PDF export path used by SpecialPandocExport:
+	 *   wikitext → docx (Pandoc) → pdf (LibreOffice headless)
+	 *
+	 * Skipped when LibreOffice is not installed.
+	 */
+	public function testExportToPdfViaLibreOffice(): void {
+		$this->assertArrayHasKey(
+			'pdf',
+			SpecialPandocExport::SUPPORTED_FORMATS,
+			'pdf must be listed in SpecialPandocExport::SUPPORTED_FORMATS'
+		);
+
+		$libreoffice = $this->findLibreOffice();
+		if ( $libreoffice === '' ) {
+			$this->markTestSkipped(
+				'LibreOffice (libreoffice / soffice) is required for the LibreOffice PDF export test.'
+			);
+		}
+
+		// Step 1: wikitext → docx via Pandoc
+		$inputFile = $this->writeWikitextFile( 'export_lo_test.mediawiki' );
+		$docxFile  = $this->tmpDir . DIRECTORY_SEPARATOR . 'output.docx';
+
+		PandocWrapper::invokePandoc( [
+			$this->pandocBin,
+			'--from=mediawiki',
+			'--to=docx',
+			'--output=' . $docxFile,
+			'--standalone',
+			'--metadata', 'title:LibreOffice PDF Test',
+			$inputFile,
+		] );
+
+		$this->assertFileExists( $docxFile, 'Pandoc must produce an intermediate .docx file' );
+
+		// Step 2: docx → pdf via LibreOffice headless
+		$loProfileDir = $this->tmpDir . DIRECTORY_SEPARATOR . '.lo_profile';
+		mkdir( $loProfileDir, 0755, true );
+		$profileUrl = 'file:///' . str_replace( '\\', '/', $loProfileDir );
+
+		$loCmd = [
+			$libreoffice,
+			'-env:UserInstallation=' . $profileUrl,
+			'--headless',
+			'--convert-to', 'pdf',
+			'--outdir', $this->tmpDir,
+			$docxFile,
+		];
+
+		$envArr = getenv();
+		$result = \MediaWiki\Shell\Shell::command( $loCmd )
+			->includeStderr()
+			->environment( is_array( $envArr ) ? $envArr : [] )
+			->execute();
+
+		// LibreOffice may exit non-zero on shutdown but still produce the file.
+		$pdfFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'output.pdf';
+
+		if ( !file_exists( $pdfFile ) ) {
+			// Scan for any .pdf LibreOffice may have produced with a different name
+			foreach ( scandir( $this->tmpDir ) as $entry ) {
+				if ( strtolower( pathinfo( $entry, PATHINFO_EXTENSION ) ) === 'pdf' ) {
+					$pdfFile = $this->tmpDir . DIRECTORY_SEPARATOR . $entry;
+					break;
+				}
+			}
+		}
+
+		$this->assertFileExists(
+			$pdfFile,
+			'LibreOffice must produce a .pdf file (exit=' . $result->getExitCode()
+			. ', output=' . $result->getStdout() . ')'
+		);
+		$this->assertGreaterThan( 0, filesize( $pdfFile ), 'LibreOffice PDF output must not be empty' );
+
+		// Verify PDF magic bytes
+		$magic = file_get_contents( $pdfFile, false, null, 0, 4 );
+		$this->assertSame( '%PDF', $magic, 'LibreOffice output must start with %PDF magic bytes' );
+
+		// Save artifact
+		copy( $pdfFile, $this->artifactsDir . '/export-pdf-libreoffice.pdf' );
+	}
+
+	// ------------------------------------------------------------------
+	// 2.5  Export action is available in the supported-formats registry
 	// ------------------------------------------------------------------
 
 	/**
@@ -241,6 +329,19 @@ WIKI;
 		$path = $this->tmpDir . DIRECTORY_SEPARATOR . $name;
 		file_put_contents( $path, self::WIKITEXT );
 		return $path;
+	}
+
+	/**
+	 * Find LibreOffice binary (may be "libreoffice" or "soffice").
+	 */
+	private function findLibreOffice(): string {
+		foreach ( [ 'libreoffice', 'soffice' ] as $name ) {
+			$path = $this->findBinary( $name );
+			if ( $path !== '' ) {
+				return $path;
+			}
+		}
+		return '';
 	}
 
 	/**
