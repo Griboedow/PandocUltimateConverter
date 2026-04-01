@@ -424,6 +424,7 @@ jobs:
             --pass adminpassword
           echo 'wfLoadExtension("PandocUltimateConverter");' >> LocalSettings.php
           echo '$wgPandocUltimateConverter_PandocExecutablePath = "pandoc";' >> LocalSettings.php
+          echo '$wgDebugLogFile = "/tmp/mw-debug.log";' >> LocalSettings.php
 
       - name: Create content page for page-tools screenshot
         run: |
@@ -456,7 +457,7 @@ jobs:
       - name: Start PHP built-in web server
         run: |
           cd mediawiki
-          php -S 0.0.0.0:8080 > /tmp/php-server.log 2>&1 &
+          php -d max_execution_time=0 -S 0.0.0.0:8080 > /tmp/php-server.log 2>&1 &
           echo "PHP server PID: $!"
           # Wait up to 30 s for the server to respond
           for i in $(seq 1 30); do
@@ -509,4 +510,14 @@ jobs:
         with:
           name: ui-screenshots-mw-${{ matrix.mw }}
           path: /tmp/pandoc-ui-screenshots/
+          if-no-files-found: warn
+
+      - name: Upload extension logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-logs-mw-${{ matrix.mw }}
+          path: |
+            /tmp/php-server.log
+            /tmp/mw-debug.log
           if-no-files-found: warn
