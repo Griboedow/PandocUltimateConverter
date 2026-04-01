@@ -254,16 +254,14 @@ WIKI;
 
 		$loCmd = [
 			$libreoffice,
-			'-env:UserInstallation=' . DOCPreprocessor::buildFileUrl( $loProfileDir ),
+			'-env:UserInstallation=file:///' . str_replace( '\\', '/', $loProfileDir ),
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $this->tmpDir,
 			$docxFile,
 		];
 
-		// Use the production helper so XDG_RUNTIME_DIR is always set to a
-		// writable path — mirroring the fix for the web-server permission error.
-		$env = DOCPreprocessor::getLibreOfficeEnv( $loProfileDir );
+		$env = DOCPreprocessor::getLibreOfficeEnv();
 
 		$result = \MediaWiki\Shell\Shell::command( $loCmd )
 			->includeStderr()
