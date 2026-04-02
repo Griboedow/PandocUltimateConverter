@@ -75,15 +75,6 @@ There are two ways to use AI cleanup:
 
 If AI cleanup fails, a per-item error is shown with a **Retry** button.
 
-### LLM Configuration
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `PandocUltimateConverter_LlmProvider` | `null` | `"openai"` or `"claude"`. Leave null to disable. |
-| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the configured provider. |
-| `PandocUltimateConverter_LlmModel` | `null` | Model override. Defaults to `gpt-5.4-nano` (OpenAI) or `claude-3-5-haiku-20241022` (Claude). |
-| `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for the cleanup step. |
-
 ## Export (Special:PandocExport)
 
 Export one or more wiki pages to an external document format.
@@ -188,7 +179,7 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_MediaFileExtensionsToSkip` | `[]` | File extensions to skip during image upload (e.g. `["emf"]`). |
 | `PandocUltimateConverter_FiltersToUse` | `[]` | Custom [Pandoc Lua filters](https://pandoc.org/filters.html) to apply. Must be in the `filters/` folder. |
 | `PandocUltimateConverter_UseColorProcessors` | `false` | Preserve text/background colors from DOCX/ODT files. |
-| `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary. |
+| `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary to be sure pandoc will be ble to find pdf engine. |
 | `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
 | `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
 | `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
@@ -268,7 +259,7 @@ $wgPandocUltimateConverter_LibreOfficeExecutablePath = 'C:\Program Files\LibreOf
 
 To use a different PDF export engine instead of LibreOffice:
 ```php
-$wgPandocUltimateConverter_PdfExportEngine = 'xelatex';   // or 'pdflatex', 'lualatex', 'wkhtmltopdf', 'weasyprint', etc.
+$wgPandocUltimateConverter_PdfExportEngine = '/path/to/xelatex';   // or 'pdflatex', 'lualatex', 'wkhtmltopdf', 'weasyprint', etc.
 ```
 
 ## Action API
