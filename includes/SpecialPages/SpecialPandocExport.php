@@ -608,9 +608,10 @@ class SpecialPandocExport extends \SpecialPage {
 		$libreofficePath = $this->config->get( 'PandocUltimateConverter_LibreOfficeExecutablePath' )
 			?? 'libreoffice';
 
+		$loProfileUri = 'file:///' . ltrim( str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ), '/' );
 		$loCmd = [
 			$libreofficePath,
-			'-env:UserInstallation=file://' . str_replace( '\\', '/', $workDir . DIRECTORY_SEPARATOR . '.lo_profile' ),
+			'-env:UserInstallation=' . $loProfileUri,
 			'--headless',
 			'--convert-to', 'pdf',
 			'--outdir', $workDir,
