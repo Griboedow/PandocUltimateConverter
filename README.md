@@ -11,6 +11,34 @@ MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
 
 Supported on MediaWiki 1.42–1.45, Windows and Linux. 1.39-1.41 are partially supported in branch REL1_39.
 
+- [PandocUltimateConverter](#pandocultimateconverter)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Demos](#demos)
+  - [Import (Special:PandocUltimateConverter)](#import-specialpandocultimateconverter)
+    - [Supported import formats](#supported-import-formats)
+    - [AI Cleanup (LLM Polish)](#ai-cleanup-llm-polish)
+      - [Setup](#setup)
+      - [Usage](#usage)
+    - [Built-in Lua filters](#built-in-lua-filters)
+  - [Export (Special:PandocExport)](#export-specialpandocexport)
+  - [Confluence Migration (Special:ConfluenceMigration)](#confluence-migration-specialconfluencemigration)
+    - [Cloud vs. Server](#cloud-vs-server)
+    - [What gets migrated](#what-gets-migrated)
+    - [How it runs](#how-it-runs)
+    - [Disabling the feature](#disabling-the-feature)
+  - [Installing optional dependencies](#installing-optional-dependencies)
+    - [Installing poppler](#installing-poppler)
+    - [Installing Tesseract](#installing-tesseract)
+    - [Installing LibreOffice](#installing-libreoffice)
+  - [Action API](#action-api)
+    - [action=pandocconvert](#actionpandocconvert)
+    - [action=pandocllmpolish](#actionpandocllmpolish)
+    - [action=pandocurltitle](#actionpandocurltitle)
+    - [API error codes](#api-error-codes)
+  - [Debugging](#debugging)
+
+
 ## Installation
 
 1. [Install Pandoc](https://pandoc.org/installing.html)
@@ -36,6 +64,47 @@ Optional dependencies (only needed for specific formats):
 - **DOC import** and **PDF export** (default engine): [LibreOffice](https://www.libreoffice.org/) — see [Installing LibreOffice](#installing-libreoffice)
 - **PDF export** (alternative engines): a LaTeX distribution (`pdflatex`, `xelatex`, `lualatex`), `wkhtmltopdf`, `weasyprint`, or any engine supported by Pandoc's `--pdf-engine`
 
+## Configuration
+
+All parameters are set in `LocalSettings.php` with the `$wg` prefix.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `PandocUltimateConverter_PandocExecutablePath` | `null` | Path to the Pandoc binary. Not needed if Pandoc is in PATH. |
+| `PandocUltimateConverter_TempFolderPath` | `null` | Temp folder for conversion files. Uses system default if not set. |
+| `PandocUltimateConverter_PdfToHtmlExecutablePath` | `null` | Path to poppler's `pdftohtml`. Not needed if in PATH. |
+| `PandocUltimateConverter_PdfToPpmExecutablePath` | `null` | Path to poppler's `pdftoppm`. Not needed if in PATH. |
+| `PandocUltimateConverter_PdfToTextExecutablePath` | `null` | Path to poppler's `pdftotext`. Not needed if in PATH. |
+| `PandocUltimateConverter_LibreOfficeExecutablePath` | `null` | Path to `soffice`/`libreoffice`. Not needed if in PATH. |
+| `PandocUltimateConverter_TesseractExecutablePath` | `null` | Path to the Tesseract OCR binary. Not needed if in PATH. |
+| `PandocUltimateConverter_OcrLanguage` | `"eng"` | Tesseract language code(s). Use `+` for multiple, e.g. `"eng+deu"`. |
+| `PandocUltimateConverter_PandocCustomUserRight` | `""` | Restrict access to a specific [user right](https://www.mediawiki.org/wiki/Manual:User_rights#List_of_permissions). |
+| `PandocUltimateConverter_MediaFileExtensionsToSkip` | `[]` | File extensions to skip during image upload (e.g. `["emf"]`). |
+| `PandocUltimateConverter_FiltersToUse` | `[]` | Custom [Pandoc Lua filters](https://pandoc.org/filters.html) to apply. Must be in the `filters/` folder. |
+| `PandocUltimateConverter_UseColorProcessors` | `false` | Preserve text/background colors from DOCX/ODT files. |
+| `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary to be sure pandoc will be ble to find pdf engine. |
+| `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
+| `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
+| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
+| `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
+| `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
+| `PandocUltimateConverter_EnableConfluenceMigration` | `true` | Set to `false` to disable `Special:ConfluenceMigration`. |
+
+## Demos
+A few GIF files to show what does it do
+
+**File import:**
+![Pandoc-demo-file](https://github.com/user-attachments/assets/4339883c-913e-422c-b859-d8df55c80637)
+
+**URL import:**
+![Pandoc-demo-url](https://github.com/user-attachments/assets/928c1822-8913-4071-b5e1-9fdfa161575d)
+
+**Export to file**
+![Pandoc-demo-export](https://github.com/user-attachments/assets/d06859b3-2851-41be-afb1-04724115d01f)
+
+**Import Confluence space**
+<tbd>
+
 ## Import (Special:PandocUltimateConverter)
 
 Go to `Special:PandocUltimateConverter` to convert a file or URL into a wiki page.
@@ -52,11 +121,22 @@ What happens during conversion:
 - Temporary files are cleaned up
 A legacy (non-Codex) form is available at `Special:PandocUltimateConverter?codex=0`.
 
-## AI Cleanup (LLM Polish)
+### Supported import formats
+
+Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested: **DOCX**, **ODT**, **PDF**, **DOC**.
+
+| Format | Pipeline | Extra dependency |
+|--------|----------|-----------------|
+| DOCX, ODT | Pandoc → wikitext | — |
+| DOC | LibreOffice → DOCX → Pandoc | LibreOffice |
+| PDF (text) | pdftohtml → HTML → Pandoc | poppler |
+| PDF (scanned) | pdftoppm → Tesseract OCR → wikitext | poppler + Tesseract |
+
+### AI Cleanup (LLM Polish)
 
 The extension can optionally run an LLM (OpenAI or Claude) to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
 
-### Setup
+#### Setup
 
 Add to `LocalSettings.php`:
 ```php
@@ -66,7 +146,7 @@ $wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
 // $wgPandocUltimateConverter_LlmModel = 'gpt-5.4-nano';   // OpenAI default; or 'claude-3-5-haiku-20241022' for Claude
 ```
 
-### Usage
+#### Usage
 
 There are two ways to use AI cleanup:
 
@@ -74,6 +154,18 @@ There are two ways to use AI cleanup:
 2. **Per-item** — click the ✨ button on any already-converted item to run AI cleanup on demand.
 
 If AI cleanup fails, a per-item error is shown with a **Retry** button.
+
+### Built-in Lua filters
+
+Filters are placed in the `filters/` subfolder. Add them via:
+```php
+$wgPandocUltimateConverter_FiltersToUse[] = 'increase_heading_level.lua';
+```
+
+| Filter | Description |
+|--------|-------------|
+| `increase_heading_level.lua` | Increase heading levels by 1 (useful when documents start at H1) |
+| `colorize_mark_class.lua` | Highlight "mark" classes with yellow background |
 
 ## Export (Special:PandocExport)
 
@@ -89,18 +181,6 @@ Features:
 - "Separate files" option bundles each page as an individual file in a ZIP archive
 - Images referenced in wikitext are embedded into the output document
 - PDF export uses a configurable engine (default: LibreOffice pipeline, no LaTeX required; or any Pandoc-supported `--pdf-engine`)
-
-### Demos
-
-**File import:**
-![Pandoc-demo-file](https://github.com/user-attachments/assets/4339883c-913e-422c-b859-d8df55c80637)
-
-**URL import:**
-![Pandoc-demo-url](https://github.com/user-attachments/assets/928c1822-8913-4071-b5e1-9fdfa161575d)
-
-**Export to file**
-![Pandoc-demo-export](https://github.com/user-attachments/assets/d06859b3-2851-41be-afb1-04724115d01f)
-
 
 ## Confluence Migration (Special:ConfluenceMigration)
 
@@ -150,54 +230,6 @@ $wgPandocUltimateConverter_EnableConfluenceMigration = false;
 
 Setting this to `false` hides `Special:ConfluenceMigration` entirely and displays a notice to users who navigate to it directly.
 
-## Supported import formats
-
-Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested: **DOCX**, **ODT**, **PDF**, **DOC**.
-
-| Format | Pipeline | Extra dependency |
-|--------|----------|-----------------|
-| DOCX, ODT | Pandoc → wikitext | — |
-| DOC | LibreOffice → DOCX → Pandoc | LibreOffice |
-| PDF (text) | pdftohtml → HTML → Pandoc | poppler |
-| PDF (scanned) | pdftoppm → Tesseract OCR → wikitext | poppler + Tesseract |
-
-## Configuration
-
-All parameters are set in `LocalSettings.php` with the `$wg` prefix.
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `PandocUltimateConverter_PandocExecutablePath` | `null` | Path to the Pandoc binary. Not needed if Pandoc is in PATH. |
-| `PandocUltimateConverter_TempFolderPath` | `null` | Temp folder for conversion files. Uses system default if not set. |
-| `PandocUltimateConverter_PdfToHtmlExecutablePath` | `null` | Path to poppler's `pdftohtml`. Not needed if in PATH. |
-| `PandocUltimateConverter_PdfToPpmExecutablePath` | `null` | Path to poppler's `pdftoppm`. Not needed if in PATH. |
-| `PandocUltimateConverter_PdfToTextExecutablePath` | `null` | Path to poppler's `pdftotext`. Not needed if in PATH. |
-| `PandocUltimateConverter_LibreOfficeExecutablePath` | `null` | Path to `soffice`/`libreoffice`. Not needed if in PATH. |
-| `PandocUltimateConverter_TesseractExecutablePath` | `null` | Path to the Tesseract OCR binary. Not needed if in PATH. |
-| `PandocUltimateConverter_OcrLanguage` | `"eng"` | Tesseract language code(s). Use `+` for multiple, e.g. `"eng+deu"`. |
-| `PandocUltimateConverter_PandocCustomUserRight` | `""` | Restrict access to a specific [user right](https://www.mediawiki.org/wiki/Manual:User_rights#List_of_permissions). |
-| `PandocUltimateConverter_MediaFileExtensionsToSkip` | `[]` | File extensions to skip during image upload (e.g. `["emf"]`). |
-| `PandocUltimateConverter_FiltersToUse` | `[]` | Custom [Pandoc Lua filters](https://pandoc.org/filters.html) to apply. Must be in the `filters/` folder. |
-| `PandocUltimateConverter_UseColorProcessors` | `false` | Preserve text/background colors from DOCX/ODT files. |
-| `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary to be sure pandoc will be ble to find pdf engine. |
-| `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
-| `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
-| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
-| `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
-| `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
-| `PandocUltimateConverter_EnableConfluenceMigration` | `true` | Set to `false` to disable `Special:ConfluenceMigration`. |
-
-### Built-in Lua filters
-
-Filters are placed in the `filters/` subfolder. Add them via:
-```php
-$wgPandocUltimateConverter_FiltersToUse[] = 'increase_heading_level.lua';
-```
-
-| Filter | Description |
-|--------|-------------|
-| `increase_heading_level.lua` | Increase heading levels by 1 (useful when documents start at H1) |
-| `colorize_mark_class.lua` | Highlight "mark" classes with yellow background |
 
 ## Installing optional dependencies
 
