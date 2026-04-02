@@ -1,6 +1,6 @@
 {
   "name": "PandocUltimateConverter",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "author": [
     "[https://www.mediawiki.org/wiki/User:Urfiner Urfiner] (Nikolai Kochkin)"
   ],
@@ -259,6 +259,12 @@
       "value": null,
       "path": false,
       "description": "Full path to the LibreOffice executable (soffice or libreoffice). No need to specify if LibreOffice is in PATH. Required for .doc import support.",
+      "public": true
+    },
+    "PandocUltimateConverter_PdfExportEngine": {
+      "value": "libreoffice",
+      "path": false,
+      "description": "Engine used for PDF export. 'libreoffice' uses a two-step pipeline (Pandoc→DOCX→PDF via LibreOffice). Any other value (e.g. 'xelatex', 'pdflatex', 'lualatex', 'wkhtmltopdf', 'weasyprint') is passed directly to Pandoc's --pdf-engine option.",
       "public": true
     },
     "PandocUltimateConverter_TesseractExecutablePath": {

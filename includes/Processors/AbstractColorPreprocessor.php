@@ -37,8 +37,8 @@ abstract class AbstractColorPreprocessor
     /**
      * Run Pandoc on $inputFile and return its stdout.
      * Output format is always 'mediawiki'. Lua filters configured in PandocWrapper
-     * are automatically appended. Delegates to PandocWrapper::invokePandoc() —
-     * the single place in the codebase that calls Shell::command() for Pandoc.
+     * are automatically appended. Delegates to PandocWrapper::invokeShell() —
+     * the single place in the codebase that calls Shell::command().
      *
      * @param string   $inputFile   Absolute path to the (possibly modified) input file.
      * @param string   $inputFormat Value passed to --from (e.g. 'odt', 'docx').
@@ -57,7 +57,7 @@ abstract class AbstractColorPreprocessor
             $this->luaFilters,
             [ $inputFile ]
         );
-        return PandocWrapper::invokePandoc( $cmd );
+        return PandocWrapper::invokeShell( $cmd );
     }
 
     // -------------------------------------------------------------------------
