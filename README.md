@@ -181,7 +181,7 @@ $wgPandocUltimateConverter_LlmModel    = 'your-model-name';
 $wgPandocUltimateConverter_LlmBaseUrl  = 'https://your-service.example.com/v1/chat/completions';
 ```
 
-> **Note:** When `LlmBaseUrl` is set, the `max_tokens` parameter is used instead of `max_completion_tokens` for compatibility with non-OpenAI providers (including Qwen).  The API key becomes optional when `LlmBaseUrl` is set, which is useful for unauthenticated local endpoints.
+> **Note:** When `LlmBaseUrl` is set, the `max_tokens` parameter is used instead of `max_completion_tokens` for compatibility with non-OpenAI providers (including Qwen). The API key becomes optional when `LlmBaseUrl` is set, which is useful for unauthenticated local endpoints.
 
 #### Usage
 

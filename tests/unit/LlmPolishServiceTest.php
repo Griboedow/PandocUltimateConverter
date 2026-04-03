@@ -342,6 +342,17 @@ class LlmPolishServiceTest extends TestCase {
 		$this->assertSame( 'http://localhost:11434/v1/chat/completions', $svc->lastUrl );
 	}
 
+	public function testClaudeCustomBaseUrlStripsTrailingSlash(): void {
+		$svc = new TestableLlmPolishService( 'claude', 'key', '', '',
+			'http://my-claude-proxy.example.com/v1/messages/',
+			json_encode( [ 'content' => [ [ 'text' => 'out' ] ] ] )
+		);
+
+		$svc->polish( 'wikitext' );
+
+		$this->assertSame( 'http://my-claude-proxy.example.com/v1/messages', $svc->lastUrl );
+	}
+
 	public function testOpenAiOmitsAuthHeaderWhenApiKeyEmpty(): void {
 		$svc = new TestableLlmPolishService( 'openai', '', '', '',
 			'http://localhost:11434/v1/chat/completions',
