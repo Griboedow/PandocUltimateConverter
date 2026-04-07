@@ -8,6 +8,7 @@ use ApiBase;
 use MediaWiki\Extension\PandocUltimateConverter\ConfluenceClient;
 use MediaWiki\Extension\PandocUltimateConverter\Jobs\ConfluenceMigrationJob;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 /**
@@ -75,8 +76,36 @@ class ApiConfluenceMigrate extends ApiBase {
 			);
 		}
 
+		// Validate namespace in prefix if one is specified.
+		// Accepted formats: "NS:", "NS:subprefix", or a plain "subprefix" (no colon).
+		$colonPos = strpos( $targetPrefix, ':' );
+		if ( $colonPos !== false ) {
+			$nsName = substr( $targetPrefix, 0, $colonPos );
+
+			$services     = MediaWikiServices::getInstance();
+			$contentLang  = $services->getContentLanguage();
+			$nsInfo       = $services->getNamespaceInfo();
+
+			// Resolve the namespace name – getNsIndex() handles both canonical
+			// and localised names (e.g. "Категория" for Category in Russian).
+			$nsIndex = $contentLang->getNsIndex( $nsName );
+
+			if ( $nsIndex === false ) {
+				$this->dieWithError(
+					[ 'apierror-pandocconfluencemigrate-invalidns', $nsName ]
+				);
+			}
+
+			// Block built-in / service namespaces (IDs 0 – 15) and any talk
+			// namespace (odd IDs), which have special meaning in MediaWiki and
+			// are not suitable as Confluence import targets.
+			if ( $nsIndex < 100 || $nsInfo->isTalk( $nsIndex ) ) {
+				$this->dieWithError( 'apierror-pandocconfluencemigrate-servicens' );
+			}
+		}
+
 		// Enqueue the migration job
-		$jobTitle = \Title::newMainPage();
+		$jobTitle = Title::newMainPage();
 		$user     = $this->getUser();
 
 		$job = new ConfluenceMigrationJob( $jobTitle, [

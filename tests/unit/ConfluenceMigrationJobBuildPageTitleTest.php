@@ -67,6 +67,28 @@ class ConfluenceMigrationJobBuildPageTitleTest extends TestCase {
 	}
 
 	// -----------------------------------------------------------------------
+	// Namespace-aware prefix
+	// -----------------------------------------------------------------------
+
+	public function testNamespaceOnlyPrefixCreatesNsTitle(): void {
+		// "MyNS:" → "MyNS:PageTitle"
+		$this->assertSame( 'MyNS:Home', $this->build( 'Home', 'MyNS:' ) );
+	}
+
+	public function testNamespaceWithSubprefixCreatesNsSubprefixTitle(): void {
+		// "MyNS:Confluence/DOCS" → "MyNS:Confluence/DOCS/My Page"
+		$this->assertSame( 'MyNS:Confluence/DOCS/My Page', $this->build( 'My Page', 'MyNS:Confluence/DOCS' ) );
+	}
+
+	public function testNamespaceWithSimpleSubprefix(): void {
+		$this->assertSame( 'MyNS:Docs/FAQ', $this->build( 'FAQ', 'MyNS:Docs' ) );
+	}
+
+	public function testNamespaceOnlyPreservesSpecialCharsInTitle(): void {
+		$this->assertSame( 'MyNS:FAQ: What & Why?', $this->build( 'FAQ: What & Why?', 'MyNS:' ) );
+	}
+
+	// -----------------------------------------------------------------------
 	// 255-byte truncation
 	// -----------------------------------------------------------------------
 

@@ -120,6 +120,7 @@
 	"confluencemigration-user-label": "Email / Username:",
 	"confluencemigration-token-label": "API token / Password:",
 	"confluencemigration-prefix-label": "Target page prefix (optional):",
+	"confluencemigration-prefix-help": "Leave empty to import pages without a prefix. Use a plain path like \"Confluence/DOCS\" to add a prefix, or \"MyNamespace:\" (with colon) to import into a custom namespace, or \"MyNamespace:subprefix\" to combine both.",
 	"confluencemigration-overwrite-label": "Overwrite existing pages",
 	"confluencemigration-categorize-label": "Auto-categorize pages based on Confluence hierarchy",
 	"confluencemigration-llm-polish-label": "Clean up converted wikitext with LLM",
@@ -132,6 +133,7 @@
 	"confluencemigration-error-invalid-url": "Please enter a valid Confluence URL starting with https://.",
 	"confluencemigration-error-empty-spacekey": "Please enter the Confluence space key.",
 	"confluencemigration-error-empty-credentials": "Please enter your email/username and API token/password.",
+	"confluencemigration-error-invalid-prefix": "The prefix contains an unrecognised namespace. Use a valid custom namespace (e.g. \"MyNS:\") or a plain prefix without a colon.",
 	"confluencemigration-notify-done": "Confluence migration of space $1 is complete: $2 {{PLURAL:$2|page|pages}} migrated.",
 
 	"confluencemigration-jobs-heading": "Pending migration jobs",
@@ -151,5 +153,7 @@
 	"apierror-pandocconfluencemigrate-disabled": "The Confluence migration feature is disabled on this wiki.",
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" is not a recognised MediaWiki namespace on this wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Built-in and talk namespaces (Main, File, Category, Template, etc.) cannot be used as import targets. Please use a custom namespace.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

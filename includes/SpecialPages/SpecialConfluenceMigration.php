@@ -77,6 +77,20 @@ class SpecialConfluenceMigration extends \SpecialPage {
 			LlmPolishService::newFromConfig( $this->config ) !== null
 		);
 
+		// Build the list of valid (custom, non-talk) namespaces for client-side
+		// prefix validation.  Built-in namespaces (IDs 0–15) and talk namespaces
+		// (odd IDs) are excluded because they are not suitable import targets.
+		$services    = MediaWikiServices::getInstance();
+		$nsInfo      = $services->getNamespaceInfo();
+		$contentLang = $services->getContentLanguage();
+		$validNs     = [];
+		foreach ( $contentLang->getNamespaces() as $nsId => $nsName ) {
+			if ( $nsId >= 100 && !$nsInfo->isTalk( $nsId ) && $nsName !== '' ) {
+				$validNs[] = $nsName;
+			}
+		}
+		$output->addJsConfigVars( 'confluenceMigrationValidNamespaces', $validNs );
+
 		$output->addHTML( Html::element( 'div', [ 'class' => 'mw-confluence-migration-root' ] ) );
 	}
 }

@@ -363,9 +363,35 @@ class ConfluenceMigrationJob extends Job {
 
 	/**
 	 * Build the target MediaWiki page title from the Confluence page title and prefix.
+	 *
+	 * The prefix may take one of three forms:
+	 *  - ''               → plain title: "PageTitle"
+	 *  - 'subprefix'      → plain prefix: "subprefix/PageTitle"
+	 *  - 'Namespace:'     → namespace only: "Namespace:PageTitle"
+	 *  - 'Namespace:sub'  → namespace + sub-prefix: "Namespace:sub/PageTitle"
 	 */
 	private function buildPageTitle( string $confluenceTitle, string $prefix ): string {
-		$title = $prefix !== '' ? $prefix . '/' . $confluenceTitle : $confluenceTitle;
+		if ( $prefix === '' ) {
+			$title = $confluenceTitle;
+		} else {
+			$colonPos = strpos( $prefix, ':' );
+			if ( $colonPos !== false ) {
+				// Namespace-aware prefix: split on the first colon.
+				$nsName = substr( $prefix, 0, $colonPos );
+				$rest   = substr( $prefix, $colonPos + 1 );
+				if ( $rest === '' ) {
+					// "Namespace:" form – page goes directly into the namespace.
+					$title = $nsName . ':' . $confluenceTitle;
+				} else {
+					// "Namespace:subprefix" form.
+					$title = $nsName . ':' . $rest . '/' . $confluenceTitle;
+				}
+			} else {
+				// Plain prefix (legacy behaviour).
+				$title = $prefix . '/' . $confluenceTitle;
+			}
+		}
+
 		// MediaWiki page titles must not be longer than 255 bytes (not characters).
 		if ( strlen( $title ) > 255 ) {
 			$title = mb_strcut( $title, 0, 255, 'UTF-8' );
