@@ -83,7 +83,9 @@ class ConfluenceClient {
 	 */
 	private function authHeader(): string {
 		if ( !$this->isCloud && $this->apiUser === '' ) {
-			return 'Bearer ' . $this->apiToken;
+			// Strip any embedded newlines to prevent HTTP header injection.
+			$safeToken = str_replace( [ "\r", "\n" ], '', $this->apiToken );
+			return 'Bearer ' . $safeToken;
 		}
 		return 'Basic ' . base64_encode( $this->apiUser . ':' . $this->apiToken );
 	}

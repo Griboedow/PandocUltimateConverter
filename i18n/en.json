@@ -133,6 +133,8 @@
 	"confluencemigration-error-invalid-url": "Please enter a valid Confluence URL starting with https://.",
 	"confluencemigration-error-empty-spacekey": "Please enter the Confluence space key.",
 	"confluencemigration-error-empty-credentials": "Please enter your API token/password (and email/username for Cloud).",
+	"confluencemigration-error-empty-user-cloud": "Please enter your Atlassian account email (required for Confluence Cloud).",
+	"confluencemigration-error-empty-token": "Please enter your API token, password, or Personal Access Token.",
 	"confluencemigration-notify-done": "Confluence migration of space $1 is complete: $2 {{PLURAL:$2|page|pages}} migrated.",
 
 	"confluencemigration-jobs-heading": "Pending migration jobs",

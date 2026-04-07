@@ -400,13 +400,15 @@ module.exports = exports = defineComponent( {
 			errorMessage.value = '';
 
 			if ( !validate() ) {
-				// Surface a generic error message listing which fields are invalid.
+				// Surface a specific error message for the first failing field.
 				if ( invalidFields.value.has( 'confluenceUrl' ) ) {
 					errorMessage.value = mw.msg( 'confluencemigration-error-invalid-url' );
 				} else if ( invalidFields.value.has( 'spaceKey' ) ) {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-spacekey' );
+				} else if ( invalidFields.value.has( 'apiUser' ) ) {
+					errorMessage.value = mw.msg( 'confluencemigration-error-empty-user-cloud' );
 				} else {
-					errorMessage.value = mw.msg( 'confluencemigration-error-empty-credentials' );
+					errorMessage.value = mw.msg( 'confluencemigration-error-empty-token' );
 				}
 				return;
 			}
