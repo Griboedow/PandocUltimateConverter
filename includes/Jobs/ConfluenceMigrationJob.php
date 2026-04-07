@@ -39,6 +39,8 @@ use MediaWiki\Revision\SlotRecord;
  *  - apiToken       (string)  API token (Cloud) or password/PAT (Server).
  *  - targetPrefix   (string)  Optional wiki page prefix (e.g. "Confluence/DOCS").
  *  - overwrite      (bool)    Whether to overwrite existing wiki pages.
+ *  - pageList       (string)  Optional newline-separated page titles to import.
+ *                             When empty all pages in the space are imported.
  *  - userId         (int)     MediaWiki user ID of the initiating user.
  */
 class ConfluenceMigrationJob extends Job {
@@ -72,6 +74,7 @@ class ConfluenceMigrationJob extends Job {
 		$overwrite     = (bool)(   $this->params['overwrite']      ?? false );
 		$categorize    = (bool)(   $this->params['categorize']     ?? true );
 		$llmPolish     = (bool)(   $this->params['llmPolish']      ?? false );
+		$pageListRaw   = (string)( $this->params['pageList']       ?? '' );
 		$userId        = (int)(    $this->params['userId']         ?? 0 );
 
 		if ( $confluenceUrl === '' || $spaceKey === '' ) {
@@ -92,7 +95,15 @@ class ConfluenceMigrationJob extends Job {
 		}
 
 		try {
-			$pages = $client->fetchAllPages( $spaceKey );
+			if ( $pageListRaw !== '' ) {
+				$titles = array_filter(
+					array_map( 'trim', explode( "\n", $pageListRaw ) ),
+					static fn ( string $t ) => $t !== ''
+				);
+				$pages = $client->fetchPagesByTitles( $spaceKey, $titles );
+			} else {
+				$pages = $client->fetchAllPages( $spaceKey );
+			}
 		} catch ( \RuntimeException $e ) {
 			$msg = 'Could not fetch page list from Confluence: ' . $e->getMessage();
 			wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: $msg" );

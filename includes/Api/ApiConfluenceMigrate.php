@@ -27,6 +27,8 @@ use Wikimedia\ParamValidator\ParamValidator;
  * Optional parameters:
  *   targetprefix   – Prefix prepended to every wiki page title.
  *   overwrite      – When true, overwrite existing wiki pages (default: false).
+ *   pagelist       – Newline-separated list of Confluence page titles to import.
+ *                    When empty or absent all pages in the space are imported.
  */
 class ApiConfluenceMigrate extends ApiBase {
 
@@ -42,6 +44,7 @@ class ApiConfluenceMigrate extends ApiBase {
 		$overwrite     = (bool)$params['overwrite'];
 		$categorize    = (bool)$params['categorize'];
 		$llmPolish     = (bool)$params['llmpolish'];
+		$pageList      = trim( $params['pagelist'] ?? '' );
 
 		// Validate that the feature is enabled
 		$mwConfig = MediaWikiServices::getInstance()
@@ -88,6 +91,7 @@ class ApiConfluenceMigrate extends ApiBase {
 			'overwrite'     => $overwrite,
 			'categorize'    => $categorize,
 			'llmPolish'     => $llmPolish,
+			'pageList'      => $pageList,
 			'userId'        => $user->getId(),
 		] );
 
@@ -134,6 +138,11 @@ class ApiConfluenceMigrate extends ApiBase {
 			'llmpolish' => [
 				ParamValidator::PARAM_TYPE    => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false,
+			],
+			'pagelist' => [
+				ParamValidator::PARAM_TYPE     => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT  => '',
 			],
 		];
 	}
