@@ -100,7 +100,7 @@
 	"confluencemigration-user-label": "Label for the Confluence authentication username/email field.",
 	"confluencemigration-token-label": "Label for the Confluence authentication token/password field.",
 	"confluencemigration-prefix-label": "Label for the optional target page prefix field. If filled, all migrated pages are placed under this prefix (e.g. 'Confluence/DOCS/Page Title'). Can also be a namespace like 'MyNS:' or 'MyNS:subprefix'.",
-	"confluencemigration-prefix-help": "Small hint text shown below the prefix field, explaining the accepted formats: plain prefix, namespace-only (with trailing colon), or namespace+subprefix.",
+	"confluencemigration-prefix-help": "Small hint text shown below the prefix field. Explains: empty = no prefix; plain path = prefix + '/' + title; prefix ending with a non-alphanumeric character (e.g. 'aa_', 'aa/') = that character used directly as separator; 'MyNS:' = namespace only; 'MyNS:sub' = namespace + sub-prefix.",
 	"confluencemigration-overwrite-label": "Label for the checkbox that allows the migration job to overwrite wiki pages that already exist.",
 	"confluencemigration-categorize-label": "Label for the auto-categorize checkbox on the Confluence migration form. When enabled, imported pages are automatically placed into MediaWiki categories matching their Confluence space hierarchy.",
 	"confluencemigration-submit": "Label for the submit button on the migration form.",

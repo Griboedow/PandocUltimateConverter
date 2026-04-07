@@ -89,8 +89,39 @@ class ConfluenceMigrationJobBuildPageTitleTest extends TestCase {
 	}
 
 	// -----------------------------------------------------------------------
-	// 255-byte truncation
+	// Trailing-separator prefix (flexible separator feature)
 	// -----------------------------------------------------------------------
+
+	public function testUnderscoreSeparatorPrefix(): void {
+		// "aa_" ends with '_' (non-alphanum) → no extra '/' inserted.
+		$this->assertSame( 'aa_My Page', $this->build( 'My Page', 'aa_' ) );
+	}
+
+	public function testTrailingSlashPrefix(): void {
+		// "aa/" ends with '/' (non-alphanum) → no double slash.
+		$this->assertSame( 'aa/My Page', $this->build( 'My Page', 'aa/' ) );
+	}
+
+	public function testTrailingHyphenPrefix(): void {
+		$this->assertSame( 'Import-FAQ', $this->build( 'FAQ', 'Import-' ) );
+	}
+
+	public function testAlphanumericPrefixStillAddsSlash(): void {
+		// Backward-compatible: plain word prefix still gets '/' added.
+		$this->assertSame( 'Import/Home', $this->build( 'Home', 'Import' ) );
+	}
+
+	public function testNamespaceWithTrailingUnderscoreSubprefix(): void {
+		// "MyNS:sub_" → sub ends with '_' → "MyNS:sub_FAQ"
+		$this->assertSame( 'MyNS:sub_FAQ', $this->build( 'FAQ', 'MyNS:sub_' ) );
+	}
+
+	public function testNamespaceWithTrailingSlashSubprefix(): void {
+		// "MyNS:sub/" → "MyNS:sub/FAQ"
+		$this->assertSame( 'MyNS:sub/FAQ', $this->build( 'FAQ', 'MyNS:sub/' ) );
+	}
+
+
 
 	public function testTitleExactly255BytesIsNotTruncated(): void {
 		$title = str_repeat( 'a', 255 );
