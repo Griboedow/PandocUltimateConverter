@@ -122,9 +122,13 @@
 					input-type="text"
 					:disabled="isSubmitting"
 					:status="fieldStatus( 'targetPrefix' )"
+					aria-describedby="mw-confluence-prefix-help"
 					class="mw-confluence-migration-app__input"
 				></cdx-text-input>
-				<p class="mw-confluence-migration-app__help">
+				<p
+					id="mw-confluence-prefix-help"
+					class="mw-confluence-migration-app__help"
+				>
 					{{ $i18n( 'confluencemigration-prefix-help' ).text() }}
 				</p>
 			</div>
