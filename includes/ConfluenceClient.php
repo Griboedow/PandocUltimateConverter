@@ -12,7 +12,9 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
  *
  * Authentication:
  *  - Cloud:  HTTP Basic Auth — email address + API token.
- *  - Server: HTTP Basic Auth — username + password or personal access token.
+ *  - Server: HTTP Basic Auth — username + password (when username is provided),
+ *            or Bearer token (PAT) — leave the username empty to use a Personal
+ *            Access Token with "Authorization: Bearer <token>".
  *
  * The same REST API endpoints work on both variants; only the base path and
  * auth details differ.
@@ -36,8 +38,10 @@ class ConfluenceClient {
 	/**
 	 * @param string $baseUrl   Confluence base URL, e.g. "https://example.atlassian.net"
 	 *                          or "https://confluence.example.com".
-	 * @param string $apiUser   Email (Cloud) or username (Server).
-	 * @param string $apiToken  API token (Cloud) or password / personal access token (Server).
+	 * @param string $apiUser   Email (Cloud) or username (Server). Pass an empty string on
+	 *                          Server/Data Center to use PAT Bearer-token authentication.
+	 * @param string $apiToken  API token (Cloud), password (Server Basic auth), or Personal
+	 *                          Access Token (Server Bearer auth when $apiUser is empty).
 	 */
 	public function __construct( string $baseUrl, string $apiUser, string $apiToken ) {
 		$this->baseUrl  = rtrim( $baseUrl, '/' );
@@ -72,9 +76,15 @@ class ConfluenceClient {
 	}
 
 	/**
-	 * Return the value of the Authorization header for Basic auth.
+	 * Return the value of the Authorization header.
+	 *
+	 * - Cloud or Server with username: HTTP Basic Auth (Base64 user:token).
+	 * - Server without username: Bearer token (Personal Access Token / PAT).
 	 */
 	private function authHeader(): string {
+		if ( !$this->isCloud && $this->apiUser === '' ) {
+			return 'Bearer ' . $this->apiToken;
+		}
 		return 'Basic ' . base64_encode( $this->apiUser . ':' . $this->apiToken );
 	}
 
@@ -276,7 +286,7 @@ class ConfluenceClient {
 	/**
 	 * Download a file from Confluence (e.g. an attachment) and return its raw bytes.
 	 *
-	 * The same Basic-Auth credentials are sent with the request.
+	 * The same authentication credentials (Basic or Bearer) are sent with the request.
 	 *
 	 * @param string $url Absolute URL of the file to download.
 	 * @return string Raw file content.

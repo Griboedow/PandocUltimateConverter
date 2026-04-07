@@ -87,6 +87,9 @@
 					:status="fieldStatus( 'apiUser' )"
 					class="mw-confluence-migration-app__input"
 				></cdx-text-input>
+				<p class="mw-confluence-migration-app__help">
+					{{ $i18n( 'confluencemigration-user-help' ).text() }}
+				</p>
 			</div>
 
 			<!-- API token / password -->
@@ -378,7 +381,9 @@ module.exports = exports = defineComponent( {
 				bad.add( 'spaceKey' );
 			}
 
-			if ( !form.value.apiUser.trim() ) {
+			// Username is required for Cloud (*.atlassian.net) but optional for Server (PAT mode)
+			const isCloud = /^https:\/\/[^/]*\.atlassian\.net(\/|$)/i.test( url );
+			if ( isCloud && !form.value.apiUser.trim() ) {
 				bad.add( 'apiUser' );
 			}
 

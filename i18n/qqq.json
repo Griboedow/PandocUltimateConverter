@@ -97,8 +97,9 @@
 	"confluencemigration-url-label": "Label for the Confluence base URL input field.",
 	"confluencemigration-url-help": "Small hint text shown below the URL field, giving example URLs for Cloud and Server. The URL examples (https://yourcompany.atlassian.net and https://confluence.yourcompany.com) are technical placeholders and should not be translated.",
 	"confluencemigration-spacekey-label": "Label for the Confluence space key input field (e.g. DOCS, DEV).",
-	"confluencemigration-user-label": "Label for the Confluence authentication username/email field.",
-	"confluencemigration-token-label": "Label for the Confluence authentication token/password field.",
+	"confluencemigration-user-label": "Label for the Confluence authentication username/email field. This field is optional for Confluence Server when using a Personal Access Token (PAT).",
+	"confluencemigration-user-help": "Help text shown below the username/email field, explaining that the field is optional for Confluence Server PAT auth.",
+	"confluencemigration-token-label": "Label for the Confluence authentication token/password/PAT field.",
 	"confluencemigration-prefix-label": "Label for the optional target page prefix field. If filled, all migrated pages are placed under this prefix (e.g. 'Confluence/DOCS/Page Title').",
 	"confluencemigration-overwrite-label": "Label for the checkbox that allows the migration job to overwrite wiki pages that already exist.",
 	"confluencemigration-categorize-label": "Label for the auto-categorize checkbox on the Confluence migration form. When enabled, imported pages are automatically placed into MediaWiki categories matching their Confluence space hierarchy.",
@@ -113,5 +114,6 @@
 	"confluencemigration-notify-done": "Echo notification body sent to the user when the migration job finishes. $1 is the Confluence space key, $2 is the number of pages migrated.",
 	"apierror-pandocconfluencemigrate-disabled": "API error shown when the Confluence migration feature is disabled on the wiki via PandocUltimateConverter_EnableConfluenceMigration = false.",
 	"apierror-pandocconfluencemigrate-invalidurl": "API error shown when the provided Confluence URL does not start with https://.",
+	"apierror-pandocconfluencemigrate-cloudneedsuser": "API error shown when the Confluence URL points to Cloud (*.atlassian.net) but no username/email was provided.",
 	"apihelp-pandocconfluencemigrate-summary": "One-line summary of the pandocconfluencemigrate API module, shown in API help pages."
 }

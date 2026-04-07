@@ -117,8 +117,9 @@
 	"confluencemigration-url-label": "Confluence URL:",
 	"confluencemigration-url-help": "Cloud: https://yourcompany.atlassian.net — Server: https://confluence.yourcompany.com",
 	"confluencemigration-spacekey-label": "Space key:",
-	"confluencemigration-user-label": "Email / Username:",
-	"confluencemigration-token-label": "API token / Password:",
+	"confluencemigration-user-label": "Email / Username (optional for Server PAT):",
+	"confluencemigration-user-help": "Cloud: your Atlassian account email. Server: your username for Basic auth, or leave empty to authenticate with a Personal Access Token (PAT).",
+	"confluencemigration-token-label": "API token / Password / PAT:",
 	"confluencemigration-prefix-label": "Target page prefix (optional):",
 	"confluencemigration-overwrite-label": "Overwrite existing pages",
 	"confluencemigration-categorize-label": "Auto-categorize pages based on Confluence hierarchy",
@@ -131,7 +132,7 @@
 	"confluencemigration-llm-history-comment": "LLM cleanup of Confluence import",
 	"confluencemigration-error-invalid-url": "Please enter a valid Confluence URL starting with https://.",
 	"confluencemigration-error-empty-spacekey": "Please enter the Confluence space key.",
-	"confluencemigration-error-empty-credentials": "Please enter your email/username and API token/password.",
+	"confluencemigration-error-empty-credentials": "Please enter your API token/password (and email/username for Cloud).",
 	"confluencemigration-notify-done": "Confluence migration of space $1 is complete: $2 {{PLURAL:$2|page|pages}} migrated.",
 
 	"confluencemigration-jobs-heading": "Pending migration jobs",
@@ -150,6 +151,7 @@
 
 	"apierror-pandocconfluencemigrate-disabled": "The Confluence migration feature is disabled on this wiki.",
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
+	"apierror-pandocconfluencemigrate-cloudneedsuser": "Email/username is required for Confluence Cloud authentication.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }
