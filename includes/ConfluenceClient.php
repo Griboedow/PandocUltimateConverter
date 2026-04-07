@@ -312,8 +312,11 @@ class ConfluenceClient {
 	 * support bulk title lookup in a single request).  Titles that do not
 	 * match any page in the space are silently skipped.
 	 *
+	 * Note: when importing a large number of pages, prefer {@see fetchAllPages()}
+	 * which retrieves all pages in one paginated batch to avoid excessive API calls.
+	 *
 	 * @param string   $spaceKey The Confluence space key (e.g. "DOCS").
-	 * @param string[] $titles   Exact page titles to fetch.
+	 * @param string[] $titles   Exact page titles to fetch (may be untrimmed).
 	 * @return list<array{id: string, title: string, parentId: string|null}>
 	 * @throws \RuntimeException On API error.
 	 */

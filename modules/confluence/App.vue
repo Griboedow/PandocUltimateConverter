@@ -463,7 +463,7 @@ module.exports = exports = defineComponent( {
 				overwrite: form.value.overwrite ? '1' : '',
 				categorize: form.value.categorize ? '1' : '',
 				llmpolish: form.value.llmPolish ? '1' : '',
-				pagelist: form.value.importSpecificPages ? form.value.pageList : ''
+				pagelist: form.value.importSpecificPages ? form.value.pageList.trim() : ''
 			} ).then( () => {
 				successMessage.value = mw.msg(
 					'confluencemigration-queued',
