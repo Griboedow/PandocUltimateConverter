@@ -7,14 +7,16 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 use MediaWiki\Shell\Shell;
 
 /**
- * Extracts representative frames from a video file using ffmpeg.
+ * Extracts representative frames and audio from a video file using ffmpeg.
  *
- * The extracted JPEG frames are written to a work directory and can then be
- * uploaded to the wiki and described by an LLM to produce article wikitext.
+ * The extracted JPEG frames are written to a work directory and uploaded to
+ * the wiki; the extracted audio is transcribed by an LLM to enrich the
+ * generated article with narration content.
  *
  * Pipeline:
  *   Video file → ffmpeg frame extraction → JPEG frames in $outputDir
- *               → VideoToWikitextService (LLM) → MediaWiki wikitext
+ *             → ffmpeg audio extraction → audio.mp3 in separate temp dir
+ *               → VideoToWikitextService (LLM vision + transcript) → MediaWiki wikitext
  *
  * Prerequisites: ffmpeg must be installed and accessible.
  */
@@ -107,6 +109,61 @@ class VideoPreprocessor {
 		);
 
 		return $framePaths;
+	}
+
+	/**
+	 * Extract the audio channel of a video file as a mono MP3 optimised for speech recognition.
+	 *
+	 * The output file is written to $outputDir/audio.mp3.  Returns the absolute
+	 * path on success, or null if the video has no audio track or ffmpeg fails.
+	 * The caller is responsible for deleting the returned file when it is no
+	 * longer needed (it must NOT be left in the same folder as the extracted
+	 * frames, otherwise processImages() would attempt to upload the audio file).
+	 *
+	 * @param string $videoPath  Absolute path to the source video file.
+	 * @param string $outputDir  Absolute path to a writable directory (separate from the frame folder).
+	 * @return string|null       Absolute path to audio.mp3, or null on failure.
+	 */
+	public function extractAudio( string $videoPath, string $outputDir ): ?string {
+		$audioPath = $outputDir . DIRECTORY_SEPARATOR . 'audio.mp3';
+
+		$cmd = [
+			$this->ffmpegPath,
+			'-i',    $videoPath,
+			'-vn',                 // Drop video stream
+			'-ar',   '16000',      // 16 kHz sample rate — optimal for Whisper
+			'-ac',   '1',          // Mono
+			'-q:a',  '4',          // VBR quality (lower = better; 4 ≈ 128 kbps)
+			'-y',                  // Overwrite output if it already exists
+			$audioPath,
+		];
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'VideoPreprocessor::extractAudio: running ' . implode( ' ', $cmd )
+		);
+
+		$result = Shell::command( $cmd )
+			->includeStderr()
+			->execute();
+
+		if ( !file_exists( $audioPath ) || filesize( $audioPath ) === 0 ) {
+			wfDebugLog(
+				'PandocUltimateConverter',
+				'VideoPreprocessor::extractAudio: no audio produced'
+				. ' (exit=' . $result->getExitCode() . '): '
+				. substr( $result->getStdout(), 0, 300 )
+			);
+			return null;
+		}
+
+		wfDebugLog(
+			'PandocUltimateConverter',
+			'VideoPreprocessor::extractAudio: audio at ' . $audioPath
+			. ' (' . filesize( $audioPath ) . ' bytes)'
+		);
+
+		return $audioPath;
 	}
 
 	/**

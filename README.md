@@ -3,8 +3,9 @@
 MediaWiki extension for **importing** documents/webpages into wiki pages and **exporting** wiki pages to external formats — powered by [Pandoc](https://pandoc.org/).
 
 - **Import**: convert DOCX, ODT, PDF, DOC, or a webpage URL into a wiki page (with images)
+- **Video import**: convert video files (MP4, MKV, MOV, …) into wiki articles — frames are extracted and uploaded as images; spoken narration is transcribed. Requires an LLM with vision support (OpenAI GPT-4o, Claude 3.5 Sonnet, or Google Gemini).
 - **Export**: download wiki pages as DOCX, ODT, EPUB, PDF, HTML, RTF, or TXT
-- **AI cleanup**: optional LLM-powered post-conversion wikitext polish (OpenAI or Claude)
+- **AI cleanup**: optional LLM-powered post-conversion wikitext polish (OpenAI, Claude, or Gemini)
 - **Confluence migration**: mass-import an entire Confluence space (Cloud or Server) into the wiki
 
 MediaWiki page: https://www.mediawiki.org/wiki/Extension:PandocUltimateConverter
@@ -63,6 +64,7 @@ Optional dependencies (only needed for specific formats):
 - **Scanned PDF / OCR**: [Tesseract](https://github.com/tesseract-ocr/tesseract) — see [Installing Tesseract](#installing-tesseract)
 - **DOC import** and **PDF export** (default engine): [LibreOffice](https://www.libreoffice.org/) — see [Installing LibreOffice](#installing-libreoffice)
 - **PDF export** (alternative engines): a LaTeX distribution (`pdflatex`, `xelatex`, `lualatex`), `wkhtmltopdf`, `weasyprint`, or any engine supported by Pandoc's `--pdf-engine`
+- **Video import**: [ffmpeg](https://ffmpeg.org/) for frame and audio extraction + a vision-capable LLM (OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet, or Google Gemini)
 
 ## Configuration
 
@@ -84,10 +86,16 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_UseColorProcessors` | `false` | Preserve text/background colors from DOCX/ODT files. |
 | `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary to be sure pandoc will be ble to find pdf engine. |
 | `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
-| `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
+| `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"`, `"claude"`, or `"gemini"`. Used for AI cleanup and video import. |
 | `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
-| `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
+| `PandocUltimateConverter_LlmModel` | `null` | Model name override for text polishing. |
 | `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
+| `PandocUltimateConverter_FfmpegExecutablePath` | `null` | Path to the `ffmpeg` binary. Not needed if ffmpeg is in PATH. Required for video import. |
+| `PandocUltimateConverter_VideoMaxFrames` | `10` | Maximum number of frames to extract from a video for LLM analysis (evenly spaced). Hard cap: 30. |
+| `PandocUltimateConverter_VideoFrameInterval` | `0` | Fixed interval (seconds) between extracted frames. `0` = evenly space `VideoMaxFrames` across the full duration. |
+| `PandocUltimateConverter_LlmVideoModel` | `null` | Vision-capable model for video import. Defaults: `gpt-4o` (OpenAI), `claude-3-5-sonnet-20241022` (Claude), `gemini-1.5-flash` (Gemini). |
+| `PandocUltimateConverter_LlmVideoPrompt` | `null` | Custom instruction prompt for video-to-wikitext generation. |
+| `PandocUltimateConverter_TranscriptionApiKey` | `null` | Optional OpenAI API key used **only** for Whisper audio transcription. Only needed when `LlmProvider` is `"claude"` and you also want speech from the video transcribed. |
 | `PandocUltimateConverter_EnableConfluenceMigration` | `true` | Set to `false` to disable `Special:ConfluenceMigration`. |
 
 ## Demos
@@ -131,16 +139,65 @@ Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-opt
 | DOC | LibreOffice → DOCX → Pandoc | LibreOffice |
 | PDF (text) | pdftohtml → HTML → Pandoc | poppler |
 | PDF (scanned) | pdftoppm → Tesseract OCR → wikitext | poppler + Tesseract |
+| **Video** | ffmpeg → frames + audio → LLM → wikitext | ffmpeg + vision LLM |
+
+### Video Import
+
+Video files (MP4, MKV, MOV, AVI, WebM, and more) can be imported directly: the extension extracts visual frames and the spoken audio, then asks an LLM to write a complete wiki article.
+
+#### How it works
+
+1. **Frame extraction** — ffmpeg extracts N evenly-spaced JPEG frames (default: 10) from the video.
+2. **Audio extraction** — ffmpeg extracts the audio track as a mono 16 kHz MP3.
+3. **Transcription** — The audio is transcribed to text:
+   - **OpenAI**: uses the Whisper API (`/v1/audio/transcriptions`) with the same key.
+   - **Gemini**: audio is passed inline in the single multimodal request (no separate step).
+   - **Claude**: uses Whisper with a separate `TranscriptionApiKey` if configured; otherwise only frames are used.
+4. **LLM generation** — the vision-capable model receives all frames + the transcript and writes MediaWiki wikitext, embedding the frames as `[[File:frame-NNN.jpg|thumb|…]]`.
+5. **Frame upload** — extracted frames are uploaded to the wiki as `VideoName-frame-NNN.jpg` and linked from the article.
+
+#### Setup
+
+```php
+// Required — vision-capable LLM
+$wgPandocUltimateConverter_LlmProvider = 'openai';  // or 'claude' or 'gemini'
+$wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
+
+// Optional — only if ffmpeg is not in PATH
+// $wgPandocUltimateConverter_FfmpegExecutablePath = '/usr/bin/ffmpeg';
+
+// Optional — frame tuning
+// $wgPandocUltimateConverter_VideoMaxFrames      = 10;   // default
+// $wgPandocUltimateConverter_VideoFrameInterval  = 0;    // 0 = evenly spaced
+
+// Optional — custom vision model
+// $wgPandocUltimateConverter_LlmVideoModel = 'gpt-4o';  // default for OpenAI
+
+// Optional — only needed when using Claude and you want audio transcribed
+// $wgPandocUltimateConverter_TranscriptionApiKey = 'sk-openai-key-for-whisper';
+
+// Allow video uploads (add whichever formats you need)
+$wgFileExtensions[] = 'mp4';
+$wgFileExtensions[] = 'mkv';
+$wgFileExtensions[] = 'mov';
+$wgFileExtensions[] = 'webm';
+```
+
+> **Note**: Video files are uploaded as standard MediaWiki files first (via the Codex import UI or `action=upload`), then converted via `action=pandocconvert`. The same workflow applies as for DOCX/PDF files.
+
+#### Supported video extensions
+
+`mp4`, `avi`, `mkv`, `mov`, `webm`, `flv`, `wmv`, `ogg`, `ogv`, `m4v`, `3gp`, `ts`, `mts`, `m2ts`
 
 ### AI Cleanup (LLM Polish)
 
-The extension can optionally run an LLM (OpenAI or Claude) to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
+The extension can optionally run an LLM (OpenAI, Claude, or Gemini) to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
 
 #### Setup
 
 Add to `LocalSettings.php`:
 ```php
-$wgPandocUltimateConverter_LlmProvider = 'openai';   // or 'claude'
+$wgPandocUltimateConverter_LlmProvider = 'openai';   // or 'claude' or 'gemini'
 $wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
 // Optional: override the default model
 // $wgPandocUltimateConverter_LlmModel = 'gpt-5.4-nano';   // OpenAI default; or 'claude-3-5-haiku-20241022' for Claude

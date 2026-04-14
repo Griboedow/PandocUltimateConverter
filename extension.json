@@ -288,7 +288,7 @@
     "PandocUltimateConverter_LlmProvider": {
       "value": null,
       "path": false,
-      "description": "LLM provider to use for optional wikitext cleanup. Supported values: 'openai' or 'claude'. Leave null to disable LLM polishing.",
+      "description": "LLM provider to use for optional wikitext cleanup and video import. Supported values: 'openai', 'claude', or 'gemini'. Leave null to disable LLM features.",
       "public": false
     },
     "PandocUltimateConverter_LlmApiKey": {
@@ -300,13 +300,49 @@
     "PandocUltimateConverter_LlmModel": {
       "value": null,
       "path": false,
-      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
+      "description": "Model name to use for LLM text polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
       "public": false
     },
     "PandocUltimateConverter_LlmPrompt": {
       "value": null,
       "path": false,
       "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmVideoModel": {
+      "value": null,
+      "path": false,
+      "description": "LLM model for video-to-wikitext generation. Must be vision-capable. Defaults: 'gpt-4o' (OpenAI), 'claude-3-5-sonnet-20241022' (Claude), 'gemini-1.5-flash' (Gemini).",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmVideoPrompt": {
+      "value": null,
+      "path": false,
+      "description": "Custom instruction prompt for video-to-wikitext generation. Uses a built-in default if not set.",
+      "public": false
+    },
+    "PandocUltimateConverter_FfmpegExecutablePath": {
+      "value": null,
+      "path": false,
+      "description": "Full path to the ffmpeg executable. Required for video import support. No need to specify if ffmpeg is in PATH.",
+      "public": true
+    },
+    "PandocUltimateConverter_VideoMaxFrames": {
+      "value": 10,
+      "path": false,
+      "description": "Maximum number of frames to extract from a video for LLM analysis. Frames are evenly spaced across the full duration unless VideoFrameInterval is set.",
+      "public": true
+    },
+    "PandocUltimateConverter_VideoFrameInterval": {
+      "value": 0,
+      "path": false,
+      "description": "Fixed interval in seconds between extracted video frames (0 = evenly space VideoMaxFrames across the full duration).",
+      "public": true
+    },
+    "PandocUltimateConverter_TranscriptionApiKey": {
+      "value": null,
+      "path": false,
+      "description": "Optional OpenAI API key used solely for Whisper audio transcription during video import. Only needed when LlmProvider is 'claude' and you also want speech transcribed. OpenAI and Gemini providers use their own key automatically.",
       "public": false
     },
     "PandocUltimateConverter_EnableConfluenceMigration": {

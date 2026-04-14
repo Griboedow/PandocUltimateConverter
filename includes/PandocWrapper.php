@@ -15,6 +15,8 @@ use MediaWiki\Extension\PandocUltimateConverter\Processors\VideoPreprocessor;
 
 class PandocWrapper
 {
+    /** @var \MediaWiki\Config\Config */
+    private $config;
     private string $pandocExecutablePath;
     private string $tempFolderPath;
     private array $mediaFilesExtensionsToSkip;
@@ -42,6 +44,8 @@ class PandocWrapper
         global $wgPandocExecutablePath, $wgPandocTmpFolderPath,
                $wgPandocUltimateConverter_UseColorProcessors,
                $wgExtensionDirectory, $IP;
+
+        $this->config = $config;
 
         $this->pandocExecutablePath = $wgPandocExecutablePath
             ?? $config->get( 'PandocUltimateConverter_PandocExecutablePath' )
@@ -75,6 +79,13 @@ class PandocWrapper
 
         $this->ocrLanguage = $config->get( 'PandocUltimateConverter_OcrLanguage' )
             ?? 'eng';
+
+        $this->ffmpegExecutablePath = $config->get( 'PandocUltimateConverter_FfmpegExecutablePath' )
+            ?? 'ffmpeg';
+
+        $this->videoMaxFrames = (int)( $config->get( 'PandocUltimateConverter_VideoMaxFrames' ) ?? 10 );
+
+        $this->videoFrameInterval = (int)( $config->get( 'PandocUltimateConverter_VideoFrameInterval' ) ?? 0 );
 
         $extensionsDir = $wgExtensionDirectory ?? ( $IP . DIRECTORY_SEPARATOR . 'extensions' );
         $this->filtersFolderPath = $extensionsDir
@@ -142,7 +153,15 @@ class PandocWrapper
         $isDocx = $format === 'docx' || $fileExtension === 'docx';
         $isPdf  = $format === 'pdf'  || $fileExtension === 'pdf';
 
-        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, DOC=" . ( $isDoc ? 'yes' : 'no' ) . ', ODT=' . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) . ', PDF=' . ( $isPdf ? 'yes' : 'no' ) );
+        // Known video container extensions — Pandoc cannot read these, so we
+        // route them through the LLM-based video pipeline instead.
+        static $videoExtensions = [
+            'mp4', 'avi', 'mkv', 'mov', 'webm', 'flv', 'wmv',
+            'ogg', 'ogv', 'm4v', '3gp', 'ts', 'mts', 'm2ts',
+        ];
+        $isVideo = in_array( $fileExtension, $videoExtensions, true );
+
+        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, DOC=" . ( $isDoc ? 'yes' : 'no' ) . ', ODT=' . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) . ', PDF=' . ( $isPdf ? 'yes' : 'no' ) . ', VIDEO=' . ( $isVideo ? 'yes' : 'no' ) );
 
         // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
         if ( $isDoc ) {
@@ -157,6 +176,46 @@ class PandocWrapper
         $luaFilterArgs = [];
         foreach ( $this->customPandocFilters as $filter ) {
             $luaFilterArgs[] = '--lua-filter=' . $this->filtersFolderPath . $filter;
+        }
+
+        // Video files: Pandoc cannot parse video — delegate to the LLM pipeline.
+        // Frames are extracted to $mediaFolder (they will be uploaded by processImages).
+        // Audio is extracted to a separate temp directory and deleted after transcription.
+        if ( $isVideo ) {
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: video file detected, using LLM pipeline for $source" );
+
+            $videoService = VideoToWikitextService::newFromConfig( $this->config );
+            if ( $videoService === null ) {
+                throw new \RuntimeException(
+                    'Video import requires an LLM to be configured. '
+                    . 'Please set $wgPandocUltimateConverter_LlmProvider and '
+                    . '$wgPandocUltimateConverter_LlmApiKey in LocalSettings.php.'
+                );
+            }
+
+            $videoPreprocessor = new VideoPreprocessor(
+                $this->ffmpegExecutablePath,
+                $this->videoMaxFrames,
+                $this->videoFrameInterval
+            );
+
+            $framePaths = $videoPreprocessor->extractFrames( $source, $mediaFolder );
+
+            // Extract audio to a temporary folder OUTSIDE $mediaFolder so that
+            // processImages() does not try to upload the audio file as a wiki image.
+            $audioTempDir = $this->tempFolderPath . DIRECTORY_SEPARATOR . $baseName . '_audio';
+            $audioPath    = null;
+            if ( !is_dir( $audioTempDir ) ) {
+                mkdir( $audioTempDir, 0755, true );
+            }
+            try {
+                $audioPath = $videoPreprocessor->extractAudio( $source, $audioTempDir );
+                $text      = $videoService->generateWikitext( $baseName, $framePaths, $audioPath );
+            } finally {
+                self::deleteDirectory( $audioTempDir );
+            }
+
+            return [ 'text' => $text, 'baseName' => $baseName, 'mediaFolder' => $mediaFolder ];
         }
 
         if ( $isPdf ) {

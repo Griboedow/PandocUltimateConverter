@@ -36,6 +36,7 @@
     "apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
     "apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
     "apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
+    "apierror-pandocultimateconverter-videollmrequired": "Video import requires an LLM to be configured. Please set $wgPandocUltimateConverter_LlmProvider and $wgPandocUltimateConverter_LlmApiKey in LocalSettings.php.",
 
     "apihelp-pandocconvert-summary": "Convert an uploaded file or URL to a wiki page using Pandoc.",
     "apihelp-pandocconvert-param-pagename": "Target wiki page title. Existing content will be overwritten when forceoverwrite is set.",
@@ -53,7 +54,7 @@
     "pandocultimateconverter-codex-tab-files": "Files",
     "pandocultimateconverter-codex-tab-urls": "URLs",
     "pandocultimateconverter-codex-dropzone-text": "Drop files here or click to browse",
-    "pandocultimateconverter-codex-dropzone-hint": "Supported formats: PDF, DOCX, ODT, HTML, EPUB, and others supported by Pandoc",
+    "pandocultimateconverter-codex-dropzone-hint": "Supported formats: PDF, DOCX, ODT, HTML, EPUB, and others supported by Pandoc. Video files (MP4, MKV, MOV, …) require LLM to be configured.",
     "pandocultimateconverter-codex-urls-placeholder": "Enter URLs, one per line",
     "pandocultimateconverter-codex-urls-add": "Add URLs",
 	"pandocultimateconverter-codex-urls-fetching": "Fetching titles…",
