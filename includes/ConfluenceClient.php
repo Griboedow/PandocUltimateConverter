@@ -219,8 +219,12 @@ class ConfluenceClient {
 
 			$fetched = count( $results );
 			$start  += $fetched;
-			$total   = (int)( $data['totalSize'] ?? 0 );
-		} while ( $fetched === self::PAGINATION_LIMIT && $start < $total );
+			// Confluence REST API v1 does not expose a grand "totalSize" field — it
+			// only returns the count of results on the current page ("size").  The
+			// correct way to detect more pages is to check whether a full page was
+			// returned: if we got fewer results than the requested limit, we have
+			// reached the end of the result set.
+		} while ( $fetched === self::PAGINATION_LIMIT );
 
 		return $pages;
 	}
