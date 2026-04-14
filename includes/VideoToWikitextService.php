@@ -47,9 +47,10 @@ namespace MediaWiki\Extension\PandocUltimateConverter;
  */
 class VideoToWikitextService {
 
-private const PROVIDER_OPENAI = 'openai';
-private const PROVIDER_CLAUDE = 'claude';
-private const PROVIDER_GEMINI = 'gemini';
+	/** Valid provider identifiers. Exposed as public constants for external validation. */
+	public const PROVIDER_OPENAI = 'openai';
+	public const PROVIDER_CLAUDE = 'claude';
+	public const PROVIDER_GEMINI = 'gemini';
 
 private const OPENAI_API_URL      = 'https://api.openai.com/v1/chat/completions';
 private const WHISPER_API_URL     = 'https://api.openai.com/v1/audio/transcriptions';
@@ -423,7 +424,7 @@ return (string)$content;
  * @param string $apiKey     OpenAI API key (may differ from $this->apiKey for Claude setups).
  * @return string|null
  */
-public function transcribeWithWhisper( string $audioPath, string $apiKey ): ?string {
+protected function transcribeWithWhisper( string $audioPath, string $apiKey ): ?string {
 if ( !file_exists( $audioPath ) ) {
 wfDebugLog( 'PandocUltimateConverter', "VideoToWikitextService: audio file not found: $audioPath" );
 return null;
@@ -516,11 +517,14 @@ return null;
 
 $size = filesize( $path );
 if ( $size === false || $size > $maxBytes ) {
-wfDebugLog(
-'PandocUltimateConverter',
-"VideoToWikitextService: skipping oversized file ($size bytes, max $maxBytes): $path"
-);
-return null;
+	// Intentionally skip oversized files: LLM APIs have per-request payload limits and
+	// charge per token/byte. Silently dropping a frame or an audio file is preferable
+	// to failing the whole conversion.  The debug log records the skip for diagnostics.
+	wfDebugLog(
+		'PandocUltimateConverter',
+		"VideoToWikitextService: skipping oversized file ($size bytes, max $maxBytes): $path"
+	);
+	return null;
 }
 
 $data = file_get_contents( $path );

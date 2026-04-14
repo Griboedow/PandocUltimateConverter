@@ -15,7 +15,12 @@ use MediaWiki\Extension\PandocUltimateConverter\Processors\VideoPreprocessor;
 
 class PandocWrapper
 {
-    /** @var \MediaWiki\Config\Config */
+    /**
+     * Raw config object — stored so that VideoToWikitextService can be instantiated
+     * lazily inside convertInternal() without threading $config through every call.
+     *
+     * @var \MediaWiki\Config\Config
+     */
     private $config;
     private string $pandocExecutablePath;
     private string $tempFolderPath;

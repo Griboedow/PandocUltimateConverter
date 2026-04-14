@@ -216,6 +216,8 @@ class VideoPreprocessor {
 	 * In evenly-spaced mode ($frameIntervalSeconds = 0) $maxFrames timestamps
 	 * are distributed uniformly across the full duration.
 	 *
+	 * @internal Exposed as public only so unit tests can exercise it directly via
+	 *           ReflectionMethod without needing a real video file.
 	 * @param float $duration Total video duration in seconds.
 	 * @return float[]        Sorted list of timestamps (seconds).
 	 */
