@@ -116,4 +116,38 @@ class ConfluenceClientTest extends TestCase {
 		$client = new ConfluenceClient( 'https://confluence.example.com///', 'u', 't' );
 		$this->assertFalse( $client->isCloud() );
 	}
+
+	// -----------------------------------------------------------------------
+	// authHeader() — Basic vs Bearer selection
+	// -----------------------------------------------------------------------
+
+	private function authHeader( string $baseUrl, string $apiUser, string $apiToken ): string {
+		$client = new ConfluenceClient( $baseUrl, $apiUser, $apiToken );
+		$method = new ReflectionMethod( $client, 'authHeader' );
+		$method->setAccessible( true );
+		return $method->invoke( $client );
+	}
+
+	public function testAuthHeaderCloudUsesBasicAuth(): void {
+		$header = $this->authHeader( 'https://example.atlassian.net', 'user@example.com', 'mytoken' );
+		$this->assertStringStartsWith( 'Basic ', $header );
+		$this->assertSame( 'Basic ' . base64_encode( 'user@example.com:mytoken' ), $header );
+	}
+
+	public function testAuthHeaderServerWithUsernameUsesBasicAuth(): void {
+		$header = $this->authHeader( 'https://confluence.example.com', 'admin', 'password123' );
+		$this->assertStringStartsWith( 'Basic ', $header );
+		$this->assertSame( 'Basic ' . base64_encode( 'admin:password123' ), $header );
+	}
+
+	public function testAuthHeaderServerWithEmptyUserUsesBearerPat(): void {
+		$header = $this->authHeader( 'https://confluence.example.com', '', 'my-personal-access-token' );
+		$this->assertSame( 'Bearer my-personal-access-token', $header );
+	}
+
+	public function testAuthHeaderCloudWithEmptyUserStillUsesBasicAuth(): void {
+		// Cloud should always use Basic auth, even if username is accidentally empty.
+		$header = $this->authHeader( 'https://example.atlassian.net', '', 'cloudtoken' );
+		$this->assertStringStartsWith( 'Basic ', $header );
+	}
 }
