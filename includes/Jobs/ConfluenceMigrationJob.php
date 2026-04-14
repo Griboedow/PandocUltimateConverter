@@ -96,11 +96,22 @@ class ConfluenceMigrationJob extends Job {
 
 		try {
 			if ( $pageListRaw !== '' ) {
-				$titles = array_filter(
+				$patterns = array_values( array_filter(
 					array_map( 'trim', explode( "\n", $pageListRaw ) ),
 					static fn ( string $t ) => $t !== ''
+				) );
+				// If any pattern is a wildcard we need the full page list to
+				// resolve the hierarchy; otherwise use the cheaper per-title lookup.
+				$hasWildcard = (bool)array_filter(
+					$patterns,
+					static fn ( string $p ) => strpos( $p, '*' ) !== false || strpos( $p, '?' ) !== false
 				);
-				$pages = $client->fetchPagesByTitles( $spaceKey, $titles );
+				if ( $hasWildcard ) {
+					$allPages = $client->fetchAllPages( $spaceKey );
+					$pages    = self::filterPagesByPatterns( $allPages, $patterns );
+				} else {
+					$pages = $client->fetchPagesByTitles( $spaceKey, $patterns );
+				}
 			} else {
 				$pages = $client->fetchAllPages( $spaceKey );
 			}
@@ -382,6 +393,80 @@ class ConfluenceMigrationJob extends Job {
 			$title = mb_strcut( $title, 0, 255, 'UTF-8' );
 		}
 		return $title;
+	}
+
+	/**
+	 * Filter a flat list of Confluence pages by user-supplied patterns.
+	 *
+	 * Each pattern may be:
+	 *  - An exact page title (no wildcard characters): only that page is selected.
+	 *  - A glob-style pattern containing '*' or '?': every page whose title
+	 *    matches is selected, and ALL of their descendants in the Confluence
+	 *    hierarchy (direct and indirect children) are also included.
+	 *
+	 * @param list<array{id: string, title: string, parentId: string|null}> $allPages
+	 * @param string[] $patterns
+	 * @return list<array{id: string, title: string, parentId: string|null}>
+	 */
+	public static function filterPagesByPatterns( array $allPages, array $patterns ): array {
+		if ( $allPages === [] || $patterns === [] ) {
+			return [];
+		}
+
+		// Build lookup and parent→children maps.
+		$byId     = [];
+		$children = [];
+		foreach ( $allPages as $page ) {
+			$byId[ $page['id'] ] = $page;
+			if ( $page['parentId'] !== null ) {
+				$children[ $page['parentId'] ][] = $page['id'];
+			}
+		}
+
+		/** @var array<string, array{id: string, title: string, parentId: string|null}> $matched id → page */
+		$matched = [];
+
+		foreach ( $patterns as $pattern ) {
+			$pattern    = trim( $pattern );
+			if ( $pattern === '' ) {
+				continue;
+			}
+			$isWildcard = strpos( $pattern, '*' ) !== false || strpos( $pattern, '?' ) !== false;
+
+			foreach ( $allPages as $page ) {
+				if ( fnmatch( $pattern, $page['title'] ) ) {
+					$matched[ $page['id'] ] = $page;
+					// A wildcard match expands to the entire subtree rooted at
+					// this page (all direct and indirect children).
+					if ( $isWildcard ) {
+						self::collectDescendants( $page['id'], $children, $byId, $matched );
+					}
+				}
+			}
+		}
+
+		return array_values( $matched );
+	}
+
+	/**
+	 * Recursively add all descendants of $pageId to $matched.
+	 *
+	 * @param array<string, list<string>>                                                $children id → child id list
+	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $byId     id → page
+	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $matched  id → page (mutated in place)
+	 */
+	private static function collectDescendants(
+		string $pageId,
+		array $children,
+		array $byId,
+		array &$matched
+	): void {
+		foreach ( $children[ $pageId ] ?? [] as $childId ) {
+			if ( !isset( $matched[ $childId ] ) && isset( $byId[ $childId ] ) ) {
+				$matched[ $childId ] = $byId[ $childId ];
+				self::collectDescendants( $childId, $children, $byId, $matched );
+			}
+		}
 	}
 
 	// -----------------------------------------------------------------------
