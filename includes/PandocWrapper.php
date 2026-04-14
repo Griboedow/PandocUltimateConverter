@@ -11,6 +11,7 @@ use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\DOCXColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\ODTColorPreprocessor;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PDFPreprocessor;
+use MediaWiki\Extension\PandocUltimateConverter\Processors\VideoPreprocessor;
 
 class PandocWrapper
 {
@@ -26,6 +27,9 @@ class PandocWrapper
     private string $libreofficeExecutablePath;
     private string $tesseractExecutablePath;
     private string $ocrLanguage;
+    private string $ffmpegExecutablePath;
+    private int $videoMaxFrames;
+    private int $videoFrameInterval;
 
     /** @var MediaWikiServices */
     private $mwServices;
