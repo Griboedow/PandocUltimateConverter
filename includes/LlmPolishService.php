@@ -35,8 +35,11 @@ class LlmPolishService {
 	/** Maximum tokens to request from the LLM */
 	private const MAX_TOKENS = 81920;
 
-	/** cURL timeout in seconds for LLM API calls */
-	private const HTTP_TIMEOUT = 300;
+	/** cURL connect timeout in seconds (time to establish the TCP connection) */
+	private const HTTP_CONNECT_TIMEOUT = 15;
+
+	/** cURL overall timeout in seconds for LLM API calls */
+	private const HTTP_TIMEOUT = 120;
 
 	/** Default cleanup prompt */
 	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. It was created by conversion from other source (file or URL).'
@@ -230,11 +233,12 @@ class LlmPolishService {
 
 		$ch = curl_init( $url );
 		curl_setopt_array( $ch, [
-			CURLOPT_POST           => true,
-			CURLOPT_POSTFIELDS     => $body,
-			CURLOPT_HTTPHEADER     => $headers,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => self::HTTP_TIMEOUT,
+			CURLOPT_POST              => true,
+			CURLOPT_POSTFIELDS        => $body,
+			CURLOPT_HTTPHEADER        => $headers,
+			CURLOPT_RETURNTRANSFER    => true,
+			CURLOPT_CONNECTTIMEOUT    => self::HTTP_CONNECT_TIMEOUT,
+			CURLOPT_TIMEOUT           => self::HTTP_TIMEOUT,
 		] );
 
 		$response = curl_exec( $ch );
