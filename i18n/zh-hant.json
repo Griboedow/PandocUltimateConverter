@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud：您的 Atlassian 帳戶電子郵件。伺服器：用於基本身份驗證的使用者名稱，或留空以使用個人存取權杖（PAT）進行身份驗證。",
 	"confluencemigration-token-label": "API 金鑰 / 密碼 / PAT：",
 	"confluencemigration-prefix-label": "目標頁面前綴（選填）：",
+	"confluencemigration-prefix-help": "留空表示無前綴。範例：「Confluence/DOCS」→「Confluence/DOCS/我的頁面」。使用「MyNamespace:」匯入至命名空間。",
 	"confluencemigration-overwrite-label": "覆蓋已有頁面",
 	"confluencemigration-categorize-label": "根據 Confluence 層級自動分類頁面",
 	"confluencemigration-llm-polish-label": "使用 LLM 清理轉換後的維基文字",
@@ -124,6 +125,7 @@
 	"confluencemigration-error-empty-credentials": "請輸入您的 API 金鑰/密碼（Cloud 還需填寫電子郵件/使用者名稱）。",
 	"confluencemigration-error-empty-user-cloud": "請輸入您的 Atlassian 帳戶電子郵件（Confluence Cloud 必填）。",
 	"confluencemigration-error-empty-token": "請輸入您的 API 金鑰、密碼或個人存取權杖。",
+	"confluencemigration-error-invalid-prefix": "前綴包含無法識別的命名空間。請使用有效的自訂命名空間（如「MyNS:」）或不含冒號的普通前綴。",
 	"confluencemigration-notify-done": "Confluence 空間 $1 的遷移已完成：已遷移 $2 個頁面。",
 	"confluencemigration-jobs-heading": "待處理的遷移任務",
 	"confluencemigration-jobs-col-id": "任務 ID",
@@ -141,5 +143,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "請輸入以 https:// 開頭的有效 Confluence URL。",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Confluence Cloud 身份驗證需要提供電子郵件/使用者名稱。",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "「$1」不是此Wiki上已識別的MediaWiki命名空間。",
+	"apierror-pandocconfluencemigrate-servicens": "內建命名空間和討論命名空間（主、檔案、分類、模板等）不能用作匯入目標。請使用自訂命名空間。",
 	"apihelp-pandocconfluencemigrate-summary": "將背景任務排入佇列，以將 Confluence 空間的所有頁面匯入本 wiki。"
 }

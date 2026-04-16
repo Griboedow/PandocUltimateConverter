@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: อีเมลบัญชี Atlassian ของคุณ Server: ชื่อผู้ใช้สำหรับการยืนยันตัวตนแบบ Basic หรือปล่อยว่างไว้เพื่อยืนยันตัวตนด้วย Personal Access Token (PAT)",
 	"confluencemigration-token-label": "โทเคน API / รหัสผ่าน / PAT:",
 	"confluencemigration-prefix-label": "คำนำหน้าหน้าเป้าหมาย (ไม่บังคับ):",
+	"confluencemigration-prefix-help": "เว้นว่างไว้หากไม่ต้องการคำนำหน้า ตัวอย่าง: \"Confluence/DOCS\" → \"Confluence/DOCS/หน้าของฉัน\" ใช้ \"MyNamespace:\" เพื่อนำเข้าในเนมสเปซ",
 	"confluencemigration-overwrite-label": "เขียนทับหน้าที่มีอยู่",
 	"confluencemigration-categorize-label": "จัดหมวดหมู่หน้าอัตโนมัติตามลำดับชั้นของ Confluence",
 	"confluencemigration-llm-polish-label": "ทำความสะอาด wikitext ที่แปลงแล้วด้วย LLM",
@@ -124,6 +125,7 @@
 	"confluencemigration-error-empty-credentials": "โปรดป้อนโทเคน API/รหัสผ่านของคุณ (และอีเมล/ชื่อผู้ใช้สำหรับ Cloud)",
 	"confluencemigration-error-empty-user-cloud": "โปรดป้อนอีเมลบัญชี Atlassian ของคุณ (จำเป็นสำหรับ Confluence Cloud)",
 	"confluencemigration-error-empty-token": "โปรดป้อนโทเคน API, รหัสผ่าน หรือ Personal Access Token ของคุณ",
+	"confluencemigration-error-invalid-prefix": "คำนำหน้ามีเนมสเปซที่ไม่รู้จัก ใช้เนมสเปซที่กำหนดเองที่ถูกต้อง (เช่น \"MyNS:\") หรือคำนำหน้าธรรมดาโดยไม่มีเครื่องหมายทวิภาค",
 	"confluencemigration-notify-done": "การย้ายข้อมูล Confluence ของพื้นที่ $1 เสร็จสมบูรณ์: ย้ายแล้ว $2 {{PLURAL:$2|หน้า|หน้า}}",
 	"confluencemigration-jobs-heading": "งานย้ายข้อมูลที่รอดำเนินการ",
 	"confluencemigration-jobs-col-id": "ID งาน",
@@ -141,5 +143,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "ต้องใช้อีเมล/ชื่อผู้ใช้สำหรับการยืนยันตัวตน Confluence Cloud",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" ไม่ใช่เนมสเปซ MediaWiki ที่รู้จักในวิกินี้",
+	"apierror-pandocconfluencemigrate-servicens": "เนมสเปซในตัวและเนมสเปซพูดคุย (หลัก, ไฟล์, หมวดหมู่, แม่แบบ ฯลฯ) ไม่สามารถใช้เป็นเป้าหมายการนำเข้าได้ กรุณาใช้เนมสเปซที่กำหนดเอง",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

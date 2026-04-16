@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Moln: e-postadressen till ditt Atlassian-konto. Server: ditt användarnamn för grundläggande autentisering, eller lämna tomt för att autentisera med ett Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API-token / Lösenord / PAT:",
 	"confluencemigration-prefix-label": "Prefix för målsida (valfritt):",
+	"confluencemigration-prefix-help": "Lämna tomt för inget prefix. Exempel: \"Confluence/DOCS\" → \"Confluence/DOCS/Min sida\". Använd \"MittNamnrymd:\" för att importera till ett namnrymd.",
 	"confluencemigration-overwrite-label": "Skriv över befintliga sidor",
 	"confluencemigration-categorize-label": "Kategorisera sidor automatiskt baserat på Confluences hierarki",
 	"confluencemigration-llm-polish-label": "Städa upp konverterad wikitext med LLM",
@@ -124,6 +125,7 @@
 	"confluencemigration-error-empty-credentials": "Ange din API-token/ditt lösenord (och din e-postadress/ditt användarnamn för Moln).",
 	"confluencemigration-error-empty-user-cloud": "Ange e-postadressen till ditt Atlassian-konto (krävs för Confluence Cloud).",
 	"confluencemigration-error-empty-token": "Ange din API-token, ditt lösenord eller ditt Personal Access Token.",
+	"confluencemigration-error-invalid-prefix": "Prefixet innehåller ett okänt namnrymd. Använd ett giltigt anpassat namnrymd (t.ex. \"MittNS:\") eller ett enkelt prefix utan kolon.",
 	"confluencemigration-notify-done": "Confluence-migrering av utrymme $1 är klar: $2 {{PLURAL:$2|sida|sidor}} migrerade.",
 	"confluencemigration-jobs-heading": "Väntande migreringsjobb",
 	"confluencemigration-jobs-col-id": "Jobb-ID",
@@ -141,5 +143,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Ange en giltig Confluence-URL som börjar med https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-postadress/användarnamn krävs för Confluence Cloud-autentisering.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" är inte ett känt MediaWiki-namnrymd på denna wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Inbyggda namnrymder och diskussionsnamnrymder (Huvud, Fil, Kategori, Mall osv.) kan inte användas som importmål. Använd ett anpassat namnrymd.",
 	"apihelp-pandocconfluencemigrate-summary": "Lägger ett bakgrundsjobb i kö som importerar alla sidor från ett Confluence-utrymme till denna wiki."
 }

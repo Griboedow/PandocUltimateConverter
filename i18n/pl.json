@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: adres e-mail konta Atlassian. Server: nazwa użytkownika do uwierzytelniania podstawowego lub pozostaw puste, aby uwierzytelnić się za pomocą Personal Access Token (PAT).",
 	"confluencemigration-token-label": "Token API / Hasło / PAT:",
 	"confluencemigration-prefix-label": "Prefiks strony docelowej (opcjonalne):",
+	"confluencemigration-prefix-help": "Pozostaw puste, aby nie używać prefiksu. Przykład: \"Confluence/DOCS\" → \"Confluence/DOCS/Moja strona\". Użyj \"MojaPrzestrzeńNazw:\", aby zaimportować do przestrzeni nazw.",
 	"confluencemigration-overwrite-label": "Nadpisz istniejące strony",
 	"confluencemigration-categorize-label": "Automatycznie kategoryzuj strony na podstawie hierarchii Confluence",
 	"confluencemigration-llm-polish-label": "Wyczyść przekonwertowany wikitekst za pomocą LLM",
@@ -124,6 +125,7 @@
 	"confluencemigration-error-empty-credentials": "Podaj token API/hasło (oraz adres e-mail/nazwę użytkownika dla Cloud).",
 	"confluencemigration-error-empty-user-cloud": "Podaj adres e-mail konta Atlassian (wymagany dla Confluence Cloud).",
 	"confluencemigration-error-empty-token": "Podaj token API, hasło lub Personal Access Token.",
+	"confluencemigration-error-invalid-prefix": "Prefiks zawiera nierozpoznaną przestrzeń nazw. Użyj prawidłowej przestrzeni nazw (np. \"MojaNS:\") lub zwykłego prefiksu bez dwukropka.",
 	"confluencemigration-notify-done": "Migracja Confluence przestrzeni $1 zakończona: przeniesiono $2 {{PLURAL:$2|stronę|strony|stron}}.",
 	"confluencemigration-jobs-heading": "Oczekujące zadania migracji",
 	"confluencemigration-jobs-col-id": "ID zadania",
@@ -141,5 +143,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Podaj prawidłowy adres URL Confluence zaczynający się od https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Adres e-mail/nazwa użytkownika jest wymagana do uwierzytelniania Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" nie jest rozpoznaną przestrzenią nazw MediaWiki w tej wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Wbudowane przestrzenie nazw i dyskusji (Główna, Plik, Kategoria, Szablon itp.) nie mogą być używane jako miejsca docelowe importu. Użyj niestandardowej przestrzeni nazw.",
 	"apihelp-pandocconfluencemigrate-summary": "Umieszcza w kolejce zadanie działające w tle, które importuje wszystkie strony z przestrzeni Confluence do tej wiki."
 }

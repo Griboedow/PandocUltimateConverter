@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: l'email del tuo account Atlassian. Server: il tuo nome utente per l'autenticazione di base, o lascia vuoto per autenticarti con un Personal Access Token (PAT).",
 	"confluencemigration-token-label": "Token API / Password / PAT:",
 	"confluencemigration-prefix-label": "Prefisso pagina di destinazione (facoltativo):",
+	"confluencemigration-prefix-help": "Lascia vuoto per nessun prefisso. Esempio: \"Confluence/DOCS\" → \"Confluence/DOCS/La mia pagina\". Usa \"MioSpazioNomi:\" per importare in uno spazio dei nomi.",
 	"confluencemigration-overwrite-label": "Sovrascrivi le pagine esistenti",
 	"confluencemigration-categorize-label": "Categorizza automaticamente le pagine in base alla gerarchia di Confluence",
 	"confluencemigration-llm-polish-label": "Pulisci il wikitesto convertito con LLM",
@@ -124,6 +125,7 @@
 	"confluencemigration-error-empty-credentials": "Inserisci il tuo token API/password (e l'email/nome utente per Cloud).",
 	"confluencemigration-error-empty-user-cloud": "Inserisci l'email del tuo account Atlassian (richiesta per Confluence Cloud).",
 	"confluencemigration-error-empty-token": "Inserisci il tuo token API, password o Personal Access Token.",
+	"confluencemigration-error-invalid-prefix": "Il prefisso contiene uno spazio dei nomi non riconosciuto. Usa uno spazio dei nomi personalizzato valido (es. \"MioNS:\") o un prefisso semplice senza i due punti.",
 	"confluencemigration-notify-done": "La migrazione Confluence dello spazio $1 è completata: $2 {{PLURAL:$2|pagina migrata|pagine migrate}}.",
 	"confluencemigration-jobs-heading": "Lavori di migrazione in sospeso",
 	"confluencemigration-jobs-col-id": "ID lavoro",
@@ -141,5 +143,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Inserisci un URL Confluence valido che inizi con https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Email/nome utente è obbligatorio per l'autenticazione di Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" non è uno spazio dei nomi MediaWiki riconosciuto in questo wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Gli spazi dei nomi integrati e di discussione (Principale, File, Categoria, Template, ecc.) non possono essere usati come destinazioni di importazione. Utilizza uno spazio dei nomi personalizzato.",
 	"apihelp-pandocconfluencemigrate-summary": "Mette in coda un'attività in background che importa tutte le pagine di uno spazio Confluence in questa wiki."
 }
