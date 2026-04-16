@@ -85,9 +85,10 @@ All parameters are set in `LocalSettings.php` with the `$wg` prefix.
 | `PandocUltimateConverter_PdfExportEngine` | `"libreoffice"` | Engine used for PDF export. `"libreoffice"` uses a two-step pipeline (Pandoc → DOCX → PDF via LibreOffice, no LaTeX needed). Any other value (e.g. `"xelatex"`, `"pdflatex"`, `"lualatex"`, `"wkhtmltopdf"`, `"weasyprint"`) is passed directly to Pandoc's `--pdf-engine` option. Preferably specify full path to the engine binary to be sure pandoc will be ble to find pdf engine. |
 | `PandocUltimateConverter_ShowExportInPageTools` | `true` | Show "Export" in the page Actions menu. |
 | `PandocUltimateConverter_LlmProvider` | `null` | LLM provider: `"openai"` or `"claude"`. |
-| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. |
-| `PandocUltimateConverter_LlmModel` | `null` | Model name override. |
+| `PandocUltimateConverter_LlmApiKey` | `null` | API key for the LLM provider. Optional when `LlmBaseUrl` is set (e.g. unauthenticated self-hosted endpoints). |
+| `PandocUltimateConverter_LlmModel` | `null` | Model name override. Should be set explicitly when using `LlmBaseUrl`. |
 | `PandocUltimateConverter_LlmPrompt` | `null` | Custom system prompt for AI cleanup. |
+| `PandocUltimateConverter_LlmBaseUrl` | `null` | Custom API endpoint URL. Overrides the provider default. Use for self-hosted models (Ollama, vLLM), Qwen/DashScope, OpenRouter, or any OpenAI-compatible service. |
 | `PandocUltimateConverter_EnableConfluenceMigration` | `true` | Set to `false` to disable `Special:ConfluenceMigration`. |
 
 ## Demos
@@ -134,17 +135,53 @@ Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-opt
 
 ### AI Cleanup (LLM Polish)
 
-The extension can optionally run an LLM (OpenAI or Claude) to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
+The extension can optionally run an LLM to clean up wikitext after conversion — fixing formatting issues, removing artefacts, and improving readability.
+
+Any OpenAI-compatible API is supported: OpenAI, Anthropic Claude, Qwen/DashScope, Ollama, vLLM, LM Studio, OpenRouter, and more.
 
 #### Setup
 
-Add to `LocalSettings.php`:
+**OpenAI:**
 ```php
-$wgPandocUltimateConverter_LlmProvider = 'openai';   // or 'claude'
+$wgPandocUltimateConverter_LlmProvider = 'openai';
 $wgPandocUltimateConverter_LlmApiKey   = 'sk-...';
-// Optional: override the default model
-// $wgPandocUltimateConverter_LlmModel = 'gpt-5.4-nano';   // OpenAI default; or 'claude-3-5-haiku-20241022' for Claude
+// Optional: override the default model (default: gpt-5.4-nano)
+// $wgPandocUltimateConverter_LlmModel = 'gpt-4o';
 ```
+
+**Anthropic Claude:**
+```php
+$wgPandocUltimateConverter_LlmProvider = 'claude';
+$wgPandocUltimateConverter_LlmApiKey   = 'sk-ant-...';
+// Optional: override the default model (default: claude-3-5-haiku-20241022)
+// $wgPandocUltimateConverter_LlmModel = 'claude-3-5-sonnet-20241022';
+```
+
+**Qwen via Alibaba DashScope (OpenAI-compatible endpoint):**
+```php
+$wgPandocUltimateConverter_LlmProvider = 'openai';
+$wgPandocUltimateConverter_LlmApiKey   = 'sk-...';   // your DashScope API key
+$wgPandocUltimateConverter_LlmModel    = 'qwen-max';
+$wgPandocUltimateConverter_LlmBaseUrl  = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
+```
+
+**Self-hosted model via Ollama (no API key required):**
+```php
+$wgPandocUltimateConverter_LlmProvider = 'openai';
+$wgPandocUltimateConverter_LlmModel    = 'qwen2.5:latest';   // or llama3.2, mistral, etc.
+$wgPandocUltimateConverter_LlmBaseUrl  = 'http://localhost:11434/v1/chat/completions';
+// No API key needed for local Ollama
+```
+
+**Any other OpenAI-compatible service (OpenRouter, Groq, vLLM, etc.):**
+```php
+$wgPandocUltimateConverter_LlmProvider = 'openai';
+$wgPandocUltimateConverter_LlmApiKey   = 'your-api-key';
+$wgPandocUltimateConverter_LlmModel    = 'your-model-name';
+$wgPandocUltimateConverter_LlmBaseUrl  = 'https://your-service.example.com/v1/chat/completions';
+```
+
+> **Note:** When `LlmBaseUrl` is set, the `max_tokens` parameter is used instead of `max_completion_tokens` for compatibility with non-OpenAI providers (including Qwen). The API key becomes optional when `LlmBaseUrl` is set, which is useful for unauthenticated local endpoints.
 
 #### Usage
 

@@ -21,8 +21,8 @@ use Wikimedia\ParamValidator\ParamValidator;
  * Required parameters:
  *   confluenceurl  – HTTPS base URL of the Confluence instance.
  *   spacekey       – Confluence space key (e.g. "DOCS").
- *   apiuser        – Email (Cloud) or username (Server).
- *   apitoken       – API token (Cloud) or password / personal access token (Server).
+ *   apiuser        – Email (Cloud) or username (Server). Leave empty on Server to use PAT Bearer auth.
+ *   apitoken       – API token (Cloud), password (Server Basic auth), or PAT (Server Bearer auth).
  *
  * Optional parameters:
  *   targetprefix   – Prefix prepended to every wiki page title.
@@ -66,6 +66,12 @@ class ApiConfluenceMigrate extends ApiBase {
 		$host   = (string)parse_url( $confluenceUrl, PHP_URL_HOST );
 		if ( $scheme !== 'https' || $host === '' ) {
 			$this->dieWithError( 'apierror-pandocconfluencemigrate-invalidurl' );
+		}
+
+		// Cloud always requires a username (email); Server supports PAT (empty username)
+		$isCloud = str_ends_with( strtolower( $host ), '.atlassian.net' );
+		if ( $isCloud && $apiUser === '' ) {
+			$this->dieWithError( 'apierror-pandocconfluencemigrate-cloudneedsuser' );
 		}
 
 		// Pre-flight: verify credentials and space access before enqueuing
@@ -116,7 +122,8 @@ class ApiConfluenceMigrate extends ApiBase {
 			],
 			'apiuser' => [
 				ParamValidator::PARAM_TYPE     => 'string',
-				ParamValidator::PARAM_REQUIRED => true,
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT  => '',
 			],
 			'apitoken' => [
 				ParamValidator::PARAM_TYPE     => 'string',

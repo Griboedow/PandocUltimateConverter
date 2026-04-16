@@ -86,6 +86,10 @@ class ConfluenceMigrationJob extends Job {
 		$config   = $services->getConfigFactory()->makeConfig( 'PandocUltimateConverter' );
 		$user     = $services->getUserFactory()->newFromId( $userId );
 
+		wfDebugLog( 'PandocUltimateConverter',
+			"ConfluenceMigrationJob: starting migration of space '$spaceKey' from $confluenceUrl"
+		);
+
 		$client  = new ConfluenceClient( $confluenceUrl, $apiUser, $apiToken );
 		$wrapper = new PandocWrapper( $config, $services, $user );
 
@@ -188,6 +192,8 @@ class ConfluenceMigrationJob extends Job {
 	 * Migrate a single Confluence page to a MediaWiki page.
 	 *
 	 * @param array{id: string, title: string} $page
+	 * @param ?LlmPolishService &$llmService Passed by reference; set to null after the first
+	 *   LLM failure to prevent cascading timeouts across all remaining pages.
 	 * @return bool True if the page was saved, false if skipped (empty body).
 	 * @throws \RuntimeException On conversion or save failure.
 	 */
@@ -198,7 +204,7 @@ class ConfluenceMigrationJob extends Job {
 		PandocWrapper $wrapper,
 		MediaWikiServices $services,
 		mixed $user,
-		?LlmPolishService $llmService = null
+		?LlmPolishService &$llmService = null
 	): bool {
 		// 1. Fetch Confluence storage-format HTML.
 		$html = $client->fetchPageBody( $page['id'] );
@@ -254,7 +260,11 @@ class ConfluenceMigrationJob extends Job {
 			} catch ( \RuntimeException $e ) {
 				wfDebugLog( 'PandocUltimateConverter',
 					"ConfluenceMigrationJob: LLM polish failed for '{$page['title']}': " . $e->getMessage()
+					. ' — disabling LLM polish for remaining pages to avoid repeated timeouts'
 				);
+				// Disable LLM polish for all remaining pages so a single API
+				// connectivity failure doesn't cascade into N × timeout seconds.
+				$llmService = null;
 				// The raw conversion is already saved — nothing else to do.
 			}
 		}

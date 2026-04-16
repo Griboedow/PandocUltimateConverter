@@ -5,14 +5,19 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 /**
- * Service that sends converted wikitext to an LLM (OpenAI or Claude/Anthropic)
- * for optional post-conversion cleanup.
+ * Service that sends converted wikitext to an LLM (OpenAI, Claude/Anthropic, or any
+ * OpenAI-compatible endpoint) for optional post-conversion cleanup.
  *
  * Configuration (in LocalSettings.php):
  *   $wgPandocUltimateConverter_LlmProvider  = 'openai';        // or 'claude'
  *   $wgPandocUltimateConverter_LlmApiKey    = 'sk-...';
  *   $wgPandocUltimateConverter_LlmModel     = 'gpt-5.4-nano';  // optional, uses provider default
  *   $wgPandocUltimateConverter_LlmPrompt    = '...';           // optional, uses built-in default
+ *   $wgPandocUltimateConverter_LlmBaseUrl   = 'http://localhost:11434/v1/chat/completions';
+ *                                             // optional; overrides the provider's default API URL.
+ *                                             // Useful for self-hosted models (Ollama, vLLM, etc.)
+ *                                             // or OpenAI-compatible third-party services.
+ *                                             // When set, the API key becomes optional.
  */
 class LlmPolishService {
 
@@ -30,8 +35,11 @@ class LlmPolishService {
 	/** Maximum tokens to request from the LLM */
 	private const MAX_TOKENS = 81920;
 
-	/** cURL timeout in seconds for LLM API calls */
-	private const HTTP_TIMEOUT = 300;
+	/** cURL connect timeout in seconds (time to establish the TCP connection) */
+	private const HTTP_CONNECT_TIMEOUT = 15;
+
+	/** cURL overall timeout in seconds for LLM API calls */
+	private const HTTP_TIMEOUT = 120;
 
 	/** Default cleanup prompt */
 	private const DEFAULT_PROMPT = 'Clean up the following MediaWiki wikitext. It was created by conversion from other source (file or URL).'
@@ -51,17 +59,22 @@ class LlmPolishService {
 	/** @var string */
 	private $prompt;
 
+	/** @var string */
+	private $baseUrl;
+
 	/**
 	 * @param string $provider  'openai' or 'claude'
-	 * @param string $apiKey    API key for the chosen provider
+	 * @param string $apiKey    API key for the chosen provider (may be empty for self-hosted endpoints)
 	 * @param string $model     Model name, or empty string to use provider default
 	 * @param string $prompt    System/instruction prompt, or empty string to use built-in default
+	 * @param string $baseUrl   Custom API endpoint URL, or empty string to use the provider default
 	 */
-	public function __construct( string $provider, string $apiKey, string $model = '', string $prompt = '' ) {
+	public function __construct( string $provider, string $apiKey, string $model = '', string $prompt = '', string $baseUrl = '' ) {
 		$this->provider = strtolower( trim( $provider ) );
 		$this->apiKey   = $apiKey;
 		$this->model    = $model !== '' ? $model : $this->defaultModel();
 		$this->prompt   = $prompt !== '' ? $prompt : self::DEFAULT_PROMPT;
+		$this->baseUrl  = rtrim( $baseUrl, '/' );
 	}
 
 	/**
@@ -73,15 +86,21 @@ class LlmPolishService {
 	public static function newFromConfig( $config ): ?self {
 		$provider = (string)( $config->get( 'PandocUltimateConverter_LlmProvider' ) ?? '' );
 		$apiKey   = (string)( $config->get( 'PandocUltimateConverter_LlmApiKey' )   ?? '' );
+		$baseUrl  = (string)( $config->get( 'PandocUltimateConverter_LlmBaseUrl' )  ?? '' );
 
-		if ( $provider === '' || $apiKey === '' ) {
+		if ( $provider === '' ) {
+			return null;
+		}
+
+		// API key is required unless a custom base URL is provided (e.g. self-hosted, unauthenticated)
+		if ( $apiKey === '' && $baseUrl === '' ) {
 			return null;
 		}
 
 		$model  = (string)( $config->get( 'PandocUltimateConverter_LlmModel' )  ?? '' );
 		$prompt = (string)( $config->get( 'PandocUltimateConverter_LlmPrompt' ) ?? '' );
 
-		return new self( $provider, $apiKey, $model, $prompt );
+		return new self( $provider, $apiKey, $model, $prompt, $baseUrl );
 	}
 
 	/**
@@ -107,14 +126,21 @@ class LlmPolishService {
 	/**
 	 * Call the OpenAI Chat Completions API.
 	 *
+	 * Uses `max_completion_tokens` for the native OpenAI endpoint and `max_tokens` for custom
+	 * endpoints (e.g. Qwen/DashScope, Ollama, vLLM) which follow the older OpenAI-compatible
+	 * convention and do not recognise `max_completion_tokens`.
+	 *
 	 * @param string $wikitext
 	 * @return string
 	 */
 	private function callOpenAi( string $wikitext ): string {
+		// OpenAI renamed the field; third-party compatible APIs still expect max_tokens
+		$tokenLimitKey = $this->baseUrl !== '' ? 'max_tokens' : 'max_completion_tokens';
+
 		$body = json_encode( [
-			'model'                => $this->model,
-			'max_completion_tokens' => self::MAX_TOKENS,
-			'messages'             => [
+			'model'          => $this->model,
+			$tokenLimitKey   => self::MAX_TOKENS,
+			'messages'       => [
 				[ 'role' => 'system', 'content' => $this->prompt ],
 				[ 'role' => 'user',   'content' => $wikitext ],
 			],
@@ -122,10 +148,13 @@ class LlmPolishService {
 
 		$headers = [
 			'Content-Type: application/json',
-			'Authorization: Bearer ' . $this->apiKey,
 		];
+		if ( $this->apiKey !== '' ) {
+			$headers[] = 'Authorization: Bearer ' . $this->apiKey;
+		}
 
-		$response = $this->httpPost( self::OPENAI_API_URL, $body, $headers );
+		$url = $this->baseUrl !== '' ? $this->baseUrl : self::OPENAI_API_URL;
+		$response = $this->httpPost( $url, $body, $headers );
 		$data = json_decode( $response, true );
 
 		if ( !is_array( $data ) ) {
@@ -162,11 +191,14 @@ class LlmPolishService {
 
 		$headers = [
 			'Content-Type: application/json',
-			'x-api-key: ' . $this->apiKey,
 			'anthropic-version: ' . self::CLAUDE_API_VERSION,
 		];
+		if ( $this->apiKey !== '' ) {
+			$headers[] = 'x-api-key: ' . $this->apiKey;
+		}
 
-		$response = $this->httpPost( self::CLAUDE_API_URL, $body, $headers );
+		$url = $this->baseUrl !== '' ? $this->baseUrl : self::CLAUDE_API_URL;
+		$response = $this->httpPost( $url, $body, $headers );
 		$data = json_decode( $response, true );
 
 		if ( !is_array( $data ) ) {
@@ -201,11 +233,12 @@ class LlmPolishService {
 
 		$ch = curl_init( $url );
 		curl_setopt_array( $ch, [
-			CURLOPT_POST           => true,
-			CURLOPT_POSTFIELDS     => $body,
-			CURLOPT_HTTPHEADER     => $headers,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => self::HTTP_TIMEOUT,
+			CURLOPT_POST              => true,
+			CURLOPT_POSTFIELDS        => $body,
+			CURLOPT_HTTPHEADER        => $headers,
+			CURLOPT_RETURNTRANSFER    => true,
+			CURLOPT_CONNECTTIMEOUT    => self::HTTP_CONNECT_TIMEOUT,
+			CURLOPT_TIMEOUT           => self::HTTP_TIMEOUT,
 		] );
 
 		$response = curl_exec( $ch );

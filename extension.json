@@ -299,19 +299,25 @@
     "PandocUltimateConverter_LlmApiKey": {
       "value": null,
       "path": false,
-      "description": "API key for the configured LLM provider. Required when LlmProvider is set.",
+      "description": "API key for the configured LLM provider. Optional when LlmBaseUrl is set (e.g. unauthenticated self-hosted endpoints).",
       "public": false
     },
     "PandocUltimateConverter_LlmModel": {
       "value": null,
       "path": false,
-      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude.",
+      "description": "Model name to use for LLM polishing. Defaults to 'gpt-5.4-nano' for OpenAI and 'claude-3-5-haiku-20241022' for Claude. Should be set explicitly when using a custom LlmBaseUrl.",
       "public": false
     },
     "PandocUltimateConverter_LlmPrompt": {
       "value": null,
       "path": false,
       "description": "Custom instruction prompt for the LLM cleanup step. Uses a sensible default if not set.",
+      "public": false
+    },
+    "PandocUltimateConverter_LlmBaseUrl": {
+      "value": null,
+      "path": false,
+      "description": "Custom API endpoint URL that overrides the provider's default. Use this for self-hosted models (Ollama, vLLM, LM Studio), Qwen/DashScope, OpenRouter, or any other OpenAI-compatible service. When set, LlmApiKey becomes optional.",
       "public": false
     },
     "PandocUltimateConverter_EnableConfluenceMigration": {
