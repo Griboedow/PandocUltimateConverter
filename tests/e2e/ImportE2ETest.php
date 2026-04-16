@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
  * All tests:   Pandoc in PATH (or PANDOC_PATH env var).
  * PDF tests:   poppler-utils (pdftohtml, pdftotext).
  * OCR test:    poppler-utils + tesseract-ocr + ImageMagick (convert).
- * DOC test:    LibreOffice (libreoffice / soffice).
+ * DOC/PPTX tests: LibreOffice (libreoffice / soffice).
  *
  * Missing tools cause the test to be skipped automatically.
  *
@@ -270,6 +270,47 @@ class ImportE2ETest extends TestCase {
 	}
 
 	// ------------------------------------------------------------------
+	// 1.4  PPTX import (LibreOffice required)
+	// ------------------------------------------------------------------
+
+	public function testPptxImportE2E(): void {
+		$libreoffice = $this->findLibreOffice();
+		if ( $libreoffice === '' ) {
+			$this->markTestSkipped( 'LibreOffice (libreoffice / soffice) is required for the PPTX import test.' );
+		}
+
+		// Create a base DOCX fixture and convert it to PPTX via LibreOffice.
+		$docxFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'slides-source.docx';
+		DocumentFixtureFactory::createDocx( $docxFile );
+
+		$pptxFile = $this->convertDocxToPptx( $docxFile, $libreoffice );
+		if ( $pptxFile === '' ) {
+			$this->markTestSkipped( 'LibreOffice could not produce a .pptx file from the DOCX fixture.' );
+		}
+
+		// Use DOCPreprocessor to convert .pptx → .docx (the production code path).
+		$preprocessor   = new DOCPreprocessor( $libreoffice );
+		$resultDocxPath = $preprocessor->convertToDocx( $pptxFile, $this->tmpDir );
+		$this->assertFileExists( $resultDocxPath, 'DOCPreprocessor must produce a .docx file from PPTX' );
+
+		$wikitextOutput = PandocWrapper::invokeShell( [
+			$this->pandocBin,
+			'--from=docx',
+			'--to=mediawiki',
+			$resultDocxPath,
+		] );
+
+		// Save artifact
+		file_put_contents( $this->artifactsDir . '/import-pptx.mediawiki', $wikitextOutput );
+
+		$this->assertStringContainsString(
+			'Test Heading',
+			$wikitextOutput,
+			'Heading from the PPTX fixture should appear in the wikitext output'
+		);
+	}
+
+	// ------------------------------------------------------------------
 	// Helpers
 	// ------------------------------------------------------------------
 
@@ -361,6 +402,28 @@ class ImportE2ETest extends TestCase {
 
 		$docPath = $this->tmpDir . DIRECTORY_SEPARATOR . pathinfo( $docxPath, PATHINFO_FILENAME ) . '.doc';
 		return file_exists( $docPath ) ? $docPath : '';
+	}
+
+	/**
+	 * Use LibreOffice headless to convert DOCX → PPTX.
+	 */
+	private function convertDocxToPptx( string $docxPath, string $libreoffice ): string {
+		$profileDir = $this->tmpDir . DIRECTORY_SEPARATOR . '.lo_prep_pptx';
+		@mkdir( $profileDir, 0755, true );
+		$profileUrl = 'file:///' . str_replace( '\\', '/', $profileDir );
+
+		$cmd = [
+			$libreoffice,
+			'-env:UserInstallation=' . $profileUrl,
+			'--headless',
+			'--convert-to', 'pptx',
+			'--outdir', $this->tmpDir,
+			$docxPath,
+		];
+		exec( implode( ' ', array_map( 'escapeshellarg', $cmd ) ) . ' 2>/dev/null' );
+
+		$pptxPath = $this->tmpDir . DIRECTORY_SEPARATOR . pathinfo( $docxPath, PATHINFO_FILENAME ) . '.pptx';
+		return file_exists( $pptxPath ) ? $pptxPath : '';
 	}
 
 	private function rmdirRecursive( string $dir ): void {

@@ -134,15 +134,32 @@ class PandocWrapper
 
         $fileExtension = strtolower( pathinfo( $source, PATHINFO_EXTENSION ) );
         $isDoc  = $fileExtension === 'doc';
+        $isPptx = $format === 'pptx' || $fileExtension === 'pptx';
         $isOdt  = $format === 'odt'  || $fileExtension === 'odt';
         $isDocx = $format === 'docx' || $fileExtension === 'docx';
         $isPdf  = $format === 'pdf'  || $fileExtension === 'pdf';
 
-        wfDebugLog( 'PandocUltimateConverter', "convertInternal: ext=$fileExtension, DOC=" . ( $isDoc ? 'yes' : 'no' ) . ', ODT=' . ( $isOdt ? 'yes' : 'no' ) . ', DOCX=' . ( $isDocx ? 'yes' : 'no' ) . ', PDF=' . ( $isPdf ? 'yes' : 'no' ) );
+        wfDebugLog(
+            'PandocUltimateConverter',
+            "convertInternal: ext=$fileExtension, DOC=" . ( $isDoc ? 'yes' : 'no' )
+            . ', PPTX=' . ( $isPptx ? 'yes' : 'no' )
+            . ', ODT=' . ( $isOdt ? 'yes' : 'no' )
+            . ', DOCX=' . ( $isDocx ? 'yes' : 'no' )
+            . ', PDF=' . ( $isPdf ? 'yes' : 'no' )
+        );
 
         // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
         if ( $isDoc ) {
             wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .doc to .docx via LibreOffice for $source" );
+            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
+            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
+            $isDocx = true;
+            $format = 'docx';
+        }
+
+        // .pptx import is normalised via LibreOffice to .docx for stable text extraction.
+        if ( $isPptx ) {
+            wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .pptx to .docx via LibreOffice for $source" );
             $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
             $source = $preprocessor->convertToDocx( $source, $mediaFolder );
             $isDocx = true;

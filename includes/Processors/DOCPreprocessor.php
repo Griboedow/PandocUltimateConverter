@@ -7,10 +7,10 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 
 /**
- * Converts legacy .doc files to .docx using LibreOffice's headless mode
- * so that Pandoc (which cannot read .doc) can process them.
+ * Converts source office files (e.g. .doc, .pptx) to .docx using
+ * LibreOffice's headless mode.
  *
- * Pipeline: DOC → LibreOffice → DOCX → (handed back to caller)
+ * Pipeline: source file → LibreOffice → DOCX → (handed back to caller)
  */
 class DOCPreprocessor {
 
@@ -24,9 +24,9 @@ class DOCPreprocessor {
 	}
 
 	/**
-	 * Convert a .doc file to .docx using LibreOffice in headless mode.
+	 * Convert a source office file to .docx using LibreOffice in headless mode.
 	 *
-	 * @param string $docFilePath Absolute path to the source .doc file.
+	 * @param string $docFilePath Absolute path to the source file (e.g. .doc, .pptx).
 	 * @param string $outDir      Directory where the resulting .docx will be written.
 	 * @return string Absolute path to the converted .docx file.
 	 * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
@@ -68,7 +68,7 @@ class DOCPreprocessor {
 			$detail = $output !== '' ? $output
 				: 'LibreOffice crashed with no output';
 			throw new \RuntimeException(
-				'LibreOffice .doc→.docx conversion failed (exit '
+				'LibreOffice conversion to .docx failed (exit '
 				. $result['exitCode'] . '): ' . $detail
 			);
 		}

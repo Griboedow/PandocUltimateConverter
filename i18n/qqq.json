@@ -44,7 +44,7 @@
 	"pandocultimateconverter-codex-tab-files": "Label for the Files tab in the Codex interface.",
 	"pandocultimateconverter-codex-tab-urls": "Label for the URLs tab in the Codex interface.",
 	"pandocultimateconverter-codex-dropzone-text": "Primary text shown in the file drag-and-drop zone.",
-	"pandocultimateconverter-codex-dropzone-hint": "Hint text shown below the drop zone listing supported file formats.",
+	"pandocultimateconverter-codex-dropzone-hint": "Hint text shown below the drop zone listing supported file formats (including PPTX).",
 	"pandocultimateconverter-codex-urls-placeholder": "Placeholder text in the URLs textarea.",
 	"pandocultimateconverter-codex-urls-add": "Label for the button that adds entered URLs to the conversion queue.",
 	"pandocultimateconverter-codex-urls-fetching": "Text shown while fetching page titles from URLs.",

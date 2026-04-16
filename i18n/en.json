@@ -48,7 +48,7 @@
 	"pandocultimateconverter-codex-tab-files": "Files",
 	"pandocultimateconverter-codex-tab-urls": "URLs",
 	"pandocultimateconverter-codex-dropzone-text": "Drop files here or click to browse",
-	"pandocultimateconverter-codex-dropzone-hint": "Supported formats: PDF, DOCX, ODT, HTML, EPUB, and others supported by Pandoc",
+	"pandocultimateconverter-codex-dropzone-hint": "Supported formats: PDF, DOCX, ODT, PPTX, HTML, EPUB, and others supported by Pandoc",
 	"pandocultimateconverter-codex-urls-placeholder": "Enter URLs, one per line",
 	"pandocultimateconverter-codex-urls-add": "Add URLs",
 	"pandocultimateconverter-codex-urls-fetching": "Fetching titles…",

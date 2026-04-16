@@ -2,7 +2,7 @@
 
 MediaWiki extension for **importing** documents/webpages into wiki pages and **exporting** wiki pages to external formats — powered by [Pandoc](https://pandoc.org/).
 
-- **Import**: convert DOCX, ODT, PDF, DOC, or a webpage URL into a wiki page (with images)
+- **Import**: convert DOCX, ODT, PDF, DOC, PPTX, or a webpage URL into a wiki page (with images)
 - **Export**: download wiki pages as DOCX, ODT, EPUB, PDF, HTML, RTF, or TXT
 - **AI cleanup**: optional LLM-powered post-conversion wikitext polish (OpenAI or Claude)
 - **Confluence migration**: mass-import an entire Confluence space (Cloud or Server) into the wiki
@@ -53,6 +53,7 @@ $wgFileExtensions[] = 'docx';
 $wgFileExtensions[] = 'odt';
 $wgFileExtensions[] = 'pdf';
 $wgFileExtensions[] = 'doc';
+$wgFileExtensions[] = 'pptx';
 
 // Only needed if Pandoc is not in PATH:
 // $wgPandocUltimateConverter_PandocExecutablePath = 'C:\Program Files\Pandoc\pandoc.exe';
@@ -61,7 +62,7 @@ $wgFileExtensions[] = 'doc';
 Optional dependencies (only needed for specific formats):
 - **PDF import**: [poppler](https://poppler.freedesktop.org/) (`pdftohtml`) — see [Installing poppler](#installing-poppler)
 - **Scanned PDF / OCR**: [Tesseract](https://github.com/tesseract-ocr/tesseract) — see [Installing Tesseract](#installing-tesseract)
-- **DOC import** and **PDF export** (default engine): [LibreOffice](https://www.libreoffice.org/) — see [Installing LibreOffice](#installing-libreoffice)
+- **DOC/PPTX import** and **PDF export** (default engine): [LibreOffice](https://www.libreoffice.org/) — see [Installing LibreOffice](#installing-libreoffice)
 - **PDF export** (alternative engines): a LaTeX distribution (`pdflatex`, `xelatex`, `lualatex`), `wkhtmltopdf`, `weasyprint`, or any engine supported by Pandoc's `--pdf-engine`
 
 ## Configuration
@@ -124,12 +125,13 @@ A legacy (non-Codex) form is available at `Special:PandocUltimateConverter?codex
 
 ### Supported import formats
 
-Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested: **DOCX**, **ODT**, **PDF**, **DOC**.
+Supports [everything Pandoc supports](https://pandoc.org/MANUAL.html#general-options). Tested: **DOCX**, **ODT**, **PDF**, **DOC**, **PPTX**.
 
 | Format | Pipeline | Extra dependency |
 |--------|----------|-----------------|
 | DOCX, ODT | Pandoc → wikitext | — |
 | DOC | LibreOffice → DOCX → Pandoc | LibreOffice |
+| PPTX | LibreOffice → DOCX → Pandoc | LibreOffice |
 | PDF (text) | pdftohtml → HTML → Pandoc | poppler |
 | PDF (scanned) | pdftoppm → Tesseract OCR → wikitext | poppler + Tesseract |
 
