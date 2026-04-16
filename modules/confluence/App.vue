@@ -161,6 +161,41 @@
 				</cdx-checkbox>
 			</div>
 
+			<!-- Import specific pages only toggle -->
+			<div class="mw-confluence-migration-app__field mw-confluence-migration-app__field--checkbox">
+				<cdx-checkbox
+					v-model="form.importSpecificPages"
+					:disabled="isSubmitting"
+				>
+					{{ $i18n( 'confluencemigration-specific-pages-label' ).text() }}
+				</cdx-checkbox>
+			</div>
+
+			<!-- Page list textarea (visible only when importing specific pages) -->
+			<div
+				v-if="form.importSpecificPages"
+				class="mw-confluence-migration-app__field"
+			>
+				<label
+					for="mw-confluence-pagelist"
+					class="mw-confluence-migration-app__label"
+				>
+					{{ $i18n( 'confluencemigration-pagelist-label' ).text() }}
+				</label>
+				<cdx-text-area
+					id="mw-confluence-pagelist"
+					v-model="form.pageList"
+					:placeholder="$i18n( 'confluencemigration-pagelist-placeholder' ).text()"
+					:disabled="isSubmitting"
+					:status="fieldStatus( 'pageList' )"
+					class="mw-confluence-migration-app__textarea"
+					:rows="6"
+				></cdx-text-area>
+				<p class="mw-confluence-migration-app__help">
+					{{ $i18n( 'confluencemigration-pagelist-help' ).text() }}
+				</p>
+			</div>
+
 			<!-- Submit button -->
 			<div class="mw-confluence-migration-app__actions">
 				<cdx-button
@@ -259,7 +294,7 @@
 
 <script>
 const { defineComponent, ref, computed, onMounted, onUnmounted } = require( 'vue' );
-const { CdxButton, CdxCheckbox, CdxMessage, CdxTextInput } = require( '@wikimedia/codex' );
+const { CdxButton, CdxCheckbox, CdxMessage, CdxTextArea, CdxTextInput } = require( '@wikimedia/codex' );
 
 // @vue/component
 module.exports = exports = defineComponent( {
@@ -268,6 +303,7 @@ module.exports = exports = defineComponent( {
 		CdxButton,
 		CdxCheckbox,
 		CdxMessage,
+		CdxTextArea,
 		CdxTextInput
 	},
 	setup() {
@@ -279,7 +315,9 @@ module.exports = exports = defineComponent( {
 			targetPrefix: '',
 			overwrite: false,
 			categorize: true,
-			llmPolish: false
+			llmPolish: false,
+			importSpecificPages: false,
+			pageList: ''
 		} );
 
 		const llmAvailable = !!mw.config.get( 'confluenceMigrationLlmAvailable' );
@@ -391,6 +429,10 @@ module.exports = exports = defineComponent( {
 				bad.add( 'apiToken' );
 			}
 
+			if ( form.value.importSpecificPages && !form.value.pageList.trim() ) {
+				bad.add( 'pageList' );
+			}
+
 			invalidFields.value = bad;
 			return bad.size === 0;
 		}
@@ -405,6 +447,8 @@ module.exports = exports = defineComponent( {
 					errorMessage.value = mw.msg( 'confluencemigration-error-invalid-url' );
 				} else if ( invalidFields.value.has( 'spaceKey' ) ) {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-spacekey' );
+				} else if ( invalidFields.value.has( 'pageList' ) ) {
+					errorMessage.value = mw.msg( 'confluencemigration-error-empty-pagelist' );
 				} else if ( invalidFields.value.has( 'apiUser' ) ) {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-user-cloud' );
 				} else {
@@ -425,7 +469,8 @@ module.exports = exports = defineComponent( {
 				targetprefix: form.value.targetPrefix.trim(),
 				overwrite: form.value.overwrite ? '1' : '',
 				categorize: form.value.categorize ? '1' : '',
-				llmpolish: form.value.llmPolish ? '1' : ''
+				llmpolish: form.value.llmPolish ? '1' : '',
+				pagelist: form.value.importSpecificPages ? form.value.pageList.trim() : ''
 			} ).then( () => {
 				successMessage.value = mw.msg(
 					'confluencemigration-queued',
@@ -509,6 +554,10 @@ module.exports = exports = defineComponent( {
 		&--short {
 			max-width: 200px;
 		}
+	}
+
+	&__textarea {
+		max-width: 500px;
 	}
 
 	&__help {

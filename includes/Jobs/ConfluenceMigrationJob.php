@@ -39,6 +39,8 @@ use MediaWiki\Revision\SlotRecord;
  *  - apiToken       (string)  API token (Cloud) or password/PAT (Server).
  *  - targetPrefix   (string)  Optional wiki page prefix (e.g. "Confluence/DOCS").
  *  - overwrite      (bool)    Whether to overwrite existing wiki pages.
+ *  - pageList       (string)  Optional newline-separated page titles to import.
+ *                             When empty all pages in the space are imported.
  *  - userId         (int)     MediaWiki user ID of the initiating user.
  */
 class ConfluenceMigrationJob extends Job {
@@ -72,6 +74,7 @@ class ConfluenceMigrationJob extends Job {
 		$overwrite     = (bool)(   $this->params['overwrite']      ?? false );
 		$categorize    = (bool)(   $this->params['categorize']     ?? true );
 		$llmPolish     = (bool)(   $this->params['llmPolish']      ?? false );
+		$pageListRaw   = (string)( $this->params['pageList']       ?? '' );
 		$userId        = (int)(    $this->params['userId']         ?? 0 );
 
 		if ( $confluenceUrl === '' || $spaceKey === '' ) {
@@ -96,7 +99,28 @@ class ConfluenceMigrationJob extends Job {
 		}
 
 		try {
-			$pages = $client->fetchAllPages( $spaceKey );
+			if ( $pageListRaw !== '' ) {
+				$patterns = array_values( array_filter(
+					array_map( 'trim', explode( "\n", $pageListRaw ) ),
+					static fn ( string $t ) => $t !== ''
+				) );
+				// If any pattern is a subtree pattern ("pageName/*") or a glob we need
+				// the full page list to resolve the hierarchy / match all titles;
+				// otherwise use the cheaper per-title lookup.
+				// Note: "pageName/*" contains '*', so this check covers both cases.
+				$hasWildcard = (bool)array_filter(
+					$patterns,
+					static fn ( string $p ) => strpos( $p, '*' ) !== false || strpos( $p, '?' ) !== false
+				);
+				if ( $hasWildcard ) {
+					$allPages = $client->fetchAllPages( $spaceKey );
+					$pages    = self::filterPagesByPatterns( $allPages, $patterns );
+				} else {
+					$pages = $client->fetchPagesByTitles( $spaceKey, $patterns );
+				}
+			} else {
+				$pages = $client->fetchAllPages( $spaceKey );
+			}
 		} catch ( \RuntimeException $e ) {
 			$msg = 'Could not fetch page list from Confluence: ' . $e->getMessage();
 			wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: $msg" );
@@ -381,6 +405,94 @@ class ConfluenceMigrationJob extends Job {
 			$title = mb_strcut( $title, 0, 255, 'UTF-8' );
 		}
 		return $title;
+	}
+
+	/**
+	 * Filter a flat list of Confluence pages by user-supplied patterns.
+	 *
+	 * Each pattern may be:
+	 *  - An exact page title (no wildcard characters): only that page is selected.
+	 *  - A subtree pattern "pageName/*": the page whose title exactly matches
+	 *    "pageName" is selected together with ALL of its descendants in the
+	 *    Confluence hierarchy (direct and indirect children at every level).
+	 *  - A glob-style pattern containing '*' or '?' (but not ending with '/*'):
+	 *    every page whose title matches the glob is selected (title matching only,
+	 *    no automatic descendant expansion).
+	 *
+	 * @param list<array{id: string, title: string, parentId: string|null}> $allPages
+	 * @param string[] $patterns
+	 * @return list<array{id: string, title: string, parentId: string|null}>
+	 */
+	public static function filterPagesByPatterns( array $allPages, array $patterns ): array {
+		if ( $allPages === [] || $patterns === [] ) {
+			return [];
+		}
+
+		// Build lookup and parent→children maps.
+		$byId     = [];
+		$children = [];
+		foreach ( $allPages as $page ) {
+			$byId[ $page['id'] ] = $page;
+			if ( $page['parentId'] !== null ) {
+				$children[ $page['parentId'] ][] = $page['id'];
+			}
+		}
+
+		/** @var array<string, array{id: string, title: string, parentId: string|null}> $matched id → page */
+		$matched = [];
+
+		foreach ( $patterns as $pattern ) {
+			$pattern = trim( $pattern );
+			if ( $pattern === '' ) {
+				continue;
+			}
+
+			// "pageName/*" — match pageName exactly and include the full subtree.
+			if ( substr( $pattern, -2 ) === '/*' ) {
+				$baseName = substr( $pattern, 0, -2 );
+				if ( $baseName === '' ) {
+					continue;
+				}
+				foreach ( $allPages as $page ) {
+					if ( $page['title'] === $baseName ) {
+						$matched[ $page['id'] ] = $page;
+						self::collectDescendants( $page['id'], $children, $byId, $matched );
+					}
+				}
+				continue;
+			}
+
+			// Glob or exact match — title matching only, no descendant expansion.
+			foreach ( $allPages as $page ) {
+				if ( fnmatch( $pattern, $page['title'] ) ) {
+					$matched[ $page['id'] ] = $page;
+				}
+			}
+		}
+
+		return array_values( $matched );
+	}
+
+	/**
+	 * Recursively add all descendants of $pageId to $matched.
+	 *
+	 * @param string                                                                     $pageId   ID of the root page whose descendants to collect
+	 * @param array<string, list<string>>                                                $children id → child id list
+	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $byId     id → page
+	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $matched  id → page (mutated in place)
+	 */
+	private static function collectDescendants(
+		string $pageId,
+		array $children,
+		array $byId,
+		array &$matched
+	): void {
+		foreach ( $children[ $pageId ] ?? [] as $childId ) {
+			if ( !isset( $matched[ $childId ] ) && isset( $byId[ $childId ] ) ) {
+				$matched[ $childId ] = $byId[ $childId ];
+				self::collectDescendants( $childId, $children, $byId, $matched );
+			}
+		}
 	}
 
 	// -----------------------------------------------------------------------

@@ -322,6 +322,55 @@ class ConfluenceClient {
 	}
 
 	/**
+	 * Fetch a subset of pages from a Confluence space by their exact titles.
+	 *
+	 * For each requested title one API call is made (Confluence does not
+	 * support bulk title lookup in a single request).  Titles that do not
+	 * match any page in the space are silently skipped.
+	 *
+	 * Note: when importing a large number of pages, prefer {@see fetchAllPages()}
+	 * which retrieves all pages in one paginated batch to avoid excessive API calls.
+	 *
+	 * @param string   $spaceKey The Confluence space key (e.g. "DOCS").
+	 * @param string[] $titles   Exact page titles to fetch (may be untrimmed).
+	 * @return list<array{id: string, title: string, parentId: string|null}>
+	 * @throws \RuntimeException On API error.
+	 */
+	public function fetchPagesByTitles( string $spaceKey, array $titles ): array {
+		$pages = [];
+
+		foreach ( $titles as $title ) {
+			$title = trim( $title );
+			if ( $title === '' ) {
+				continue;
+			}
+
+			$data = $this->get( '/content', [
+				'spaceKey' => $spaceKey,
+				'type'     => 'page',
+				'title'    => $title,
+				'expand'   => 'ancestors',
+				'limit'    => '1',
+			] );
+
+			foreach ( $data['results'] ?? [] as $result ) {
+				$ancestors = $result['ancestors'] ?? [];
+				$parentId  = $ancestors !== []
+					? (string)$ancestors[ count( $ancestors ) - 1 ]['id']
+					: null;
+
+				$pages[] = [
+					'id'       => (string)$result['id'],
+					'title'    => (string)$result['title'],
+					'parentId' => $parentId,
+				];
+			}
+		}
+
+		return $pages;
+	}
+
+	/**
 	 * Lightweight connectivity and authentication check.
 	 *
 	 * Fetches one page from the space to verify that the credentials work
