@@ -50,6 +50,24 @@ class PandocWrapper
         return $preprocessor->convertToDocx( $source, $mediaFolder );
     }
 
+    /**
+     * Convert an office source file to PDF via LibreOffice.
+     *
+     * @param string $source
+     * @param string $mediaFolder
+     * @param string $sourceFormat
+     * @return string
+     */
+    private function convertOfficeSourceToPdf( string $source, string $mediaFolder, string $sourceFormat ): string
+    {
+        wfDebugLog(
+            'PandocUltimateConverter',
+            "convertInternal: converting .$sourceFormat to .pdf via LibreOffice for $source"
+        );
+        $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
+        return $preprocessor->convertTo( $source, $mediaFolder, 'pdf' );
+    }
+
     public function __construct( $config, MediaWikiServices $mwServices, $user )
     {
         // Support legacy global variable overrides
@@ -173,11 +191,13 @@ class PandocWrapper
             $format = 'docx';
         }
 
-        // .pptx import is normalized via LibreOffice to .docx for stable text extraction.
+        // .pptx: Pandoc cannot read PPTX, and LibreOffice cannot convert
+        // presentations to .docx (Impress ≠ Writer). Instead convert to PDF
+        // via LibreOffice, then let the PDF preprocessor handle text extraction.
         if ( $isPptx ) {
-            $source = $this->convertOfficeSourceToDocx( $source, $mediaFolder, 'pptx' );
-            $isDocx = true;
-            $format = 'docx';
+            $source = $this->convertOfficeSourceToPdf( $source, $mediaFolder, 'pptx' );
+            $isPdf = true;
+            $format = 'pdf';
         }
 
         // Build lua filter args once — shared with colour preprocessors

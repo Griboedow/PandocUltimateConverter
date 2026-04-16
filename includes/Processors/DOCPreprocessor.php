@@ -7,10 +7,11 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Processors;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 
 /**
- * Converts source office files (e.g. .doc, .pptx) to .docx using
- * LibreOffice's headless mode.
+ * Converts source office files via LibreOffice's headless mode.
  *
- * Pipeline: source file → LibreOffice → DOCX → (handed back to caller)
+ * Supported pipelines:
+ *  - .doc  → .docx  (Writer → Writer)
+ *  - .pptx → .pdf   (Impress → PDF export)
  */
 class DOCPreprocessor {
 
@@ -26,12 +27,25 @@ class DOCPreprocessor {
 	/**
 	 * Convert a source office file to .docx using LibreOffice in headless mode.
 	 *
-	 * @param string $docFilePath Absolute path to the source file (e.g. .doc, .pptx).
+	 * @param string $docFilePath Absolute path to the source file (e.g. .doc).
 	 * @param string $outDir      Directory where the resulting .docx will be written.
 	 * @return string Absolute path to the converted .docx file.
 	 * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
 	 */
 	public function convertToDocx( string $docFilePath, string $outDir ): string {
+		return $this->convertTo( $docFilePath, $outDir, 'docx' );
+	}
+
+	/**
+	 * Convert a source office file to an arbitrary format using LibreOffice.
+	 *
+	 * @param string $filePath      Absolute path to the source file.
+	 * @param string $outDir        Directory where the converted file will be written.
+	 * @param string $targetFormat  Target format extension (e.g. 'docx', 'pdf').
+	 * @return string Absolute path to the converted file.
+	 * @throws \RuntimeException If LibreOffice conversion fails or the output file is not found.
+	 */
+	public function convertTo( string $filePath, string $outDir, string $targetFormat ): string {
 		// LibreOffice needs a writable user profile. Under Apache, environment
 		// variables like HOME/USERPROFILE are not passed through, so we
 		// point it at a temp directory via -env:UserInstallation.
@@ -45,9 +59,9 @@ class DOCPreprocessor {
 			$this->libreofficePath,
 			'-env:UserInstallation=' . $profileUrl,
 			'--headless',
-			'--convert-to', 'docx',
+			'--convert-to', $targetFormat,
 			'--outdir', $outDir,
-			$docFilePath,
+			$filePath,
 		];
 
 		wfDebugLog(
@@ -59,16 +73,16 @@ class DOCPreprocessor {
 		// so use invokeShellRaw which does not throw on non-zero exit.
 		$result = PandocWrapper::invokeShellRaw( $cmd, true );
 
-		$baseName = pathinfo( $docFilePath, PATHINFO_FILENAME );
-		$docxPath = $outDir . DIRECTORY_SEPARATOR . $baseName . '.docx';
+		$baseName = pathinfo( $filePath, PATHINFO_FILENAME );
+		$outputPath = $outDir . DIRECTORY_SEPARATOR . $baseName . '.' . $targetFormat;
 
 		// Check for the output file first; only fail if it's actually missing.
-		if ( !file_exists( $docxPath ) ) {
+		if ( !file_exists( $outputPath ) ) {
 			$output = trim( $result['output'] );
 			$detail = $output !== '' ? $output
 				: 'LibreOffice crashed with no output';
 			throw new \RuntimeException(
-				'LibreOffice conversion to .docx failed (exit '
+				'LibreOffice conversion to .' . $targetFormat . ' failed (exit '
 				. $result['exitCode'] . '): ' . $detail
 			);
 		}
@@ -82,6 +96,6 @@ class DOCPreprocessor {
 			);
 		}
 
-		return $docxPath;
+		return $outputPath;
 	}
 }
