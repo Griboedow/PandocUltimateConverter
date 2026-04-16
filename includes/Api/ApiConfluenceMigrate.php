@@ -102,9 +102,9 @@ class ApiConfluenceMigrate extends ApiBase {
 				);
 			}
 
-			// Block built-in / service namespaces (IDs 0 – 15) and any talk
-			// namespace (odd IDs), which have special meaning in MediaWiki and
-			// are not suitable as Confluence import targets.
+			// Block all built-in namespaces (IDs < 100) and any talk namespace
+			// (odd IDs): only custom non-talk namespaces (ID ≥ 100) are
+			// acceptable as Confluence import targets.
 			if ( $nsIndex < 100 || $nsInfo->isTalk( $nsIndex ) ) {
 				$this->dieWithError( 'apierror-pandocconfluencemigrate-servicens' );
 			}
