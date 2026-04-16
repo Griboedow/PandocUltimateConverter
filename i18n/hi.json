@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: आपके Atlassian खाते का ईमेल। Server: Basic auth के लिए आपका उपयोगकर्ता नाम, या Personal Access Token (PAT) से प्रमाणित करने के लिए खाली छोड़ें।",
 	"confluencemigration-token-label": "API टोकन / पासवर्ड / PAT:",
 	"confluencemigration-prefix-label": "लक्ष्य पृष्ठ उपसर्ग (वैकल्पिक):",
+	"confluencemigration-prefix-help": "कोई उपसर्ग नहीं के लिए खाली छोड़ें। उदाहरण: \"Confluence/DOCS\" → \"Confluence/DOCS/मेरा पृष्ठ\"। नामस्थान में आयात करने के लिए \"MyNamespace:\" उपयोग करें।",
 	"confluencemigration-overwrite-label": "मौजूदा पृष्ठों को अधिलेखित करें",
 	"confluencemigration-categorize-label": "Confluence श्रेणीक्रम के आधार पर पृष्ठों को स्वतः श्रेणीबद्ध करें",
 	"confluencemigration-llm-polish-label": "LLM के साथ परिवर्तित विकिटेक्स्ट को साफ़ करें",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "आयात करने के लिए पृष्ठ शीर्षक:",
 	"confluencemigration-pagelist-placeholder": "शुरूआत\nदस्तावेज़ीकरण/*",
 	"confluencemigration-pagelist-help": "Confluence पृष्ठ शीर्षक आयात करने के लिए दर्ज करें, प्रति पंक्ति एक। शीर्षक में /* जोड़ने से हर स्तर पर सभी उप-पृष्ठ भी आयात होते हैं (उदाहरण: दस्तावेज़ीकरण/* दस्तावेज़ीकरण पृष्ठ और उसके अंतर्गत सभी कुछ आयात करता है)।",
+	"confluencemigration-error-invalid-prefix": "उपसर्ग में एक अज्ञात नामस्थान है। एक वैध कस्टम नामस्थान (जैसे \"MyNS:\") या बिना कोलन के सादा उपसर्ग उपयोग करें।",
 	"confluencemigration-notify-done": "स्पेस $1 का Confluence स्थानांतरण पूरा हो गया: $2 {{PLURAL:$2|पृष्ठ|पृष्ठ}} स्थानांतरित।",
 	"confluencemigration-jobs-heading": "लंबित स्थानांतरण कार्य",
 	"confluencemigration-jobs-col-id": "कार्य ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Confluence Cloud प्रमाणीकरण के लिए ईमेल/उपयोगकर्ता नाम आवश्यक है।",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" इस विकि पर कोई मान्यता प्राप्त MediaWiki नामस्थान नहीं है।",
+	"apierror-pandocconfluencemigrate-servicens": "अंतर्निर्मित और वार्ता नामस्थान (मुख्य, फ़ाइल, श्रेणी, साँचा आदि) को आयात लक्ष्य के रूप में उपयोग नहीं किया जा सकता। कृपया एक कस्टम नामस्थान उपयोग करें।",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

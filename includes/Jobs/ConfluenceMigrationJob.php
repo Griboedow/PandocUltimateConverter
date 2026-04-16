@@ -397,14 +397,62 @@ class ConfluenceMigrationJob extends Job {
 
 	/**
 	 * Build the target MediaWiki page title from the Confluence page title and prefix.
+	 *
+	 * The prefix may take one of these forms:
+	 *  - ''               → plain title: "PageTitle"
+	 *  - 'sub'            → slash-separated: "sub/PageTitle"
+	 *  - 'sub/'           → trailing slash kept: "sub/PageTitle"
+	 *  - 'aa_'            → trailing separator used as-is: "aa_PageTitle"
+	 *  - 'Namespace:'     → namespace only: "Namespace:PageTitle"
+	 *  - 'Namespace:sub'  → namespace + sub-prefix: "Namespace:sub/PageTitle"
+	 *  - 'Namespace:sub_' → namespace + separator prefix: "Namespace:sub_PageTitle"
+	 *
+	 * When the prefix (or sub-prefix after the namespace colon) ends with a
+	 * non-alphanumeric character, that character serves as the separator and
+	 * no extra slash is inserted.  When it ends with a letter or digit a
+	 * forward slash is added automatically (backward-compatible behaviour).
 	 */
 	private function buildPageTitle( string $confluenceTitle, string $prefix ): string {
-		$title = $prefix !== '' ? $prefix . '/' . $confluenceTitle : $confluenceTitle;
+		if ( $prefix === '' ) {
+			$title = $confluenceTitle;
+		} else {
+			$colonPos = strpos( $prefix, ':' );
+			if ( $colonPos !== false ) {
+				// Namespace-aware prefix: split on the first colon.
+				$nsName = substr( $prefix, 0, $colonPos );
+				$rest   = substr( $prefix, $colonPos + 1 );
+				if ( $rest === '' ) {
+					// "Namespace:" form – page goes directly into the namespace.
+					$title = $nsName . ':' . $confluenceTitle;
+				} else {
+					// "Namespace:subprefix" form.
+					$sep   = self::prefixSeparator( $rest );
+					$title = $nsName . ':' . $rest . $sep . $confluenceTitle;
+				}
+			} else {
+				// Plain prefix: honour any trailing separator character.
+				$sep   = self::prefixSeparator( $prefix );
+				$title = $prefix . $sep . $confluenceTitle;
+			}
+		}
+
 		// MediaWiki page titles must not be longer than 255 bytes (not characters).
 		if ( strlen( $title ) > 255 ) {
 			$title = mb_strcut( $title, 0, 255, 'UTF-8' );
 		}
 		return $title;
+	}
+
+	/**
+	 * Return the separator to insert between a prefix segment and a page title.
+	 *
+	 * If the segment already ends with a non-alphanumeric character (e.g. '/',
+	 * '_', '-') that character acts as the separator, so an empty string is
+	 * returned.  Otherwise '/' is returned so that a plain-word prefix like
+	 * "Confluence/DOCS" becomes "Confluence/DOCS/PageTitle".
+	 */
+	private static function prefixSeparator( string $prefix ): string {
+		return ctype_alnum( substr( $prefix, -1 ) ) ? '/' : '';
 	}
 
 	/**

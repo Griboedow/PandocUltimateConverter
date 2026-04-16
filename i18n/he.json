@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: כתובת הדוא\"ל של חשבון Atlassian שלך. Server: שם המשתמש שלך לאימות בסיסי, או השאר ריק לאימות באמצעות Personal Access Token (PAT).",
 	"confluencemigration-token-label": "אסימון API / סיסמה / PAT:",
 	"confluencemigration-prefix-label": "קידומת עמוד יעד (אופציונלי):",
+	"confluencemigration-prefix-help": "השאר ריק ללא קידומת. לדוגמה: \"Confluence/DOCS\" ← \"Confluence/DOCS/הדף שלי\". השתמש ב-\"MyNamespace:\" כדי לייבא למרחב שמות.",
 	"confluencemigration-overwrite-label": "החלף דפים קיימים",
 	"confluencemigration-categorize-label": "סווג דפים אוטומטית לפי ההיררכיה של Confluence",
 	"confluencemigration-llm-polish-label": "נקה את ה-wikitext שהומר בעזרת LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "כותרות דפים לייבוא:",
 	"confluencemigration-pagelist-placeholder": "תחילת העבודה\nתיעוד/*",
 	"confluencemigration-pagelist-help": "הזן כותרות דפי Confluence לייבוא, אחת בכל שורה. הוסף /* לכותרת כדי לייבא גם את כל תת-הדפים שלה בכל רמה (לדוגמא: תיעוד/* מייבא את דף תיעוד וכל מה שמקונן תחתיו).",
+	"confluencemigration-error-invalid-prefix": "הקידומת מכילה מרחב שמות לא מוכר. השתמש במרחב שמות מותאם אישית תקין (למשל \"MyNS:\") או בקידומת פשוטה ללא נקודתיים.",
 	"confluencemigration-notify-done": "ההעברה מ-Confluence של space $1 הושלמה: הועברו $2 {{PLURAL:$2|דף|דפים}}.",
 	"confluencemigration-jobs-heading": "משימות העברה ממתינות",
 	"confluencemigration-jobs-col-id": "מזהה משימה",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "דוא\"ל/שם משתמש נדרש לאימות Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" אינו מרחב שמות MediaWiki מוכר בוויקי זה.",
+	"apierror-pandocconfluencemigrate-servicens": "לא ניתן להשתמש במרחבי שמות מובנים ובדיון (ראשי, קובץ, קטגוריה, תבנית וכו') כיעדי ייבוא. אנא השתמש במרחב שמות מותאם אישית.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

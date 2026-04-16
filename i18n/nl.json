@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: het e-mailadres van je Atlassian-account. Server: je gebruikersnaam voor basisverificatie, of laat leeg om te verifiëren met een Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API-token / Wachtwoord / PAT:",
 	"confluencemigration-prefix-label": "Voorvoegsel doelpagina (optioneel):",
+	"confluencemigration-prefix-help": "Laat leeg voor geen voorvoegsel. Voorbeeld: \"Confluence/DOCS\" → \"Confluence/DOCS/Mijn pagina\". Gebruik \"MijnNaamruimte:\" om naar een naamruimte te importeren.",
 	"confluencemigration-overwrite-label": "Bestaande pagina's overschrijven",
 	"confluencemigration-categorize-label": "Pagina's automatisch indelen op basis van de Confluence-hiërarchie",
 	"confluencemigration-llm-polish-label": "Geconverteerde wikitekst opschonen met LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Te importeren paginatitels:",
 	"confluencemigration-pagelist-placeholder": "Aan de slag\nDocumentatie/*",
 	"confluencemigration-pagelist-help": "Voer Confluence-paginatitels in om te importeren, één per regel. Voeg /* toe aan een titel om ook alle subpagina’s op elk niveau te importeren (bijv. Documentatie/* importeert de pagina Documentatie en alles wat daaronder is genest).",
+	"confluencemigration-error-invalid-prefix": "Het voorvoegsel bevat een niet-herkende naamruimte. Gebruik een geldige aangepaste naamruimte (bijv. \"MijnNR:\") of een gewoon voorvoegsel zonder dubbele punt.",
 	"confluencemigration-notify-done": "Confluence-migratie van ruimte $1 is voltooid: $2 {{PLURAL:$2|pagina|pagina's}} gemigreerd.",
 	"confluencemigration-jobs-heading": "Wachtende migratieopdrachten",
 	"confluencemigration-jobs-col-id": "Taak-ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Voer een geldige Confluence-URL in die begint met https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-mailadres/gebruikersnaam is vereist voor Confluence Cloud-verificatie.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" is geen herkende MediaWiki-naamruimte op deze wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Ingebouwde naamruimten en overlegruimten (Hoofdpagina, Bestand, Categorie, Sjabloon, enz.) kunnen niet worden gebruikt als importdoel. Gebruik een aangepaste naamruimte.",
 	"apihelp-pandocconfluencemigrate-summary": "Plaatst een achtergrondtaak in de wachtrij die alle pagina's van een Confluence-ruimte importeert naar deze wiki."
 }

@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: e-mail vášho účtu Atlassian. Server: vaše používateľské meno pre základnú autentifikáciu, alebo nechajte prázdne na autentifikáciu pomocou Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API token / Heslo / PAT:",
 	"confluencemigration-prefix-label": "Predpona cieľovej stránky (nepovinné):",
+	"confluencemigration-prefix-help": "Nechajte prázdne pre žiadny prefix. Príklad: \"Confluence/DOCS\" → \"Confluence/DOCS/Moja stránka\". Použite \"MojMenný priestor:\" na import do menného priestoru.",
 	"confluencemigration-overwrite-label": "Prepísať existujúce stránky",
 	"confluencemigration-categorize-label": "Automaticky kategorizovať stránky podľa hierarchie Confluence",
 	"confluencemigration-llm-polish-label": "Vyčistiť prevedený wikitext pomocou LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Názvy stránok na import:",
 	"confluencemigration-pagelist-placeholder": "Začíname\nDokumentácia/*",
 	"confluencemigration-pagelist-help": "Zadajte názvy stránok Confluence na import, jeden na riadok. Pridajte /* k názvu, aby sa importovali aj všetky podstránky na každej úrovni (napr. Dokumentácia/* importuje stránku Dokumentácia a všetko, čo je pod ňou vnorené).",
+	"confluencemigration-error-invalid-prefix": "Prefix obsahuje nerozpoznaný menný priestor. Použite platný vlastný menný priestor (napr. \"MojNS:\") alebo jednoduchý prefix bez dvojbodky.",
 	"confluencemigration-notify-done": "Migrácia Confluence priestoru $1 je dokončená: migrovaných $2 {{PLURAL:$2|stránka|stránky|stránok}}.",
 	"confluencemigration-jobs-heading": "Čakajúce úlohy migrácie",
 	"confluencemigration-jobs-col-id": "ID úlohy",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Zadajte platnú URL adresu Confluence začínajúcu https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-mail/používateľské meno je vyžadované pre autentifikáciu Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" nie je rozpoznaný menný priestor MediaWiki na tomto wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Vstavaný menné priestory a priestory pre diskusiu (Hlavná, Súbor, Kategória, Šablóna atď.) nemožno použiť ako ciele importu. Použite vlastný menný priestor.",
 	"apihelp-pandocconfluencemigrate-summary": "Zaradí do frontu úlohu na pozadí, ktorá importuje všetky stránky z priestoru Confluence do tejto wiki."
 }

@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: E-Mail-Adresse deines Atlassian-Kontos. Server: dein Benutzername für die Basic-Authentifizierung oder leer lassen, um dich mit einem Personal Access Token (PAT) anzumelden.",
 	"confluencemigration-token-label": "API-Token / Passwort / PAT:",
 	"confluencemigration-prefix-label": "Seitenprefix (optional):",
+	"confluencemigration-prefix-help": "Leer lassen für kein Präfix. Beispiel: \"Confluence/DOCS\" → \"Confluence/DOCS/Meine Seite\". Verwende \"MeinNamensraum:\" für den Import in einen Namensraum.",
 	"confluencemigration-overwrite-label": "Vorhandene Seiten überschreiben",
 	"confluencemigration-categorize-label": "Seiten automatisch anhand der Confluence-Hierarchie kategorisieren",
 	"confluencemigration-llm-polish-label": "Konvertierten Wikitext mit LLM bereinigen",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Zu importierende Seitentitel:",
 	"confluencemigration-pagelist-placeholder": "Erste Schritte\nDokumentation/*",
 	"confluencemigration-pagelist-help": "Gib Confluence-Seitentitel zum Importieren ein, einen pro Zeile. Füge /* an einen Titel an, um auch alle Unterseiten auf jeder Ebene zu importieren (z. B. importiert Dokumentation/* die Seite Dokumentation und alles darunter).",
+	"confluencemigration-error-invalid-prefix": "Das Präfix enthält einen unbekannten Namensraum. Verwende einen gültigen benutzerdefinierten Namensraum (z. B. \"MeinNR:\") oder ein einfaches Präfix ohne Doppelpunkt.",
 	"confluencemigration-notify-done": "Die Confluence-Migration des Bereichs $1 ist abgeschlossen: $2 {{PLURAL:$2|Seite|Seiten}} migriert.",
 	"confluencemigration-jobs-heading": "Ausstehende Migrationsaufgaben",
 	"confluencemigration-jobs-col-id": "Aufgaben-ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Bitte gib eine gültige Confluence-URL ein, die mit https:// beginnt.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-Mail/Benutzername ist für die Confluence-Cloud-Authentifizierung erforderlich.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" ist kein bekannter MediaWiki-Namensraum in diesem Wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Eingebaute Namensräume und Diskussionsnamensräume (Hauptseite, Datei, Kategorie, Vorlage usw.) können nicht als Importziele verwendet werden. Bitte verwende einen benutzerdefinierten Namensraum.",
 	"apihelp-pandocconfluencemigrate-summary": "Reiht einen Hintergrundauftrag ein, der alle Seiten eines Confluence-Bereichs in dieses Wiki importiert."
 }

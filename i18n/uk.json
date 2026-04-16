@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: електронна пошта вашого облікового запису Atlassian. Server: ім'я користувача для базової автентифікації або залиште порожнім для автентифікації через Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API-токен / Пароль / PAT:",
 	"confluencemigration-prefix-label": "Префікс цільової сторінки (необов'язково):",
+	"confluencemigration-prefix-help": "Залиште порожнім, щоб не використовувати префікс. Приклад: \"Confluence/DOCS\" → \"Confluence/DOCS/Моя сторінка\". Використовуйте \"МійПростір:\", щоб імпортувати у простір назв.",
 	"confluencemigration-overwrite-label": "Перезаписувати існуючі сторінки",
 	"confluencemigration-categorize-label": "Автоматично категоризувати сторінки за ієрархією Confluence",
 	"confluencemigration-llm-polish-label": "Очистити конвертований вікітекст за допомогою LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Назви сторінок для імпорту:",
 	"confluencemigration-pagelist-placeholder": "Початок роботи\nДокументація/*",
 	"confluencemigration-pagelist-help": "Введіть назви сторінок Confluence для імпорту, по одній на рядок. Додайте /* до назви, щоб також імпортувати всі дочірні сторінки на кожному рівні (наприклад, Документація/* імпортує сторінку Документація та все, що вкладено під нею).",
+	"confluencemigration-error-invalid-prefix": "Префікс містить нерозпізнаний простір назв. Використовуйте допустимий користувацький простір назв (наприклад, \"МійПП:\") або простий префікс без двокрапки.",
 	"confluencemigration-notify-done": "Міграцію Confluence простору $1 завершено: перенесено $2 {{PLURAL:$2|сторінку|сторінки|сторінок}}.",
 	"confluencemigration-jobs-heading": "Очікуючі завдання міграції",
 	"confluencemigration-jobs-col-id": "ID завдання",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Введіть коректний URL Confluence, що починається з https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Для автентифікації Confluence Cloud потрібна електронна пошта/ім'я користувача.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "«$1» не є розпізнаним простором назв MediaWiki на цій вікі.",
+	"apierror-pandocconfluencemigrate-servicens": "Вбудовані простори назв та простори обговорень (Основний, Файл, Категорія, Шаблон тощо) не можуть використовуватися як цілі імпорту. Будь ласка, використовуйте користувацький простір назв.",
 	"apihelp-pandocconfluencemigrate-summary": "Додає до черги фонове завдання, яке імпортує всі сторінки з простору Confluence до цієї вікі."
 }

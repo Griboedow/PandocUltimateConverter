@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: Atlassian hesabınızın e-postası. Sunucu: Temel kimlik doğrulama için kullanıcı adınız veya Kişisel Erişim Belirteci (PAT) ile kimlik doğrulamak için boş bırakın.",
 	"confluencemigration-token-label": "API belirteci / Parola / PAT:",
 	"confluencemigration-prefix-label": "Hedef sayfa öneki (isteğe bağlı):",
+	"confluencemigration-prefix-help": "Önek kullanmak istemiyorsanız boş bırakın. Örnek: \"Confluence/DOCS\" → \"Confluence/DOCS/Benim Sayfam\". Bir ad alanına içe aktarmak için \"AdAlanım:\" kullanın.",
 	"confluencemigration-overwrite-label": "Mevcut sayfaların üzerine yaz",
 	"confluencemigration-categorize-label": "Sayfaları Confluence hiyerarşisine göre otomatik kategorize et",
 	"confluencemigration-llm-polish-label": "Dönüştürülen vikimetni LLM ile temizle",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "İçe aktarılacak sayfa başlıkları:",
 	"confluencemigration-pagelist-placeholder": "Başlarken\nBelgeleme/*",
 	"confluencemigration-pagelist-help": "İçe aktarılacak Confluence sayfa başlıklarını, her satıra bir tane gelecek şekilde girin. Bir başlığa /* ekleyerek her düzeydeki tüm alt sayfaları da içe aktarabilirsiniz (ör. Belgeleme/* sayfasını ve altında iç içe geçmiş her şeyi içe aktarır).",
+	"confluencemigration-error-invalid-prefix": "Önek tanınmayan bir ad alanı içeriyor. Geçerli özel bir ad alanı (ör. \"BenimNS:\") veya iki nokta üst üste işareti olmayan düz bir önek kullanın.",
 	"confluencemigration-notify-done": "$1 alanının Confluence taşıması tamamlandı: $2 sayfa taşındı.",
 	"confluencemigration-jobs-heading": "Bekleyen geçiş işleri",
 	"confluencemigration-jobs-col-id": "İş ID'si",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Lütfen https:// ile başlayan geçerli bir Confluence URL'si girin.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Confluence Cloud kimlik doğrulaması için e-posta/kullanıcı adı gereklidir.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" bu wikide tanınan bir MediaWiki ad alanı değildir.",
+	"apierror-pandocconfluencemigrate-servicens": "Yerleşik ve tartışma ad alanları (Ana, Dosya, Kategori, Şablon vb.) içe aktarma hedefi olarak kullanılamaz. Lütfen özel bir ad alanı kullanın.",
 	"apihelp-pandocconfluencemigrate-summary": "Bir Confluence alanındaki tüm sayfaları bu wikiye aktaran bir arka plan işini sıraya ekler."
 }

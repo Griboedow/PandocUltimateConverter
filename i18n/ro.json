@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: e-mailul contului dvs. Atlassian. Server: numele de utilizator pentru autentificarea de bază, sau lăsați gol pentru a vă autentifica cu un Token de Acces Personal (PAT).",
 	"confluencemigration-token-label": "Token API / Parolă / PAT:",
 	"confluencemigration-prefix-label": "Prefixul paginii țintă (opțional):",
+	"confluencemigration-prefix-help": "Lăsați gol pentru niciun prefix. Exemplu: \"Confluence/DOCS\" → \"Confluence/DOCS/Pagina mea\". Folosiți \"SpațiulMeuDeNume:\" pentru a importa într-un spațiu de nume.",
 	"confluencemigration-overwrite-label": "Suprascrieți paginile existente",
 	"confluencemigration-categorize-label": "Categorizați automat paginile pe baza ierarhiei Confluence",
 	"confluencemigration-llm-polish-label": "Curățați wikitextul convertit cu LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Titluri de pagini de importat:",
 	"confluencemigration-pagelist-placeholder": "Introducere\nDocumentație/*",
 	"confluencemigration-pagelist-help": "Introdu titlurile paginilor Confluence de importat, câte unul pe linie. Adaugă /* la un titlu pentru a importa şi toate subpaginile de la fiecare nivel (ex. Documentație/* importă pagina Documentație şi tot ce este imbricat sub ea).",
+	"confluencemigration-error-invalid-prefix": "Prefixul conține un spațiu de nume nerecunoscut. Utilizați un spațiu de nume personalizat valid (de ex. \"SpațNS:\") sau un prefix simplu fără două puncte.",
 	"confluencemigration-notify-done": "Migrarea Confluence a spațiului $1 este finalizată: $2 {{PLURAL:$2|pagină|pagini}} migrate.",
 	"confluencemigration-jobs-heading": "Sarcini de migrare în așteptare",
 	"confluencemigration-jobs-col-id": "ID sarcină",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-mailul/numele de utilizator este necesar pentru autentificarea Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" nu este un spațiu de nume MediaWiki recunoscut pe acest wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Spațiile de nume încorporate și de discuție (Principal, Fișier, Categorie, Format etc.) nu pot fi utilizate ca destinații de import. Vă rugăm să utilizați un spațiu de nume personalizat.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

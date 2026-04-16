@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Nubes: inscriptio electronica rationis Atlassiani. Servitor: nomen usoris pro autenticitate basica, vel relinque vacuum ad authenticandum cum Tessera Accessus Personalis (PAT).",
 	"confluencemigration-token-label": "Tessera API / Signum / PAT:",
 	"confluencemigration-prefix-label": "Praefixum paginae destinatae (optionale):",
+	"confluencemigration-prefix-help": "Sine praefixo relinque vacuum. Exemplum: \"Confluence/DOCS\" → \"Confluence/DOCS/Pagina mea\". Utere \"MeumNomenSpatium:\" ad importandum in nomen spatium.",
 	"confluencemigration-overwrite-label": "Paginas iam existentes superscribere",
 	"confluencemigration-categorize-label": "Paginas automatice secundum hierarchiam Confluence classificare",
 	"confluencemigration-llm-polish-label": "Textum viciae conversum per LLM purgare",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Tituli paginarum importandi:",
 	"confluencemigration-pagelist-placeholder": "Initium\nDocumentatio/*",
 	"confluencemigration-pagelist-help": "Inscribe titulos paginarum Confluence importandorum, singulos in lineis singulis. Adde /* titulo ut etiam omnes paginae subsidiarias omnibus gradibus importentur (exempli gratia: Documentatio/* paginam Documentatio et omnia sub ea importat).",
+	"confluencemigration-error-invalid-prefix": "Praefixum continet nomen spatium incognitum. Utere nomen spatio proprio valido (e.g. \"MeumNS:\") vel praefixo simplici sine colon.",
 	"confluencemigration-notify-done": "Migratio Confluence spatii $1 completa est: $2 {{PLURAL:$2|pagina|paginae}} migratae.",
 	"confluencemigration-jobs-heading": "Munera migrationis pendentia",
 	"confluencemigration-jobs-col-id": "ID muneris",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Inscriptio electronica/nomen usoris necessaria est pro autenticitate Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" non est nomen spatium MediaWiki cognitum in hoc wiki.",
+	"apierror-pandocconfluencemigrate-servicens": "Nomina spatia intrinseca et disputationis (Principale, Fasciculus, Categoria, Formula, etc.) non possunt adhiberi ut meta importationis. Utere nomen spatio proprio.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

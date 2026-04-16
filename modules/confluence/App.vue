@@ -124,8 +124,16 @@
 					v-model="form.targetPrefix"
 					input-type="text"
 					:disabled="isSubmitting"
+					:status="fieldStatus( 'targetPrefix' )"
+					aria-describedby="mw-confluence-prefix-help"
 					class="mw-confluence-migration-app__input"
 				></cdx-text-input>
+				<p
+					id="mw-confluence-prefix-help"
+					class="mw-confluence-migration-app__help"
+				>
+					{{ $i18n( 'confluencemigration-prefix-help' ).text() }}
+				</p>
 			</div>
 
 			<!-- Overwrite checkbox -->
@@ -321,6 +329,8 @@ module.exports = exports = defineComponent( {
 		} );
 
 		const llmAvailable = !!mw.config.get( 'confluenceMigrationLlmAvailable' );
+		/** @type {string[]} */
+		const validNamespaces = mw.config.get( 'confluenceMigrationValidNamespaces' ) || [];
 
 		const isSubmitting = ref( false );
 		const successMessage = ref( '' );
@@ -429,6 +439,16 @@ module.exports = exports = defineComponent( {
 				bad.add( 'apiToken' );
 			}
 
+			// Validate namespace prefix if a colon is present.
+			const prefix = form.value.targetPrefix.trim();
+			const colonIdx = prefix.indexOf( ':' );
+			if ( colonIdx !== -1 ) {
+				const nsName = prefix.slice( 0, colonIdx );
+				if ( validNamespaces.length > 0 && !validNamespaces.includes( nsName ) ) {
+					bad.add( 'targetPrefix' );
+				}
+			}
+
 			if ( form.value.importSpecificPages && !form.value.pageList.trim() ) {
 				bad.add( 'pageList' );
 			}
@@ -451,6 +471,8 @@ module.exports = exports = defineComponent( {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-pagelist' );
 				} else if ( invalidFields.value.has( 'apiUser' ) ) {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-user-cloud' );
+				} else if ( invalidFields.value.has( 'targetPrefix' ) ) {
+					errorMessage.value = mw.msg( 'confluencemigration-error-invalid-prefix' );
 				} else {
 					errorMessage.value = mw.msg( 'confluencemigration-error-empty-token' );
 				}
@@ -506,7 +528,8 @@ module.exports = exports = defineComponent( {
 			jobs,
 			reports,
 			formatTime,
-			llmAvailable
+			llmAvailable,
+			validNamespaces
 		};
 	}
 } );

@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Pilvi: Atlassian-tilisi sähköpostiosoite. Palvelin: käyttäjänimesi perustodennukseen tai jätä tyhjäksi todentaaksesi henkilökohtaisella käyttöoikeustunnisteella (PAT).",
 	"confluencemigration-token-label": "API-avain / Salasana / PAT:",
 	"confluencemigration-prefix-label": "Kohdesivun etuliite (valinnainen):",
+	"confluencemigration-prefix-help": "Jätä tyhjäksi, jos et halua etuliitettä. Esimerkki: \"Confluence/DOCS\" → \"Confluence/DOCS/Oma sivu\". Käytä \"OmaNimialue:\" tuodaksesi nimiavaruuteen.",
 	"confluencemigration-overwrite-label": "Korvaa olemassa olevat sivut",
 	"confluencemigration-categorize-label": "Luokittele sivut automaattisesti Confluence-hierarkian mukaan",
 	"confluencemigration-llm-polish-label": "Puhdista muunnettu wikiteksti LLM:llä",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Tuotavien sivujen otsikot:",
 	"confluencemigration-pagelist-placeholder": "Aloittaminen\nDokumentaatio/*",
 	"confluencemigration-pagelist-help": "Syötä Confluence-sivujen otsikot tuomista varten, yksi per rivi. Lisää /* otsikon perään tuodaksesi myös kaikki sen alasivut jokaisella tasolla (esim. Dokumentaatio/* tuo Dokumentaatio-sivun ja kaiken sen alla olevan).",
+	"confluencemigration-error-invalid-prefix": "Etuliite sisältää tunnistamattoman nimialueen. Käytä kelvollista mukautettua nimiavaruutta (esim. \"OmaNS:\") tai tavallista etuliitettä ilman kaksoispistettä.",
 	"confluencemigration-notify-done": "Työtilan $1 Confluence-siirto on valmis: $2 {{PLURAL:$2|sivu|sivua}} siirretty.",
 	"confluencemigration-jobs-heading": "Odottavat siirtotehtävät",
 	"confluencemigration-jobs-col-id": "Tehtävä-ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Sähköposti/käyttäjänimi vaaditaan Confluence-pilven todennukseen.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" ei ole tunnistettu MediaWiki-nimialue tässä wikissä.",
+	"apierror-pandocconfluencemigrate-servicens": "Sisäisiä nimiavaruuksia ja keskustelunimiavaruuksia (Pää, Tiedosto, Luokka, Malline jne.) ei voi käyttää tuontikohteina. Käytä mukautettua nimiavaruutta.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

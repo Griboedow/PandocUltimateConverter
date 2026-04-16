@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Sky: e-postadressen til din Atlassian-konto. Server: brukernavnet ditt for grunnleggende autentisering, eller la det være tomt for å autentisere med et Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API-token / Passord / PAT:",
 	"confluencemigration-prefix-label": "Målsideprefiks (valgfritt):",
+	"confluencemigration-prefix-help": "La stå tomt for inget prefiks. Eksempel: \"Confluence/DOCS\" → \"Confluence/DOCS/Min side\". Bruk \"MittNavnerom:\" for å importere til et navnerom.",
 	"confluencemigration-overwrite-label": "Overskriv eksisterende sider",
 	"confluencemigration-categorize-label": "Kategoriser sider automatisk basert på Confluence-hierarki",
 	"confluencemigration-llm-polish-label": "Rydd opp i konvertert wikitekst med LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Sidetitler som skal importeres:",
 	"confluencemigration-pagelist-placeholder": "Kom i gang\nDokumentasjon/*",
 	"confluencemigration-pagelist-help": "Skriv inn Confluence-sidetitler som skal importeres, én per linje. Legg til /* bak en tittel for å importere alle undersider på alle nivåer (f.eks. Dokumentasjon/* importerer Dokumentasjon-siden og alt som er nestet under den).",
+	"confluencemigration-error-invalid-prefix": "Prefikset inneholder et ukjent navnerom. Bruk et gyldig tilpasset navnerom (f.eks. \"MittNS:\") eller et enkelt prefiks uten kolon.",
 	"confluencemigration-notify-done": "Confluence-migrering av rom $1 er ferdig: $2 {{PLURAL:$2|side|sider}} migrert.",
 	"confluencemigration-jobs-heading": "Ventende migreringsjobber",
 	"confluencemigration-jobs-col-id": "Jobb-ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "E-post/brukernavn er påkrevd for Confluence Cloud-autentisering.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" er ikke et kjent MediaWiki-navnerom på denne wikien.",
+	"apierror-pandocconfluencemigrate-servicens": "Innebygde navnerom og diskusjonsnavnerom (Hoved, Fil, Kategori, Mal osv.) kan ikke brukes som importmål. Bruk et tilpasset navnerom.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

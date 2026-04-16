@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: email tài khoản Atlassian của bạn. Server: tên đăng nhập để xác thực cơ bản, hoặc để trống để xác thực bằng Personal Access Token (PAT).",
 	"confluencemigration-token-label": "Token API / Mật khẩu / PAT:",
 	"confluencemigration-prefix-label": "Tiền tố trang đích (tùy chọn):",
+	"confluencemigration-prefix-help": "Để trống nếu không muốn dùng tiền tố. Ví dụ: \"Confluence/DOCS\" → \"Confluence/DOCS/Trang của tôi\". Dùng \"KhôngGianTênCủaTôi:\" để nhập vào không gian tên.",
 	"confluencemigration-overwrite-label": "Ghi đè các trang hiện có",
 	"confluencemigration-categorize-label": "Tự động phân loại trang dựa trên hệ thống phân cấp Confluence",
 	"confluencemigration-llm-polish-label": "Dọn dẹp wikitexte đã chuyển đổi bằng LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Tiêu đề trang cần nhập:",
 	"confluencemigration-pagelist-placeholder": "Bắt đầu\nTài liệu/*",
 	"confluencemigration-pagelist-help": "Nhập tiêu đề các trang Confluence cần nhập, mỗi dòng một tiêu đề. Thêm /* vào cuối tiêu đề để nhập tất cả các trang con ở mọi cấp độ (ví dụ: Tài liệu/* sẽ nhập trang Tài liệu và mọi thứ lồng bên dưới nó).",
+	"confluencemigration-error-invalid-prefix": "Tiền tố chứa không gian tên không được nhận dạng. Hãy dùng không gian tên tùy chỉnh hợp lệ (ví dụ: \"MyNS:\") hoặc tiền tố đơn giản không có dấu hai chấm.",
 	"confluencemigration-notify-done": "Đã hoàn tất di chuyển Confluence không gian $1: đã di chuyển $2 {{PLURAL:$2|trang|trang}}.",
 	"confluencemigration-jobs-heading": "Các tác vụ di chuyển đang chờ",
 	"confluencemigration-jobs-col-id": "ID tác vụ",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Email/tên đăng nhập là bắt buộc để xác thực Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" không phải là không gian tên MediaWiki được nhận dạng trên wiki này.",
+	"apierror-pandocconfluencemigrate-servicens": "Các không gian tên tích hợp sẵn và thảo luận (Chính, Tệp, Thể loại, Bản mẫu, v.v.) không thể dùng làm đích nhập. Vui lòng dùng không gian tên tùy chỉnh.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: بريدك الإلكتروني في حساب Atlassian. Server: اسم المستخدم للمصادقة الأساسية، أو اتركه فارغاً للمصادقة باستخدام رمز الوصول الشخصي (PAT).",
 	"confluencemigration-token-label": "رمز API / كلمة المرور / PAT:",
 	"confluencemigration-prefix-label": "بادئة الصفحة المستهدفة (اختياري):",
+	"confluencemigration-prefix-help": "اتركه فارغاً لعدم استخدام بادئة. مثال: \"Confluence/DOCS\" ← \"Confluence/DOCS/صفحتي\". استخدم \"MyNamespace:\" للاستيراد إلى مساحة اسم.",
 	"confluencemigration-overwrite-label": "الكتابة فوق الصفحات الموجودة",
 	"confluencemigration-categorize-label": "تصنيف الصفحات تلقائياً استناداً إلى تسلسل Confluence الهرمي",
 	"confluencemigration-llm-polish-label": "تنظيف نص الويكي المحوّل باستخدام LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "عناوين الصفحات للاستيراد:",
 	"confluencemigration-pagelist-placeholder": "البداية\nالتوثيق/*",
 	"confluencemigration-pagelist-help": "أدخل عناوين صفحات Confluence للاستيراد، واحدًا في كل سطر. أضف /* إلى العنوان لاستيراد جميع الصفحات الفرعية على كل المستويات (مثال: التوثيق/* يستورد صفحة التوثيق وكل ما هو متداخل تحتها).",
+	"confluencemigration-error-invalid-prefix": "تحتوي البادئة على مساحة اسم غير معروفة. استخدم مساحة اسم مخصصة صالحة (مثل \"MyNS:\") أو بادئة عادية بدون نقطتين.",
 	"confluencemigration-notify-done": "اكتملت هجرة Confluence للمساحة $1: تم ترحيل $2 صفحة.",
 	"confluencemigration-jobs-heading": "مهام الهجرة المعلّقة",
 	"confluencemigration-jobs-col-id": "معرّف المهمة",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "يرجى إدخال عنوان URL صالح لـ Confluence يبدأ بـ https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "البريد الإلكتروني/اسم المستخدم مطلوب للمصادقة على Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" ليست مساحة اسم MediaWiki معروفة على هذه الويكي.",
+	"apierror-pandocconfluencemigrate-servicens": "لا يمكن استخدام مساحات الأسماء المدمجة والنقاش (الرئيسية، ملف، تصنيف، قالب، إلخ) كأهداف استيراد. يُرجى استخدام مساحة اسم مخصصة.",
 	"apihelp-pandocconfluencemigrate-summary": "إضافة مهمة خلفية لاستيراد جميع صفحات مساحة Confluence إلى هذه الويكي."
 }

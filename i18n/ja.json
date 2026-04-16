@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud：AtlassianアカウントのメールアドレスServer：基本認証のユーザー名、またはPersonal Access Token（PAT）で認証する場合は空欄のままにしてください。",
 	"confluencemigration-token-label": "APIトークン / パスワード / PAT：",
 	"confluencemigration-prefix-label": "対象ページのプレフィックス（任意）：",
+	"confluencemigration-prefix-help": "プレフィックスなしの場合は空白にしてください。例：\"Confluence/DOCS\" → \"Confluence/DOCS/マイページ\"。名前空間にインポートするには \"MyNamespace:\" を使用してください。",
 	"confluencemigration-overwrite-label": "既存のページを上書きする",
 	"confluencemigration-categorize-label": "Confluenceの階層に基づいてページを自動分類する",
 	"confluencemigration-llm-polish-label": "変換されたウィキテキストをLLMでクリーンアップする",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "インポートするページのタイトル:",
 	"confluencemigration-pagelist-placeholder": "はじめに\nドキュメント/*",
 	"confluencemigration-pagelist-help": "インポートするConfluenceのページタイトルを1行に1つずつ入力してください。タイトルの末尾に /*を追加すると、すべての階層のサブページも一緒にインポートされます（例：ドキュメント/*はドキュメントページとその下にネストされたすべてをインポートします）。",
+	"confluencemigration-error-invalid-prefix": "プレフィックスに認識されない名前空間が含まれています。有効なカスタム名前空間（例：\"MyNS:\"）またはコロンなしの単純なプレフィックスを使用してください。",
 	"confluencemigration-notify-done": "スペース $1 のConfluence移行が完了しました：$2 ページが移行されました。",
 	"confluencemigration-jobs-heading": "処理待ちの移行ジョブ",
 	"confluencemigration-jobs-col-id": "ジョブID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "https://で始まる有効なConfluence URLを入力してください。",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Confluence Cloudの認証にはメールアドレス/ユーザー名が必要です。",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" はこのウィキで認識されているMediaWikiの名前空間ではありません。",
+	"apierror-pandocconfluencemigrate-servicens": "組み込みおよびトーク名前空間（メイン、ファイル、カテゴリ、テンプレートなど）はインポート先として使用できません。カスタム名前空間を使用してください。",
 	"apihelp-pandocconfluencemigrate-summary": "ConfluenceスペースのすべてのページをこのWikiにインポートするバックグラウンドジョブをキューに追加します。"
 }

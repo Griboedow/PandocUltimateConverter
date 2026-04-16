@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud: email akun Atlassian Anda. Server: nama pengguna untuk autentikasi Dasar, atau kosongkan untuk autentikasi menggunakan Personal Access Token (PAT).",
 	"confluencemigration-token-label": "Token API / Kata sandi / PAT:",
 	"confluencemigration-prefix-label": "Awalan halaman target (opsional):",
+	"confluencemigration-prefix-help": "Kosongkan untuk tanpa awalan. Contoh: \"Confluence/DOCS\" → \"Confluence/DOCS/Halaman Saya\". Gunakan \"RuangNama:\" untuk mengimpor ke dalam ruang nama.",
 	"confluencemigration-overwrite-label": "Timpa halaman yang sudah ada",
 	"confluencemigration-categorize-label": "Kategorikan halaman secara otomatis berdasarkan hierarki Confluence",
 	"confluencemigration-llm-polish-label": "Bersihkan wikiteks yang dikonversi dengan LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Judul halaman untuk diimpor:",
 	"confluencemigration-pagelist-placeholder": "Memulai\nDokumentasi/*",
 	"confluencemigration-pagelist-help": "Masukkan judul halaman Confluence yang akan diimpor, satu per baris. Tambahkan /* pada judul untuk mengimpor semua sub-halaman di setiap tingkatan (mis. Dokumentasi/* mengimpor halaman Dokumentasi dan semua yang bersarang di bawahnya).",
+	"confluencemigration-error-invalid-prefix": "Awalan mengandung ruang nama yang tidak dikenali. Gunakan ruang nama kustom yang valid (mis. \"RuangNS:\") atau awalan biasa tanpa titik dua.",
 	"confluencemigration-notify-done": "Migrasi Confluence ruang $1 selesai: $2 {{PLURAL:$2|halaman|halaman}} dimigrasikan.",
 	"confluencemigration-jobs-heading": "Pekerjaan migrasi tertunda",
 	"confluencemigration-jobs-col-id": "ID pekerjaan",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Email/nama pengguna diperlukan untuk autentikasi Confluence Cloud.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" bukan ruang nama MediaWiki yang dikenali di wiki ini.",
+	"apierror-pandocconfluencemigrate-servicens": "Ruang nama bawaan dan diskusi (Utama, Berkas, Kategori, Templat, dll.) tidak dapat digunakan sebagai target impor. Silakan gunakan ruang nama kustom.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }

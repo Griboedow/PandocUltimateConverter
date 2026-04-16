@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Cloud：您的 Atlassian 帐户电子邮件。服务器：用于基本身份验证的用户名，或留空以通过个人访问令牌（PAT）进行身份验证。",
 	"confluencemigration-token-label": "API 令牌 / 密码 / PAT：",
 	"confluencemigration-prefix-label": "目标页面前缀（可选）：",
+	"confluencemigration-prefix-help": "留空表示无前缀。示例：\"Confluence/DOCS\"→\"Confluence/DOCS/我的页面\"。使用\"MyNamespace:\"导入到命名空间。",
 	"confluencemigration-overwrite-label": "覆盖已有页面",
 	"confluencemigration-categorize-label": "根据 Confluence 层级自动分类页面",
 	"confluencemigration-llm-polish-label": "使用 LLM 清理转换后的维基文本",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "要导入的页面标题：",
 	"confluencemigration-pagelist-placeholder": "快速入门\n文档/*",
 	"confluencemigration-pagelist-help": "输入要导入的 Confluence 页面标题，每行一个。在标题后附加 /* 可同时导入各级子页面（例如，文档/* 将导入“文档”页面及其下所有嵌套内容）。",
+	"confluencemigration-error-invalid-prefix": "前缀包含无法识别的命名空间。请使用有效的自定义命名空间（如\"MyNS:\"）或不含冒号的普通前缀。",
 	"confluencemigration-notify-done": "Confluence 空间 $1 的迁移已完成：已迁移 $2 个页面。",
 	"confluencemigration-jobs-heading": "待处理的迁移任务",
 	"confluencemigration-jobs-col-id": "任务 ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "请输入以 https:// 开头的有效 Confluence URL。",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Confluence Cloud 身份验证需要提供电子邮件/用户名。",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\"不是此Wiki上已识别的MediaWiki命名空间。",
+	"apierror-pandocconfluencemigrate-servicens": "内置命名空间和讨论命名空间（主、文件、分类、模板等）不能用作导入目标。请使用自定义命名空间。",
 	"apihelp-pandocconfluencemigrate-summary": "将后台任务排入队列，以将 Confluence 空间的所有页面导入本 wiki。"
 }

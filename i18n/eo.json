@@ -110,6 +110,7 @@
 	"confluencemigration-user-help": "Nubo: retpoŝto de via Atlassian-konto. Servilo: via uzantnomo por Baza aŭtentigo, aŭ lasu malplena por aŭtentigi per Persona Alirĵetono (PAT).",
 	"confluencemigration-token-label": "API-ĵetono / Pasvorto / PAT:",
 	"confluencemigration-prefix-label": "Cela paĝ-prefikso (laŭvola):",
+	"confluencemigration-prefix-help": "Lasu malplena por neniu prefikso. Ekzemplo: \"Confluence/DOCS\" → \"Confluence/DOCS/Mia paĝo\". Uzu \"MiaNomspaco:\" por importi en nomspacon.",
 	"confluencemigration-overwrite-label": "Anstataŭigi ekzistantajn paĝojn",
 	"confluencemigration-categorize-label": "Aŭtomate kategorizi paĝojn laŭ Confluence-hierarkio",
 	"confluencemigration-llm-polish-label": "Purigi konvertitan vikiotekston per LLM",
@@ -129,6 +130,7 @@
 	"confluencemigration-pagelist-label": "Paĝotitoloj por importi:",
 	"confluencemigration-pagelist-placeholder": "Komenco\nDokumentaro/*",
 	"confluencemigration-pagelist-help": "Enigu Confluence-paĝotitolojn por importi, unu per linio. Aldonu /* al titolo por importi ankaŭ čiujn subpaĝojn sur čiu nivelo (ekz. Dokumentaro/* importas la paĝon Dokumentaro kaj čion sub ĝi).",
+	"confluencemigration-error-invalid-prefix": "La prefikso enhavas nekonatan nomspacon. Uzu validan propran nomspacon (ekz. \"MiaNS:\") aŭ simplan prefikson sen dupunkto.",
 	"confluencemigration-notify-done": "Confluence-migrado de spaco $1 estas kompleta: $2 {{PLURAL:$2|paĝo|paĝoj}} migritaj.",
 	"confluencemigration-jobs-heading": "Atendantaj migradaj taskoj",
 	"confluencemigration-jobs-col-id": "Tasko-ID",
@@ -146,5 +148,7 @@
 	"apierror-pandocconfluencemigrate-invalidurl": "Please enter a valid Confluence URL starting with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "Retpoŝto/uzantnomo estas necesa por aŭtentigo de Confluence-Nubo.",
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
+	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" ne estas konata MediaWiki-nomspaco en ĉi tiu vikio.",
+	"apierror-pandocconfluencemigrate-servicens": "Enkonstruitaj nomspacoj kaj diskutaj nomspacoj (Ĉefa, Dosiero, Kategorio, Ŝablono ktp.) ne povas esti uzataj kiel importceloj. Bonvolu uzi propran nomspacon.",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
 }
