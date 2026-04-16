@@ -36,6 +36,8 @@ use PHPUnit\Framework\TestCase;
  */
 class ImportE2ETest extends TestCase {
 
+	private const LIBREOFFICE_SKIP_TEMPLATE = 'LibreOffice (libreoffice / soffice) is required for the %s test.';
+
 	private string $pandocBin;
 	private string $tmpDir = '';
 	private string $artifactsDir;
@@ -229,7 +231,7 @@ class ImportE2ETest extends TestCase {
 	public function testDocImportE2E(): void {
 		$libreoffice = $this->findLibreOffice();
 		if ( $libreoffice === '' ) {
-			$this->markTestSkipped( 'LibreOffice (libreoffice / soffice) is required for the DOC import test.' );
+			$this->markTestSkipped( sprintf( self::LIBREOFFICE_SKIP_TEMPLATE, 'DOC import' ) );
 		}
 
 		// Create a base DOCX and convert it to legacy DOC using LibreOffice
@@ -276,19 +278,19 @@ class ImportE2ETest extends TestCase {
 	public function testPptxImportE2E(): void {
 		$libreoffice = $this->findLibreOffice();
 		if ( $libreoffice === '' ) {
-			$this->markTestSkipped( 'LibreOffice (libreoffice / soffice) is required for the PPTX import test.' );
+			$this->markTestSkipped( sprintf( self::LIBREOFFICE_SKIP_TEMPLATE, 'PPTX import' ) );
 		}
 
 		// Create a base DOCX fixture and convert it to PPTX via LibreOffice.
-		$docxFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'slides-source.docx';
-		DocumentFixtureFactory::createDocx( $docxFile );
+		$sourceDocxFile = $this->tmpDir . DIRECTORY_SEPARATOR . 'slides-source.docx';
+		DocumentFixtureFactory::createDocx( $sourceDocxFile );
 
-		$pptxFile = $this->convertDocxToPptx( $docxFile, $libreoffice );
+		$pptxFile = $this->convertDocxToPptx( $sourceDocxFile, $libreoffice );
 		if ( $pptxFile === '' ) {
 			$this->markTestSkipped( 'LibreOffice could not produce a .pptx file from the DOCX fixture.' );
 		}
 
-		// Use DOCPreprocessor to convert .pptx → .docx (the production code path).
+		// Use DOCPreprocessor to convert office input (.pptx) → .docx (the production code path).
 		$preprocessor   = new DOCPreprocessor( $libreoffice );
 		$resultDocxPath = $preprocessor->convertToDocx( $pptxFile, $this->tmpDir );
 		$this->assertFileExists( $resultDocxPath, 'DOCPreprocessor must produce a .docx file from PPTX' );
@@ -387,7 +389,9 @@ class ImportE2ETest extends TestCase {
 	 */
 	private function convertDocxToDoc( string $docxPath, string $libreoffice ): string {
 		$profileDir = $this->tmpDir . DIRECTORY_SEPARATOR . '.lo_prep';
-		@mkdir( $profileDir, 0755, true );
+		if ( !is_dir( $profileDir ) && !mkdir( $profileDir, 0755, true ) && !is_dir( $profileDir ) ) {
+			throw new \RuntimeException( "Failed to create LibreOffice profile directory: $profileDir" );
+		}
 		$profileUrl = 'file:///' . str_replace( '\\', '/', $profileDir );
 
 		$cmd = [
@@ -398,7 +402,7 @@ class ImportE2ETest extends TestCase {
 			'--outdir', $this->tmpDir,
 			$docxPath,
 		];
-		exec( implode( ' ', array_map( 'escapeshellarg', $cmd ) ) . ' 2>/dev/null' );
+		PandocWrapper::invokeShellRaw( $cmd, true );
 
 		$docPath = $this->tmpDir . DIRECTORY_SEPARATOR . pathinfo( $docxPath, PATHINFO_FILENAME ) . '.doc';
 		return file_exists( $docPath ) ? $docPath : '';
@@ -409,7 +413,9 @@ class ImportE2ETest extends TestCase {
 	 */
 	private function convertDocxToPptx( string $docxPath, string $libreoffice ): string {
 		$profileDir = $this->tmpDir . DIRECTORY_SEPARATOR . '.lo_prep_pptx';
-		@mkdir( $profileDir, 0755, true );
+		if ( !is_dir( $profileDir ) && !mkdir( $profileDir, 0755, true ) && !is_dir( $profileDir ) ) {
+			throw new \RuntimeException( "Failed to create LibreOffice profile directory: $profileDir" );
+		}
 		$profileUrl = 'file:///' . str_replace( '\\', '/', $profileDir );
 
 		$cmd = [
@@ -420,7 +426,7 @@ class ImportE2ETest extends TestCase {
 			'--outdir', $this->tmpDir,
 			$docxPath,
 		];
-		exec( implode( ' ', array_map( 'escapeshellarg', $cmd ) ) . ' 2>/dev/null' );
+		PandocWrapper::invokeShellRaw( $cmd, true );
 
 		$pptxPath = $this->tmpDir . DIRECTORY_SEPARATOR . pathinfo( $docxPath, PATHINFO_FILENAME ) . '.pptx';
 		return file_exists( $pptxPath ) ? $pptxPath : '';

@@ -32,6 +32,24 @@ class PandocWrapper
     /** @var \User */
     private $user;
 
+    /**
+     * Convert an office source file to DOCX via LibreOffice.
+     *
+     * @param string $source
+     * @param string $mediaFolder
+     * @param string $sourceFormat
+     * @return string
+     */
+    private function convertOfficeSourceToDocx( string $source, string $mediaFolder, string $sourceFormat ): string
+    {
+        wfDebugLog(
+            'PandocUltimateConverter',
+            "convertInternal: converting .$sourceFormat to .docx via LibreOffice for $source"
+        );
+        $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
+        return $preprocessor->convertToDocx( $source, $mediaFolder );
+    }
+
     public function __construct( $config, MediaWikiServices $mwServices, $user )
     {
         // Support legacy global variable overrides
@@ -150,18 +168,14 @@ class PandocWrapper
 
         // .doc is not supported by Pandoc — convert to .docx via LibreOffice first
         if ( $isDoc ) {
-            wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .doc to .docx via LibreOffice for $source" );
-            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
-            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
+            $source = $this->convertOfficeSourceToDocx( $source, $mediaFolder, 'doc' );
             $isDocx = true;
             $format = 'docx';
         }
 
-        // .pptx import is normalised via LibreOffice to .docx for stable text extraction.
+        // .pptx import is normalized via LibreOffice to .docx for stable text extraction.
         if ( $isPptx ) {
-            wfDebugLog( 'PandocUltimateConverter', "convertInternal: converting .pptx to .docx via LibreOffice for $source" );
-            $preprocessor = new DOCPreprocessor( $this->libreofficeExecutablePath );
-            $source = $preprocessor->convertToDocx( $source, $mediaFolder );
+            $source = $this->convertOfficeSourceToDocx( $source, $mediaFolder, 'pptx' );
             $isDocx = true;
             $format = 'docx';
         }
