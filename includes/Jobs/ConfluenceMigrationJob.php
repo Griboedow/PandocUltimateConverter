@@ -466,6 +466,7 @@ class ConfluenceMigrationJob extends Job {
 	/**
 	 * Recursively add all descendants of $pageId to $matched.
 	 *
+	 * @param string                                                                     $pageId   ID of the root page whose descendants to collect
 	 * @param array<string, list<string>>                                                $children id → child id list
 	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $byId     id → page
 	 * @param array<string, array{id: string, title: string, parentId: string|null}>     $matched  id → page (mutated in place)
