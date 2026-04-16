@@ -121,7 +121,7 @@
 	"confluencemigration-user-help": "Cloud: your Atlassian account email. Server: your username for Basic auth, or leave empty to authenticate with a Personal Access Token (PAT).",
 	"confluencemigration-token-label": "API token / Password / PAT:",
 	"confluencemigration-prefix-label": "Target page prefix (optional):",
-	"confluencemigration-prefix-help": "Leave empty to import pages without a prefix. Use a plain path like \"Confluence/DOCS\" to place pages under that prefix (e.g. \"Confluence/DOCS/My Page\"). End the prefix with a custom separator to use it directly — \"aa_\" gives \"aa_My Page\", \"aa/\" gives \"aa/My Page\". Use \"MyNamespace:\" (with colon) to import into a custom namespace, or \"MyNamespace:subprefix\" to combine both.",
+	"confluencemigration-prefix-help": "Leave empty for no prefix. Example: \"Confluence/DOCS\" → \"Confluence/DOCS/My Page\". Use \"MyNamespace:\" to import into a namespace.",
 	"confluencemigration-overwrite-label": "Overwrite existing pages",
 	"confluencemigration-categorize-label": "Auto-categorize pages based on Confluence hierarchy",
 	"confluencemigration-llm-polish-label": "Clean up converted wikitext with LLM",

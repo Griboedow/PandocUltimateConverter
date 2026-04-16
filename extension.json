@@ -171,6 +171,7 @@
         "confluencemigration-url-help",
         "confluencemigration-spacekey-label",
         "confluencemigration-user-label",
+        "confluencemigration-user-help",
         "confluencemigration-token-label",
         "confluencemigration-prefix-label",
         "confluencemigration-prefix-help",
