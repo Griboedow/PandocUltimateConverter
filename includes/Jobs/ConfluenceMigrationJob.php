@@ -100,8 +100,10 @@ class ConfluenceMigrationJob extends Job {
 					array_map( 'trim', explode( "\n", $pageListRaw ) ),
 					static fn ( string $t ) => $t !== ''
 				) );
-				// If any pattern is a wildcard we need the full page list to
-				// resolve the hierarchy; otherwise use the cheaper per-title lookup.
+				// If any pattern is a subtree pattern ("pageName/*") or a glob we need
+				// the full page list to resolve the hierarchy / match all titles;
+				// otherwise use the cheaper per-title lookup.
+				// Note: "pageName/*" contains '*', so this check covers both cases.
 				$hasWildcard = (bool)array_filter(
 					$patterns,
 					static fn ( string $p ) => strpos( $p, '*' ) !== false || strpos( $p, '?' ) !== false
@@ -400,9 +402,12 @@ class ConfluenceMigrationJob extends Job {
 	 *
 	 * Each pattern may be:
 	 *  - An exact page title (no wildcard characters): only that page is selected.
-	 *  - A glob-style pattern containing '*' or '?': every page whose title
-	 *    matches is selected, and ALL of their descendants in the Confluence
-	 *    hierarchy (direct and indirect children) are also included.
+	 *  - A subtree pattern "pageName/*": the page whose title exactly matches
+	 *    "pageName" is selected together with ALL of its descendants in the
+	 *    Confluence hierarchy (direct and indirect children at every level).
+	 *  - A glob-style pattern containing '*' or '?' (but not ending with '/*'):
+	 *    every page whose title matches the glob is selected (title matching only,
+	 *    no automatic descendant expansion).
 	 *
 	 * @param list<array{id: string, title: string, parentId: string|null}> $allPages
 	 * @param string[] $patterns
@@ -427,20 +432,30 @@ class ConfluenceMigrationJob extends Job {
 		$matched = [];
 
 		foreach ( $patterns as $pattern ) {
-			$pattern    = trim( $pattern );
+			$pattern = trim( $pattern );
 			if ( $pattern === '' ) {
 				continue;
 			}
-			$isWildcard = strpos( $pattern, '*' ) !== false || strpos( $pattern, '?' ) !== false;
 
+			// "pageName/*" — match pageName exactly and include the full subtree.
+			if ( substr( $pattern, -2 ) === '/*' ) {
+				$baseName = substr( $pattern, 0, -2 );
+				if ( $baseName === '' ) {
+					continue;
+				}
+				foreach ( $allPages as $page ) {
+					if ( $page['title'] === $baseName ) {
+						$matched[ $page['id'] ] = $page;
+						self::collectDescendants( $page['id'], $children, $byId, $matched );
+					}
+				}
+				continue;
+			}
+
+			// Glob or exact match — title matching only, no descendant expansion.
 			foreach ( $allPages as $page ) {
 				if ( fnmatch( $pattern, $page['title'] ) ) {
 					$matched[ $page['id'] ] = $page;
-					// A wildcard match expands to the entire subtree rooted at
-					// this page (all direct and indirect children).
-					if ( $isWildcard ) {
-						self::collectDescendants( $page['id'], $children, $byId, $matched );
-					}
 				}
 			}
 		}
