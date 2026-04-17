@@ -71,7 +71,10 @@ class SpecialConfluenceMigration extends \SpecialPage {
 		$output->addModules( 'ext.PandocUltimateConverter.confluence' );
 
 		// Pre-load pending jobs so the grid renders immediately.
-		$output->addJsConfigVars( 'confluenceMigrationJobs', ApiConfluenceJobs::fetchPendingJobs() );
+		$output->addJsConfigVars(
+			'confluenceMigrationJobs',
+			ApiConfluenceJobs::fetchPendingJobs( $this->getUser()->getId() )
+		);
 		$output->addJsConfigVars( 'confluenceMigrationReports', ApiConfluenceJobs::fetchReportPages() );
 		$output->addJsConfigVars( 'confluenceMigrationLlmAvailable',
 			LlmPolishService::newFromConfig( $this->config ) !== null
@@ -94,4 +97,3 @@ class SpecialConfluenceMigration extends \SpecialPage {
 		$output->addHTML( Html::element( 'div', [ 'class' => 'mw-confluence-migration-root' ] ) );
 	}
 }
-

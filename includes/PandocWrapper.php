@@ -367,8 +367,14 @@ class PandocWrapper
     {
         $result = self::invokeShellRaw( $cmd, $inheritEnv, $extraEnv, $cwd );
         if ( $result['exitCode'] !== 0 ) {
+            $output = trim( $result['output'] );
+            $stderr = trim( $result['stderr'] ?? '' );
+            $detail = $output;
+            if ( $stderr !== '' ) {
+                $detail = $detail !== '' ? ( $detail . PHP_EOL . $stderr ) : $stderr;
+            }
             throw new \RuntimeException(
-                'Shell command failed (exit ' . $result['exitCode'] . '): ' . $result['output']
+                'Shell command failed (exit ' . $result['exitCode'] . '): ' . $detail
             );
         }
         return $result['output'];
@@ -384,11 +390,11 @@ class PandocWrapper
      * @param bool     $inheritEnv  Pass the current process environment to the child process.
      * @param array    $extraEnv    Additional environment variables merged on top of the inherited env.
      * @param string|null $cwd      Working directory for the child process.
-     * @return array{exitCode: int, output: string}
+     * @return array{exitCode: int, output: string, stderr: string}
      */
     public static function invokeShellRaw( array $cmd, bool $inheritEnv = false, array $extraEnv = [], ?string $cwd = null ): array
     {
-        $runner = Shell::command( $cmd )->includeStderr();
+        $runner = Shell::command( $cmd );
         $env = [];
         if ( $inheritEnv ) {
             $envArr = getenv();
@@ -404,9 +410,11 @@ class PandocWrapper
             $runner = $runner->workingDirectory( $cwd );
         }
         $result = $runner->execute();
+        $stderr = method_exists( $result, 'getStderr' ) ? (string)$result->getStderr() : '';
         return [
             'exitCode' => $result->getExitCode(),
             'output'   => $result->getStdout(),
+            'stderr'   => $stderr,
         ];
     }
 

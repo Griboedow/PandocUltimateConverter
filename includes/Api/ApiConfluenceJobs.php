@@ -27,7 +27,7 @@ class ApiConfluenceJobs extends ApiBase {
 			$this->dieWithError( 'apierror-mustbeloggedin-generic', 'notloggedin' );
 		}
 
-		$jobs    = self::fetchPendingJobs();
+		$jobs    = self::fetchPendingJobs( $userId );
 		$reports = self::fetchReportPages();
 
 		$this->getResult()->addValue( null, $this->getModuleName(), [
@@ -41,7 +41,7 @@ class ApiConfluenceJobs extends ApiBase {
 	 *
 	 * @return array[]
 	 */
-	public static function fetchPendingJobs(): array {
+	public static function fetchPendingJobs( ?int $userId = null ): array {
 		$dbr = MediaWikiServices::getInstance()
 			->getDBLoadBalancer()
 			->getConnection( DB_REPLICA );
@@ -65,8 +65,14 @@ class ApiConfluenceJobs extends ApiBase {
 		$jobs = [];
 		foreach ( $res as $row ) {
 			$params = ( (string)$row->job_params !== '' )
-				? unserialize( $row->job_params )
+				? unserialize( $row->job_params, [ 'allowed_classes' => false ] )
 				: [];
+			if ( !is_array( $params ) ) {
+				$params = [];
+			}
+			if ( !self::shouldIncludeJobForUser( $params, $userId ) ) {
+				continue;
+			}
 
 			// A non-empty job_token means the job runner has claimed it (running).
 			$isRunning = ( (string)$row->job_token !== '' );
@@ -89,6 +95,24 @@ class ApiConfluenceJobs extends ApiBase {
 		}
 
 		return $jobs;
+	}
+
+	/**
+	 * Whether a queued job should be visible for the requested user.
+	 *
+	 * @param array $params Decoded job params.
+	 * @param int|null $userId Current user id filter; null means no filtering.
+	 * @return bool
+	 */
+	private static function shouldIncludeJobForUser( array $params, ?int $userId ): bool {
+		if ( $userId === null ) {
+			return true;
+		}
+		if ( !isset( $params['userId'] ) ) {
+			// Legacy rows without initiator metadata are hidden from user-scoped lists.
+			return false;
+		}
+		return (int)$params['userId'] === $userId;
 	}
 
 	/**
