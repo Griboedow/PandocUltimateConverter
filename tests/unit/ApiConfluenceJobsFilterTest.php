@@ -23,29 +23,29 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Tests\Unit {
 
 		protected function setUp(): void {
 			parent::setUp();
-			$this->method = new ReflectionMethod( ApiConfluenceJobs::class, 'shouldIncludeJobForUser' );
+			$this->method = new ReflectionMethod( ApiConfluenceJobs::class, 'belongsToUser' );
 			$this->method->setAccessible( true );
 		}
 
-		private function includeForUser( array $params, ?int $userId ): bool {
+		private function invokeBelongsToUser( array $params, ?int $userId ): bool {
 			return $this->method->invoke( null, $params, $userId );
 		}
 
 		public function testNoUserFilterIncludesAllJobs(): void {
-			$this->assertTrue( $this->includeForUser( [ 'userId' => 123 ], null ) );
-			$this->assertTrue( $this->includeForUser( [], null ) );
+			$this->assertTrue( $this->invokeBelongsToUser( [ 'userId' => 123 ], null ) );
+			$this->assertTrue( $this->invokeBelongsToUser( [], null ) );
 		}
 
 		public function testMatchingUserIdIsIncluded(): void {
-			$this->assertTrue( $this->includeForUser( [ 'userId' => 42 ], 42 ) );
+			$this->assertTrue( $this->invokeBelongsToUser( [ 'userId' => 42 ], 42 ) );
 		}
 
 		public function testDifferentUserIdIsExcluded(): void {
-			$this->assertFalse( $this->includeForUser( [ 'userId' => 7 ], 42 ) );
+			$this->assertFalse( $this->invokeBelongsToUser( [ 'userId' => 7 ], 42 ) );
 		}
 
 		public function testLegacyJobsWithoutUserIdAreExcludedForScopedList(): void {
-			$this->assertFalse( $this->includeForUser( [], 42 ) );
+			$this->assertFalse( $this->invokeBelongsToUser( [], 42 ) );
 		}
 	}
 }

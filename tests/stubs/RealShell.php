@@ -20,7 +20,8 @@ namespace MediaWiki\Shell {
 		class ShellResult {
 			public function __construct(
 				private int $exitCode,
-				private string $stdout
+				private string $stdout,
+				private string $stderr = ''
 			) {}
 
 			public function getExitCode(): int {
@@ -29,6 +30,10 @@ namespace MediaWiki\Shell {
 
 			public function getStdout(): string {
 				return $this->stdout;
+			}
+
+			public function getStderr(): string {
+				return $this->stderr;
 			}
 		}
 	}
@@ -78,7 +83,7 @@ namespace MediaWiki\Shell {
 					$out .= $err;
 				}
 
-				return new ShellResult( $code, $out );
+				return new ShellResult( $code, $out, $err );
 			}
 		}
 	}

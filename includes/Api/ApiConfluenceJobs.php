@@ -64,13 +64,14 @@ class ApiConfluenceJobs extends ApiBase {
 
 		$jobs = [];
 		foreach ( $res as $row ) {
-			$params = ( (string)$row->job_params !== '' )
-				? unserialize( $row->job_params, [ 'allowed_classes' => false ] )
-				: [];
-			if ( !is_array( $params ) ) {
-				$params = [];
+			$params = [];
+			if ( (string)$row->job_params !== '' ) {
+				$decoded = unserialize( $row->job_params, [ 'allowed_classes' => false ] );
+				if ( is_array( $decoded ) ) {
+					$params = $decoded;
+				}
 			}
-			if ( !self::shouldIncludeJobForUser( $params, $userId ) ) {
+			if ( !self::belongsToUser( $params, $userId ) ) {
 				continue;
 			}
 
@@ -104,7 +105,7 @@ class ApiConfluenceJobs extends ApiBase {
 	 * @param int|null $userId Current user id filter; null means no filtering.
 	 * @return bool
 	 */
-	private static function shouldIncludeJobForUser( array $params, ?int $userId ): bool {
+	private static function belongsToUser( array $params, ?int $userId ): bool {
 		if ( $userId === null ) {
 			return true;
 		}

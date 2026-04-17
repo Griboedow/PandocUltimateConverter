@@ -368,7 +368,7 @@ class PandocWrapper
         $result = self::invokeShellRaw( $cmd, $inheritEnv, $extraEnv, $cwd );
         if ( $result['exitCode'] !== 0 ) {
             $output = trim( $result['output'] );
-            $stderr = trim( $result['stderr'] ?? '' );
+            $stderr = trim( $result['stderr'] );
             $detail = $output;
             if ( $stderr !== '' ) {
                 $detail = $detail !== '' ? ( $detail . PHP_EOL . $stderr ) : $stderr;
@@ -410,11 +410,10 @@ class PandocWrapper
             $runner = $runner->workingDirectory( $cwd );
         }
         $result = $runner->execute();
-        $stderr = method_exists( $result, 'getStderr' ) ? (string)$result->getStderr() : '';
         return [
             'exitCode' => $result->getExitCode(),
             'output'   => $result->getStdout(),
-            'stderr'   => $stderr,
+            'stderr'   => $result->getStderr(),
         ];
     }
 
