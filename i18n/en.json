@@ -134,6 +134,8 @@
 	"confluencemigration-pagelist-help": "Enter Confluence page titles to import, one per line. Append /* to a title to also import all its sub-pages at every level (e.g. Documentation/* imports the Documentation page and everything nested under it).",
 	"confluencemigration-error-invalid-prefix": "The prefix contains an unrecognised namespace. Use a valid custom namespace (e.g. \"MyNS:\") or a plain prefix without a colon.",
 	"confluencemigration-notify-done": "Confluence migration of space $1 is complete: $2 {{PLURAL:$2|page|pages}} migrated.",
+	"confluencemigration-notify-error": "Confluence migration of space $1 failed.",
+	"echo-pref-tooltip-confluence-migration": "Receive notifications when Confluence space migrations complete.",
 	"confluencemigration-jobs-heading": "Pending migration jobs",
 	"confluencemigration-jobs-col-id": "Job ID",
 	"confluencemigration-jobs-col-space": "Space",

@@ -11,6 +11,7 @@ use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 
 /**
  * Background job that migrates all pages from a Confluence space into this wiki.
@@ -45,7 +46,7 @@ use MediaWiki\Revision\SlotRecord;
  */
 class ConfluenceMigrationJob extends Job {
 
-	public function __construct( \Title $title, array $params ) {
+	public function __construct( Title $title, array $params ) {
 		parent::__construct( 'confluenceMigration', $title, $params );
 		// Prevent duplicate jobs for the same space from piling up.
 		$this->removeDuplicates = true;
@@ -139,7 +140,7 @@ class ConfluenceMigrationJob extends Job {
 			$pageTitle = $this->buildPageTitle( $page['title'], $targetPrefix );
 
 			// Skip if page exists and overwrite is disabled.
-			$titleObj = \Title::newFromText( $pageTitle );
+			$titleObj = Title::newFromText( $pageTitle );
 			if ( $titleObj !== null && $titleObj->exists() && !$overwrite ) {
 				wfDebugLog( 'PandocUltimateConverter', "ConfluenceMigrationJob: skipping existing page '$pageTitle'" );
 				continue;
@@ -654,7 +655,7 @@ class ConfluenceMigrationJob extends Job {
 		mixed $user,
 		string $summary
 	): void {
-		$title = \Title::newFromText( $pageTitle );
+		$title = Title::newFromText( $pageTitle );
 		if ( $title === null || !$title->exists() ) {
 			return;
 		}
@@ -688,7 +689,7 @@ class ConfluenceMigrationJob extends Job {
 		mixed $user,
 		?string $summary = null
 	): void {
-		$title = \Title::newFromText( $pageTitle );
+		$title = Title::newFromText( $pageTitle );
 		if ( $title === null ) {
 			throw new \RuntimeException( "Invalid page title: $pageTitle" );
 		}
@@ -810,7 +811,7 @@ class ConfluenceMigrationJob extends Job {
 
 		\EchoEvent::create( [
 			'type'  => 'confluence-migration-done',
-			'title' => \Title::newMainPage(),
+			'title' => Title::newMainPage(),
 			'extra' => [
 				'spaceKey'      => $spaceKey,
 				'migratedCount' => $count,
@@ -830,7 +831,7 @@ class ConfluenceMigrationJob extends Job {
 
 		\EchoEvent::create( [
 			'type'  => 'confluence-migration-done',
-			'title' => \Title::newMainPage(),
+			'title' => Title::newMainPage(),
 			'extra' => [
 				'spaceKey'      => $spaceKey,
 				'migratedCount' => 0,
