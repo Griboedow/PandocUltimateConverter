@@ -330,6 +330,22 @@
       "public": true
     }
   },
+  "notification-categories": {
+    "confluence-migration": {
+      "priority": 5,
+      "tooltip": "echo-pref-tooltip-confluence-migration"
+    }
+  },
+  "notifications": {
+    "confluence-migration-done": {
+      "category": "confluence-migration",
+      "group": "interactive",
+      "section": "alert",
+      "canNotifyAgent": true,
+      "user-locators": [ "EchoUserLocator::locateEventAgent" ],
+      "presentation-model": "MediaWiki\\Extension\\PandocUltimateConverter\\ConfluenceMigrationPresentationModel"
+    }
+  },
   "ConfigRegistry": {
     "PandocUltimateConverter": "GlobalVarConfig::newInstance"
   },

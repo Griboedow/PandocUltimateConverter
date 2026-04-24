@@ -22,7 +22,7 @@ class ConfluenceMigrationJobSanitizeTest extends TestCase {
 		parent::setUp();
 
 		// ConfluenceMigrationJob extends Job whose constructor needs a Title.
-		$title = $this->createMock( \Title::class );
+		$title = $this->createMock( \MediaWiki\Title\Title::class );
 		$this->job = new ConfluenceMigrationJob( $title, [
 			'confluenceUrl' => 'https://example.atlassian.net',
 			'spaceKey'      => 'TEST',
