@@ -117,6 +117,7 @@ jobs:
           - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
           - { mw: "1.44", mw_branch: "REL1_44", php: "8.3" }
           - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+          - { mw: "1.46", mw_branch: "REL1_46", php: "8.3" }
 
     steps:
       - uses: actions/checkout@v4
@@ -314,6 +315,7 @@ jobs:
   #   MW 1.43 / PHP 8.3
   #   MW 1.44 / PHP 8.3
   #   MW 1.45 / PHP 8.3
+  #   MW 1.46 / PHP 8.3
   #
   # After the tests run, exported binary files (DOCX, ODT, PDF) are rendered
   # to PNG screenshots using LibreOffice + pdftoppm so reviewers can see the
@@ -331,6 +333,7 @@ jobs:
           - { mw: "1.43", mw_branch: "REL1_43", php: "8.3" }
           - { mw: "1.44", mw_branch: "REL1_44", php: "8.3" }
           - { mw: "1.45", mw_branch: "REL1_45", php: "8.3" }
+          - { mw: "1.46", mw_branch: "REL1_46", php: "8.3" }
 
     steps:
       - uses: actions/checkout@v4
