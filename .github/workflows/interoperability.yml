@@ -31,7 +31,9 @@ jobs:
           curl -fsSL https://releases.wikimedia.org/mediawiki/${{ matrix.series }}/mediawiki-${{ matrix.version }}.tar.gz | tar xz
           mv mediawiki-${{ matrix.version }} wiki
           mv extension wiki/extensions/PandocUltimateConverter
-          git clone --depth 1 --branch ${{ matrix.branch }} https://github.com/wikimedia/mediawiki-extensions-Echo.git wiki/extensions/Echo
+          if [ ! -f wiki/extensions/Echo/extension.json ]; then
+            git clone --depth 1 --branch ${{ matrix.branch }} https://github.com/wikimedia/mediawiki-extensions-Echo.git wiki/extensions/Echo
+          fi
           git clone --depth 1 https://github.com/edwardspec/mediawiki-moderation.git wiki/extensions/Moderation
           sudo apt-get update -qq
           sudo apt-get install -y pandoc
