@@ -125,23 +125,6 @@ namespace {
 		}
 	}
 
-	if ( !class_exists( 'Title' ) ) {
-		/**
-		 * Minimal stub for MediaWiki's Title class.
-		 */
-		class Title {
-			private string $text;
-			public function __construct( string $text = '' ) { $this->text = $text; }
-			public static function newFromText( string $text ): ?self { return new self( $text ); }
-			public static function newMainPage(): self { return new self( 'Main Page' ); }
-			public static function makeTitleSafe( int $ns, string $title ): ?self { return new self( $title ); }
-			public function getText(): string { return $this->text; }
-			public function exists(): bool { return false; }
-			public function getNamespace(): int { return 0; }
-			public function getLocalURL(): string { return ''; }
-		}
-	}
-
 	if ( !class_exists( 'Job' ) ) {
 		/**
 		 * Minimal stub for MediaWiki's Job base class.
@@ -154,6 +137,42 @@ namespace {
 			}
 			public function setLastError( string $error ): void {}
 		}
+	}
+
+} // end namespace {}
+
+// ---------------------------------------------------------------------------
+// MediaWiki\Title namespace — Title class stub
+// ---------------------------------------------------------------------------
+
+namespace MediaWiki\Title {
+
+	if ( !class_exists( Title::class ) ) {
+		/**
+		 * Minimal stub for MediaWiki's Title class (canonical namespace).
+		 * A global alias \Title is registered below for backward compatibility.
+		 */
+		class Title {
+			private string $text;
+			public function __construct( string $text = '' ) { $this->text = $text; }
+			public static function newFromText( string $text ): ?self { return new self( $text ); }
+			public static function newMainPage(): self { return new self( 'Main Page' ); }
+			public static function makeTitleSafe( int $ns, string $title ): ?self { return new self( $title ); }
+			public function getText(): string { return $this->text; }
+			public function exists(): bool { return false; }
+			public function getNamespace(): int { return 0; }
+			public function getLocalURL(): string { return ''; }
+			public function getFullURL(): string { return ''; }
+		}
+	}
+
+} // end namespace MediaWiki\Title
+
+namespace {
+
+	// Register the global \Title alias that MW 1.42 provides (removed in 1.45).
+	if ( !class_exists( 'Title' ) ) {
+		class_alias( \MediaWiki\Title\Title::class, 'Title' );
 	}
 
 } // end namespace {}

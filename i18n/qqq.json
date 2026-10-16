@@ -121,6 +121,8 @@
 	"confluencemigration-pagelist-help": "Help text shown below the page titles textarea. Explains that exact titles and glob-style wildcard patterns (ending with *) are accepted, and that a wildcard match includes all sub-pages at every hierarchy level.",
 	"confluencemigration-error-invalid-prefix": "Validation error shown when the target page prefix contains a colon (namespace syntax) but the namespace before the colon is not recognised on this wiki.",
 	"confluencemigration-notify-done": "Echo notification body sent to the user when the migration job finishes. $1 is the Confluence space key, $2 is the number of pages migrated.",
+	"confluencemigration-notify-error": "Echo notification shown to the user when the migration job fails with a fatal error. $1 is the Confluence space key.",
+	"echo-pref-tooltip-confluence-migration": "Tooltip shown next to the 'Confluence Migration' preference in the Echo notifications settings panel.",
 	"apierror-pandocconfluencemigrate-disabled": "API error shown when the Confluence migration feature is disabled on the wiki via PandocUltimateConverter_EnableConfluenceMigration = false.",
 	"apierror-pandocconfluencemigrate-invalidurl": "API error shown when the provided Confluence URL does not start with https://.",
 	"apierror-pandocconfluencemigrate-cloudneedsuser": "API error shown when the Confluence URL points to Cloud (*.atlassian.net) but no username/email was provided.",
