@@ -8,6 +8,7 @@ use MediaWiki\Config\Config;
 use MediaWiki\Title\Title;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
+use MediaWiki\Extension\PandocUltimateConverter\PandocConverterService;
 use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
 use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\Html\Html;
@@ -139,59 +140,25 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $htmlForm->show();
     }
 
-    private function deleteFile( string $fileName ): void
-    {
-        $fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
-        $reason    = wfMessage( 'pandocultimateconverter-conversion-complete-comment' )->text();
-
-        $fileOnDisk = $this->repoGroup->findFile( $fileTitle, [ 'ignoreRedirect' => true ] );
-        if ( $fileOnDisk && $fileOnDisk->isLocal() ) {
-            $fileOnDisk->deleteFile( $reason, $this->user );
-            $fileOnDisk->purgeEverything();
-        }
-
-        $delPage = $this->mwServices
-            ->getDeletePageFactory()
-            ->newDeletePage( $this->titleFactory->newFromTitle( $fileTitle ), $this->user );
-        $delPage->forceImmediate( true )->deleteUnsafe( $reason );
-    }
-
     public function processForm( array $formData ): void
     {
-        $sourceType = $formData['SourceType'];
-        $pageName   = $this->sanitizeArticleTitle( $formData['ConvertToArticleName'] );
-
-        if ( $sourceType === 'file' ) {
-            $fileName = (string)( $formData['UploadedFileName'] ?? '' );
-            try {
-                $this->convertFileToPage( $fileName, $pageName );
-            } catch ( \Exception $e ) {
-                $this->getOutput()->showErrorPage(
-                    'pandocultimateconverter-error-title',
-                    'pandocultimateconverter-error-conversion',
-                    [ $e->getMessage() ]
-                );
-                return;
-            } finally {
-                if ( $fileName !== '' ) {
-                    $this->deleteFile( $fileName );
-                }
-            }
-            $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
+        $pageName = $this->sanitizeArticleTitle( $formData['ConvertToArticleName'] );
+        $service = new PandocConverterService( $this->config, $this->mwServices, $this->user );
+        try {
+            $result = $formData['SourceType'] === 'file'
+                ? $service->convertStashedFileToPage( (string)$formData['UploadedFileName'], $pageName, true )
+                : $service->convertUrlToPage( (string)$formData['SourceUrl'], $pageName );
+        } catch ( \Exception $e ) {
+            $this->getOutput()->showErrorPage( 'pandocultimateconverter-error-title',
+                'pandocultimateconverter-error-conversion', [ $e->getMessage() ] );
             return;
         }
-
-        if ( $sourceType === 'url' ) {
-            try {
-                $this->convertUrlToPage( (string)( $formData['SourceUrl'] ?? '' ), $pageName );
-            } catch ( \Exception $e ) {
-                $this->getOutput()->showErrorPage(
-                    'pandocultimateconverter-error-title',
-                    'pandocultimateconverter-error-conversion',
-                    [ $e->getMessage() ]
-                );
-                return;
-            }
+        if ( $result['result'] === 'queued' ) {
+            // Moderation may have set a redirect while intercepting the edit.
+            $this->getOutput()->redirect( '' );
+            $this->getOutput()->addHTML( Html::element( 'p', [],
+                $this->msg( 'pandocultimateconverter-codex-status-pending' )->text() ) );
+        } else {
             $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
         }
     }
@@ -207,42 +174,4 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         return $titleString;
     }
 
-    private function convertPandocOutputToPage( array $pandocOutput, string $pageName ): void
-    {
-        try {
-            $imagesVocabulary = $this->pandocWrapper->processImages(
-                $pandocOutput['mediaFolder'],
-                $pandocOutput['baseName']
-            );
-        } finally {
-            PandocWrapper::deleteDirectory( $pandocOutput['mediaFolder'] );
-        }
-
-        $postprocessedText = PandocTextPostprocessor::postprocess( $pandocOutput['text'], $imagesVocabulary );
-
-        $title       = Title::newFromText( $pageName );
-        $pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );
-        $content     = new \WikitextContent( $postprocessedText );
-        $pageUpdater->setContent( SlotRecord::MAIN, $content );
-        $pageUpdater->saveRevision(
-            \CommentStoreComment::newUnsavedComment( wfMessage( 'pandocultimateconverter-history-comment' ) ),
-            EDIT_INTERNAL
-        );
-    }
-
-    private function convertUrlToPage( string $sourceUrl, string $pageName ): void
-    {
-        $pandocOutput = $this->pandocWrapper->convertUrl( $sourceUrl );
-        $this->convertPandocOutputToPage( $pandocOutput, $pageName );
-    }
-
-    private function convertFileToPage( string $fileName, string $pageName ): void
-    {
-        $fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
-        $localFile = $this->repoGroup->findFile( $fileTitle );
-        $filePath  = $localFile->getLocalRefPath();
-
-        $pandocOutput = $this->pandocWrapper->convertFile( $filePath );
-        $this->convertPandocOutputToPage( $pandocOutput, $pageName );
-    }
 }

@@ -16,7 +16,8 @@
     }
   },
   "Hooks": {
-    "SkinTemplateNavigation::Universal": "PandocHooks"
+    "SkinTemplateNavigation::Universal": "PandocHooks",
+    "BeforeCreateEchoEvent": "PandocHooks"
   },
   "APIModules": {
     "pandocconvert": "MediaWiki\\Extension\\PandocUltimateConverter\\Api\\ApiPandocConvert",
@@ -122,7 +123,9 @@
         "pandocultimateconverter-codex-llm-polish-btn",
         "pandocultimateconverter-codex-status-polishing",
         "pandocultimateconverter-codex-status-polish-error",
-        "pandocultimateconverter-conversion-complete-comment"
+        "pandocultimateconverter-conversion-complete-comment",
+        "pandocultimateconverter-codex-status-pending",
+        "pandocultimateconverter-codex-cleanup-warning"
       ]
     },
     "ext.PandocUltimateConverter.export": {
@@ -330,24 +333,12 @@
       "public": true
     }
   },
-  "notification-categories": {
-    "confluence-migration": {
-      "priority": 5,
-      "tooltip": "echo-pref-tooltip-confluence-migration"
-    }
-  },
-  "notifications": {
-    "confluence-migration-done": {
-      "category": "confluence-migration",
-      "group": "interactive",
-      "section": "alert",
-      "canNotifyAgent": true,
-      "user-locators": [ "EchoUserLocator::locateEventAgent" ],
-      "presentation-model": "MediaWiki\\Extension\\PandocUltimateConverter\\ConfluenceMigrationPresentationModel"
-    }
-  },
   "ConfigRegistry": {
     "PandocUltimateConverter": "GlobalVarConfig::newInstance"
   },
-  "manifest_version": 2
+  "manifest_version": 2,
+  "DefaultUserOptions": {
+    "echo-subscriptions-web-confluence-migration": true,
+    "echo-subscriptions-email-confluence-migration": false
+  }
 }

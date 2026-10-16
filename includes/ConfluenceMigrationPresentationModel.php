@@ -5,7 +5,7 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use EchoEventPresentationModel;
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 
 /**
  * Echo notification presentation model for the 'confluence-migration-done' event.
@@ -21,7 +21,7 @@ class ConfluenceMigrationPresentationModel extends EchoEventPresentationModel {
 	}
 
 	/** @inheritDoc */
-	public function getHeaderMessage(): \Message {
+	public function getHeaderMessage() {
 		$spaceKey   = (string)$this->event->getExtraParam( 'spaceKey', '' );
 		$count      = (int)$this->event->getExtraParam( 'migratedCount', 0 );
 		$fatalError = (string)$this->event->getExtraParam( 'fatalError', '' );
@@ -30,7 +30,10 @@ class ConfluenceMigrationPresentationModel extends EchoEventPresentationModel {
 			return $this->msg( 'confluencemigration-notify-error', $spaceKey );
 		}
 
-		return $this->msg( 'confluencemigration-notify-done', $spaceKey, $count );
+		$errors = (int)$this->event->getExtraParam( 'errorCount', 0 );
+		return $errors > 0
+			? $this->msg( 'confluencemigration-notify-partial', $spaceKey, $count, $errors )
+			: $this->msg( 'confluencemigration-notify-done', $spaceKey, $count );
 	}
 
 	/** @inheritDoc */

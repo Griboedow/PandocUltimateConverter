@@ -1,0 +1,58 @@
+name: Extension interoperability
+on:
+  pull_request:
+  push:
+    branches: [main, fix/moderation-echo]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extensions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { version: '1.43.11', branch: REL1_43, series: '1.43' }
+          - { version: '1.44.6', branch: REL1_44, series: '1.44' }
+          - { version: '1.45.6', branch: REL1_45, series: '1.45' }
+          - { version: '1.46.2', branch: REL1_46, series: '1.46' }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: extension
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, zip, mbstring, intl, fileinfo, gd, pdo_sqlite
+          coverage: none
+      - name: Install MediaWiki, Echo, Moderation and Pandoc
+        run: |
+          curl -fsSL https://releases.wikimedia.org/mediawiki/${{ matrix.series }}/mediawiki-${{ matrix.version }}.tar.gz | tar xz
+          mv mediawiki-${{ matrix.version }} wiki
+          mv extension wiki/extensions/PandocUltimateConverter
+          git clone --depth 1 --branch ${{ matrix.branch }} https://github.com/wikimedia/mediawiki-extensions-Echo.git wiki/extensions/Echo
+          git clone --depth 1 https://github.com/edwardspec/mediawiki-moderation.git wiki/extensions/Moderation
+          sudo apt-get update -qq
+          sudo apt-get install -y pandoc
+          mkdir -p /tmp/pandoc-test-db wiki/cache/pandoc wiki/images
+          cd wiki
+          php maintenance/install.php --dbtype sqlite --dbpath /tmp/pandoc-test-db --server http://localhost --scriptpath '' --pass Pandoc-CI-Only-123 TestPandoc Admin
+          cat >> LocalSettings.php <<'PHP'
+          wfLoadExtension( 'PandocUltimateConverter' );
+          wfLoadExtension( 'Echo' );
+          wfLoadExtension( 'Moderation' );
+          $wgEnableUploads = true;
+          $wgFileExtensions[] = 'docx';
+          $wgPandocUltimateConverter_PandocExecutablePath = 'pandoc';
+          $wgPandocUltimateConverter_TempFolderPath = "$IP/cache/pandoc";
+          $wgGroupPermissions['sysop']['moderation'] = true;
+          $wgGroupPermissions['sysop']['skip-moderation'] = true;
+          $wgEchoUseJobQueue = false;
+          PHP
+          php maintenance/update.php --quick
+      - name: Real conversion, moderation decisions, cleanup and Echo delivery
+        run: |
+          printf '# Import test\n\nPreserved text with **bold**.\n\n| Left | Right |\n| --- | --- |\n| Alpha | Beta |\n' | pandoc -f markdown -o /tmp/source.docx
+          export MW_INSTALL_PATH="$GITHUB_WORKSPACE/wiki"
+          php wiki/extensions/PandocUltimateConverter/tests/extension-interoperability.php --fixture /tmp/source.docx

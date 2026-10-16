@@ -150,5 +150,12 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" n'est pas un espace de noms MediaWiki reconnu sur ce wiki.",
 	"apierror-pandocconfluencemigrate-servicens": "Les espaces de noms intégrés et de discussion (Principal, Fichier, Catégorie, Modèle, etc.) ne peuvent pas être utilisés comme cibles d'importation. Veuillez utiliser un espace de noms personnalisé.",
-	"apihelp-pandocconfluencemigrate-summary": "Met en file d'attente un travail en arrière-plan qui importe toutes les pages d'un espace Confluence vers ce wiki."
+	"apihelp-pandocconfluencemigrate-summary": "Met en file d'attente un travail en arrière-plan qui importe toutes les pages d'un espace Confluence vers ce wiki.",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes."
 }

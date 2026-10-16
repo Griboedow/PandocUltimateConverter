@@ -150,5 +150,12 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\"不是此Wiki上已识别的MediaWiki命名空间。",
 	"apierror-pandocconfluencemigrate-servicens": "内置命名空间和讨论命名空间（主、文件、分类、模板等）不能用作导入目标。请使用自定义命名空间。",
-	"apihelp-pandocconfluencemigrate-summary": "将后台任务排入队列，以将 Confluence 空间的所有页面导入本 wiki。"
+	"apihelp-pandocconfluencemigrate-summary": "将后台任务排入队列，以将 Confluence 空间的所有页面导入本 wiki。",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes."
 }

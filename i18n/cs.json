@@ -150,5 +150,12 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" není rozpoznaný jmenný prostor MediaWiki na tomto wiki.",
 	"apierror-pandocconfluencemigrate-servicens": "Vestavěné jmenné prostory a prostory pro diskusi (Hlavní, Soubor, Kategorie, Šablona atd.) nelze použít jako cíle importu. Použijte prosím vlastní jmenný prostor.",
-	"apihelp-pandocconfluencemigrate-summary": "Zařadí úlohu na pozadí, která importuje všechny stránky z prostoru Confluence do této wiki."
+	"apihelp-pandocconfluencemigrate-summary": "Zařadí úlohu na pozadí, která importuje všechny stránky z prostoru Confluence do této wiki.",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes."
 }
