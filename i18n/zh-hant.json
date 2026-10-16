@@ -152,7 +152,7 @@
 	"apierror-pandocconfluencemigrate-servicens": "內建命名空間和討論命名空間（主、檔案、分類、模板等）不能用作匯入目標。請使用自訂命名空間。",
 	"apihelp-pandocconfluencemigrate-summary": "將背景任務排入佇列，以將 Confluence 空間的所有頁面匯入本 wiki。",
 	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
-	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
 	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
 	"echo-category-title-confluence-migration": "Confluence migrations",
 	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",

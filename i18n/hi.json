@@ -152,7 +152,7 @@
 	"apierror-pandocconfluencemigrate-servicens": "अंतर्निर्मित और वार्ता नामस्थान (मुख्य, फ़ाइल, श्रेणी, साँचा आदि) को आयात लक्ष्य के रूप में उपयोग नहीं किया जा सकता। कृपया एक कस्टम नामस्थान उपयोग करें।",
 	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki.",
 	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
-	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
 	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
 	"echo-category-title-confluence-migration": "Confluence migrations",
 	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",

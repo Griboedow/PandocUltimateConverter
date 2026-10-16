@@ -152,7 +152,7 @@
 	"apierror-pandocconfluencemigrate-servicens": "Espaços nominais integrados e de discussão (Principal, Ficheiro, Categoria, Predefinição, etc.) não podem ser usados como destinos de importação. Use um espaço nominal personalizado.",
 	"apihelp-pandocconfluencemigrate-summary": "Coloca na fila um trabalho em segundo plano que importa todas as páginas de um espaço do Confluence para esta wiki.",
 	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
-	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but the temporary source could not be removed. It will expire automatically.",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
 	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
 	"echo-category-title-confluence-migration": "Confluence migrations",
 	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",

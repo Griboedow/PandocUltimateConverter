@@ -153,8 +153,12 @@ class SpecialPandocUltimateConverter extends \SpecialPage
             $this->getOutput()->redirect( '' );
             $this->getOutput()->addHTML( Html::element( 'p', [],
                 $this->msg( 'pandocultimateconverter-codex-status-pending' )->text() ) );
-        } else {
+        } elseif ( empty( $result['cleanupwarning'] ) ) {
             $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
+        }
+        if ( !empty( $result['cleanupwarning'] ) ) {
+            $this->getOutput()->addHTML( Html::element( 'p', [],
+                $this->msg( 'pandocultimateconverter-codex-cleanup-warning' )->text() ) );
         }
         return true;
     }

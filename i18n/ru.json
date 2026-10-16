@@ -152,7 +152,7 @@
 	"apierror-pandocconfluencemigrate-servicens": "Встроенные пространства имён и пространства обсуждений (Основное, Файл, Категория, Шаблон и др.) не могут использоваться в качестве целей импорта. Используйте пользовательское пространство имён.",
 	"apihelp-pandocconfluencemigrate-summary": "Добавляет в очередь фоновое задание, которое импортирует все страницы из пространства Confluence в эту вики.",
 	"pandocultimateconverter-codex-status-pending": "Преобразовано — ожидает модерации",
-	"pandocultimateconverter-codex-cleanup-warning": "Страница отправлена, но временный исходник не удалось удалить. Он будет удалён по истечении срока хранения.",
+	"pandocultimateconverter-codex-cleanup-warning": "Страница отправлена, но временный исходник не удалось удалить. Обратитесь к администратору вики.",
 	"confluencemigration-notify-partial": "Миграция пространства Confluence «$1» завершена: импортировано страниц — $2, ошибок — $3.",
 	"echo-category-title-confluence-migration": "Миграции Confluence",
 	"apihelp-pandocconvert-param-filekey": "Ключ временной загрузки текущего пользователя. Удаляется после преобразования или отправки на модерацию.",

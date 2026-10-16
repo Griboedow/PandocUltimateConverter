@@ -72,6 +72,7 @@ class PandocConverterService {
 	): array {
 		$stash = $this->repoGroup->getLocalRepo()->getUploadStash( $this->user );
 		$file = $stash->getFile( $fileKey ); // Enforces ownership; never use noAuth.
+		$virtualPath = $stash->getMetadata( $fileKey )['us_path'];
 		// HTTP uploads may be stashed with a .tmp extension (notably DOCX on
 		// Windows). Pandoc and the DOC/PDF preprocessors need the input suffix.
 		$extension = strtolower( pathinfo( $sourceFilename ?? $fileKey, PATHINFO_EXTENSION ) );
@@ -100,7 +101,6 @@ class PandocConverterService {
 		// Some MW versions resolve UploadStashFile's path before passing it to
 		// freeTemp(), which expects the original virtual URL. Keep that URL from
 		// the authenticated stash metadata and verify the physical cleanup too.
-		$virtualPath = $stash->getMetadata( $fileKey )['us_path'];
 		try {
 			$removed = $stash->removeFile( $fileKey );
 			$repo = $this->repoGroup->getLocalRepo();
