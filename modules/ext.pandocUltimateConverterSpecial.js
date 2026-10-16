@@ -87,6 +87,7 @@
           }
         }).done(data => {
           hidden_file_name.val(data.upload.filekey);
+          $('#wpSourceFileName').val(upload_file_field[0].files[0].name);
           this.submit();
         }).always(() => {
           //go to backend logic after that

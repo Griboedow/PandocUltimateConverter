@@ -17,9 +17,10 @@ use Wikimedia\ParamValidator\ParamValidator;
  * using Pandoc.
  *
  * Workflow (file):
- *   1. Upload file via the standard MediaWiki API (action=upload).
- *   2. Call action=pandocconvert with pagename= and filename=.
- *   3. Optionally delete the file via the standard MediaWiki API (action=delete).
+ *   1. Stash the file via action=upload&stash=1.
+ *   2. Call action=pandocconvert with pagename, filekey and sourcefilename.
+ *   3. The private source is removed after publication or moderation submission.
+ * Existing repository files can still be converted using filename; they are retained.
  *
  * Workflow (URL):
  *   1. Call action=pandocconvert with pagename= and url=.
@@ -77,7 +78,7 @@ class ApiPandocConvert extends ApiBase {
 		);
 
 		if ( $fileKey !== null ) {
-			$result = $service->convertStashedFileToPage( $fileKey, $pageName, $forceOverwrite );
+			$result = $service->convertStashedFileToPage( $fileKey, $pageName, $forceOverwrite, $params['sourcefilename'] );
 		} elseif ( $fileName !== null ) {
 			$result = $service->convertFileToPage( $fileName, $pageName, false, $forceOverwrite );
 		} else {
@@ -94,6 +95,9 @@ class ApiPandocConvert extends ApiBase {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 			'filekey' => [
+				ParamValidator::PARAM_TYPE => 'string',
+			],
+			'sourcefilename' => [
 				ParamValidator::PARAM_TYPE => 'string',
 			],
 			'filename' => [

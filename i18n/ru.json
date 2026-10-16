@@ -157,5 +157,6 @@
 	"echo-category-title-confluence-migration": "Миграции Confluence",
 	"apihelp-pandocconvert-param-filekey": "Ключ временной загрузки текущего пользователя. Удаляется после преобразования или отправки на модерацию.",
 	"confluencemigration-notify-error": "Не удалось перенести пространство Confluence «$1». Подробности доступны в состоянии миграции.",
-	"echo-pref-tooltip-confluence-migration": "Уведомлять меня о завершении миграции Confluence."
+	"echo-pref-tooltip-confluence-migration": "Уведомлять меня о завершении миграции Confluence.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

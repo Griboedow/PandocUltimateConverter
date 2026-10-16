@@ -68,11 +68,34 @@ class PandocConverterService {
 
 	/** Convert a private upload, removing it only after a save or accepted moderation queue entry. */
 	public function convertStashedFileToPage( string $fileKey, string $pageName,
-		bool $overwrite = false
+		bool $overwrite = false, ?string $sourceFilename = null
 	): array {
 		$stash = $this->repoGroup->getLocalRepo()->getUploadStash( $this->user );
 		$file = $stash->getFile( $fileKey ); // Enforces ownership; never use noAuth.
-		$output = $this->pandocWrapper->convertFile( $file->getLocalRefPath() );
+		// HTTP uploads may be stashed with a .tmp extension (notably DOCX on
+		// Windows). Pandoc and the DOC/PDF preprocessors need the input suffix.
+		$extension = strtolower( pathinfo( $sourceFilename ?? $fileKey, PATHINFO_EXTENSION ) );
+		if ( !preg_match( '/^[a-z0-9]{1,16}$/D', $extension ) || $extension === 'tmp' ) {
+			throw new \RuntimeException( 'The original source filename with its extension is required.' );
+		}
+		$base = tempnam( sys_get_temp_dir(), 'pandoc-source-' );
+		if ( $base === false ) {
+			throw new \RuntimeException( 'Unable to create a temporary source file.' );
+		}
+		$source = $base . '.' . $extension;
+		try {
+			if ( !rename( $base, $source ) || !copy( $file->getLocalRefPath(), $source ) ) {
+				throw new \RuntimeException( 'Unable to prepare the stashed document for conversion.' );
+			}
+			$output = $this->pandocWrapper->convertFile( $source );
+		} finally {
+			if ( is_file( $source ) ) {
+				unlink( $source );
+			}
+			if ( is_file( $base ) ) {
+				unlink( $base );
+			}
+		}
 		$result = $this->savePandocOutput( $output, $pageName, false, $overwrite );
 		// Some MW versions resolve UploadStashFile's path before passing it to
 		// freeTemp(), which expects the original virtual URL. Keep that URL from

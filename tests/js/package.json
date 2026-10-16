@@ -1,0 +1,6 @@
+{
+  "name": "pandoc-client-tests",
+  "private": true,
+  "scripts": { "test": "node --test converter.test.cjs" },
+  "devDependencies": { "jquery": "3.7.1", "jsdom": "26.1.0" }
+}

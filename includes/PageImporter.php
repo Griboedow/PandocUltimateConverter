@@ -5,7 +5,7 @@ declare( strict_types=1 );
 namespace MediaWiki\Extension\PandocUltimateConverter;
 
 use ApiMain;
-use DerivativeContext;
+use MediaWiki\Context\DerivativeContext;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Request\DerivativeRequest;
 

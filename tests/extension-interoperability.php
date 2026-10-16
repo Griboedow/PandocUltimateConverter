@@ -32,8 +32,8 @@ class PandocInteroperability extends Maintenance {
 		clearstatcache();
 		return $api->getResult()->getResultData();
 	}
-	private function stash( $stash ) {
-		$path = sys_get_temp_dir() . '/pandoc-' . bin2hex( random_bytes( 8 ) ) . '.docx';
+	private function stash( $stash, string $suffix = 'docx' ) {
+		$path = sys_get_temp_dir() . '/pandoc-' . bin2hex( random_bytes( 8 ) ) . '.' . $suffix;
 		copy( $this->getOption( 'fixture' ), $path );
 		try {
 			return $stash->stashFile( $path, 'file' );
@@ -54,10 +54,11 @@ class PandocInteroperability extends Maintenance {
 		$decisions = [];
 		foreach ( [ 'approve', 'reject' ] as $action ) {
 			$title = 'Pandoc ' . $action . ' ' . $run;
-			$file = $this->stash( $stash );
+			$file = $this->stash( $stash, $action === 'approve' ? 'tmp' : 'docx' );
 			$key = $file->getFileKey();
 			$path = $file->getLocalRefPath();
-			$result = $this->api( $user, [ 'action' => 'pandocconvert', 'filekey' => $key, 'pagename' => $title ] );
+			$result = $this->api( $user, [ 'action' => 'pandocconvert', 'filekey' => $key,
+				'sourcefilename' => 'original.docx', 'pagename' => $title ] );
 			$this->check( $result['pandocconvert']['result'] === 'queued', 'Reports pending moderation' );
 			$this->check( !Title::newFromText( $title )->exists(), 'Not published before approval' );
 			$this->check( !file_exists( $path ), 'Private DOCX removed from disk without delete right' );
@@ -87,6 +88,29 @@ class PandocInteroperability extends Maintenance {
 			throw new RuntimeException( 'Overwrite unexpectedly succeeded' );
 		} catch ( \MediaWiki\Api\ApiUsageException $e ) {
 			$this->check( file_exists( $file->getLocalRefPath() ), 'Failed save preserves private source for retry' );
+		}
+		$this->api( $admin, [ 'action' => 'protect', 'title' => 'Published ' . $run,
+			'protections' => 'edit=sysop', 'reason' => 'Interop test' ] );
+		try {
+			$this->api( $user, [ 'action' => 'pandocconvert', 'filekey' => $key,
+				'pagename' => 'Published ' . $run, 'forceoverwrite' => true ] );
+			throw new RuntimeException( 'Protected page was overwritten' );
+		} catch ( \MediaWiki\Api\ApiUsageException $e ) {
+			$this->check( file_exists( $file->getLocalRefPath() ), 'Protected page rejects import and retains source' );
+		}
+		$s->getHookContainer()->register( 'EditFilterMergedContent', static function ( $context, $content, $status ) {
+			if ( strpos( $context->getTitle()->getText(), 'Refused ' ) === 0 ) {
+				$status->fatal( 'badaccess-group0' );
+				return false;
+			}
+			return true;
+		} );
+		try {
+			$this->api( $user, [ 'action' => 'pandocconvert', 'filekey' => $key,
+				'pagename' => 'Refused ' . $run ] );
+			throw new RuntimeException( 'Edit filter was bypassed' );
+		} catch ( \MediaWiki\Api\ApiUsageException $e ) {
+			$this->check( file_exists( $file->getLocalRefPath() ), 'Extension edit filter rejects import and retains source' );
 		}
 		$stash->removeFile( $key );
 		foreach ( $decisions as [ $action, $id, $title ] ) {

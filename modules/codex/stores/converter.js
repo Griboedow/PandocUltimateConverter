@@ -520,7 +520,8 @@ module.exports = exports = defineStore( 'converter', () => {
 		const params = {
 			action: 'pandocconvert',
 			pagename: item.targetPageName,
-			filekey: tempFileName
+			filekey: tempFileName,
+			sourcefilename: item.source.name
 		};
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
@@ -593,9 +594,10 @@ module.exports = exports = defineStore( 'converter', () => {
 		return api.postWithEditToken( {
 			action: 'pandocllmpolish',
 			pagename: item.targetPageName
-		} ).then( () => {
+		} ).then( ( result ) => {
 			item.status = 'done';
-			item.polishCompleted = true;
+			item.pendingModeration = result.pandocllmpolish.result === 'queued';
+			item.polishCompleted = !item.pendingModeration;
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'done';
 			item.polishError = ( errorObj && errorObj.error && errorObj.error.info ) || code;

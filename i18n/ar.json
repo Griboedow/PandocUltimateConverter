@@ -157,5 +157,6 @@
 	"echo-category-title-confluence-migration": "Confluence migrations",
 	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
 	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
-	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes."
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

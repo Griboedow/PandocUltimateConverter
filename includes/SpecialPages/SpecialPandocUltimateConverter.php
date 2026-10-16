@@ -9,12 +9,8 @@ use MediaWiki\Title\Title;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
 use MediaWiki\Extension\PandocUltimateConverter\PandocConverterService;
-use MediaWiki\Extension\PandocUltimateConverter\PandocWrapper;
-use MediaWiki\Extension\PandocUltimateConverter\Processors\PandocTextPostprocessor;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Page\WikiPageFactory;
-use MediaWiki\Revision\SlotRecord;
 
 class SpecialPandocUltimateConverter extends \SpecialPage
 {
@@ -25,11 +21,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
     private MediaWikiServices $mwServices;
     /** @var \User */
     private $user;
-    private WikiPageFactory $titleFactory;
-    /** @var \RepoGroup */
-    private $repoGroup;
     private Config $config;
-    private PandocWrapper $pandocWrapper;
     private bool $useCodex;
 
     public function __construct()
@@ -42,10 +34,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $this->context      = RequestContext::getMain();
         $this->user         = $this->context->getUser();
         $this->mwServices   = MediaWikiServices::getInstance();
-        $this->titleFactory = $this->mwServices->getWikiPageFactory();
-        $this->repoGroup    = $this->mwServices->getRepoGroup();
         $this->config       = $mwConfig;
-        $this->pandocWrapper = new PandocWrapper( $this->config, $this->mwServices, $this->user );
         // Codex UI is the default on MW 1.43+; use ?codex=0 to opt out
         $request = $this->context->getRequest();
         $mwVersion = defined( 'MW_VERSION' ) ? MW_VERSION : '0';
@@ -110,6 +99,10 @@ class SpecialPandocUltimateConverter extends \SpecialPage
                 'id'      => 'wpUploadedFileName',
                 'class'   => 'HTMLHiddenField',
             ],
+            'SourceFileName' => [
+                'type' => 'hidden',
+                'id' => 'wpSourceFileName',
+            ],
             'SourceUrl' => [
                 'section' => 'pandocultimateconverter-special-upload-file-section',
                 'type'    => 'url',
@@ -146,7 +139,8 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $service = new PandocConverterService( $this->config, $this->mwServices, $this->user );
         try {
             $result = $formData['SourceType'] === 'file'
-                ? $service->convertStashedFileToPage( (string)$formData['UploadedFileName'], $pageName, true )
+                ? $service->convertStashedFileToPage( (string)$formData['UploadedFileName'], $pageName,
+                    true, (string)$formData['SourceFileName'] )
                 : $service->convertUrlToPage( (string)$formData['SourceUrl'], $pageName );
         } catch ( \Exception $e ) {
             $this->getOutput()->showErrorPage( 'pandocultimateconverter-error-title',
