@@ -125,6 +125,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         ];
 
         $htmlForm = \HTMLForm::factory( 'table', $formDescriptor, $this->context );
+        $htmlForm->addHiddenField( 'codex', '0' );
         $htmlForm->setSubmitText( wfMessage( 'pandocultimateconverter-special-upload-button-label' ) );
         $htmlForm->setId( 'mw-pandoc-upload-form' );
         $htmlForm->setSubmitID( 'mw-pandoc-upload-form-submit' );
@@ -133,7 +134,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         $htmlForm->show();
     }
 
-    public function processForm( array $formData ): void
+    public function processForm( array $formData ): bool
     {
         $pageName = $this->sanitizeArticleTitle( $formData['ConvertToArticleName'] );
         $service = new PandocConverterService( $this->config, $this->mwServices, $this->user );
@@ -145,7 +146,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         } catch ( \Exception $e ) {
             $this->getOutput()->showErrorPage( 'pandocultimateconverter-error-title',
                 'pandocultimateconverter-error-conversion', [ $e->getMessage() ] );
-            return;
+            return false;
         }
         if ( $result['result'] === 'queued' ) {
             // Moderation may have set a redirect while intercepting the edit.
@@ -155,6 +156,7 @@ class SpecialPandocUltimateConverter extends \SpecialPage
         } else {
             $this->getOutput()->redirect( Title::newFromText( $pageName )->getFullURL() );
         }
+        return true;
     }
 
     private function sanitizeArticleTitle( string $titleString ): string
