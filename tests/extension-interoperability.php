@@ -73,7 +73,7 @@ class PandocInteroperability extends Maintenance {
 		try {
 			$this->api( $admin, [ 'action' => 'pandocconvert', 'filekey' => $key, 'pagename' => 'Wrong owner ' . $run ] );
 			throw new RuntimeException( 'Cross-user stash access succeeded' );
-		} catch ( UploadStashWrongOwnerException $e ) {
+		} catch ( UploadStashWrongOwnerException | \MediaWiki\Upload\Exception\UploadStashWrongOwnerException $e ) {
 			$this->check( file_exists( $file->getLocalRefPath() ), 'Wrong-owner rejection preserves source' );
 		}
 		// A normal unmoderated import also cleans up, with a real published revision.
