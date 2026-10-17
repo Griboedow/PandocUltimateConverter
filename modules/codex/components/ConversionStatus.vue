@@ -30,13 +30,17 @@
 		>
 			<div class="mw-pandoc-status__done-row">
 				<span class="mw-pandoc-status__done-icon">✓</span>
-				<a :href="item.resultPageUrl">
+				<span v-if="item.pendingModeration">{{ $i18n( 'pandocultimateconverter-codex-status-pending' ).text() }}</span>
+				<a v-else :href="item.resultPageUrl">
 					{{ $i18n( item.polishCompleted
 						? 'pandocultimateconverter-codex-status-done-polished'
 						: 'pandocultimateconverter-codex-status-done-converted'
 					).text() }}
 				</a>
 			</div>
+			<cdx-message v-if="item.cleanupWarning" type="warning" inline>
+				{{ $i18n( 'pandocultimateconverter-codex-cleanup-warning' ).text() }}
+			</cdx-message>
 			<div v-if="item.polishError" class="mw-pandoc-status__polish-error">
 				<cdx-message type="error" inline>
 					{{ $i18n( 'pandocultimateconverter-codex-status-polish-error', item.polishError ).text() }}

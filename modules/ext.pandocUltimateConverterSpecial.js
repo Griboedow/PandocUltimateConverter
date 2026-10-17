@@ -60,7 +60,7 @@
         api = new mw.Api();
         var upload_file_params = {
           format: 'json',
-          stash: false,
+          stash: true,
           ignorewarnings: 1,
           filename: file_name
         };
@@ -85,12 +85,15 @@
             }
             alert(mw.message('pandocultimateconverter-error-generic', error_msg).text())
           }
-        }).always(data => {
+        }).done(data => {
+          hidden_file_name.val(data.upload.filekey);
+          $('#wpSourceFileName').val(upload_file_field[0].files[0].name);
+          this.submit();
+        }).always(() => {
           //go to backend logic after that
           $("#loadingDiv").fadeOut(500, function () {
             $("#loadingDiv").remove(); //makes page more lightweight 
           });
-          this.submit();
           return;
         });
       }

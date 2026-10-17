@@ -490,44 +490,21 @@ module.exports = exports = defineStore( 'converter', () => {
 		const tempFileName = 'pandocultimateconverter-' + uuidv4() + '.' + ext;
 
 		return api.upload( item.source, {
-			format: 'json',
-			stash: false,
-			ignorewarnings: 1,
-			filename: tempFileName
-		} ).then(
-			() => {
-				item.uploadedFileName = tempFileName;
-				return convertWithUploadedFile( api, item, tempFileName );
-			},
-			( code, errorObj ) => {
-				// "fileexists-no-change" or "duplicate" means the file is already there
-				if ( code === 'fileexists-no-change' || code === 'duplicate' ||
-					code === 'exists' || code === 'was-deleted' ) {
-					item.uploadedFileName = tempFileName;
-					return convertWithUploadedFile( api, item, tempFileName );
-				}
-
-				// Check if the upload response actually succeeded despite jQuery
-				// reporting an error (MW upload API sends warnings as errors)
-				const upload = errorObj && errorObj.upload;
-				if ( upload && upload.result === 'Success' ) {
-					item.uploadedFileName = upload.filename || tempFileName;
-					return convertWithUploadedFile( api, item, item.uploadedFileName );
-				}
-
-				// Global errors go to the top-level banner
-				if ( isGlobalUploadError( code ) ) {
-					const msg = ( errorObj && errorObj.error && errorObj.error.info ) || code;
-					if ( globalErrors.value.indexOf( msg ) === -1 ) {
-						globalErrors.value.push( msg );
-					}
-				}
-
-				item.status = 'error';
-				item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
-				return $.Deferred().resolve().promise();
+			format: 'json', stash: true, ignorewarnings: 1, filename: tempFileName
+		} ).then( ( result ) => {
+			const key = result.upload && result.upload.filekey;
+			if ( !key ) {
+				return $.Deferred().reject( 'missing-filekey' ).promise();
 			}
-		);
+			item.uploadedFileName = key;
+			return convertWithUploadedFile( api, item, key );
+		} ).catch( ( code, errorObj ) => {
+			item.status = 'error';
+			item.errorMessage = ( errorObj && errorObj.error && errorObj.error.info ) || code;
+			if ( isGlobalUploadError( code ) && globalErrors.value.indexOf( item.errorMessage ) === -1 ) {
+				globalErrors.value.push( item.errorMessage );
+			}
+		} );
 	}
 
 	/**
@@ -543,23 +520,21 @@ module.exports = exports = defineStore( 'converter', () => {
 		const params = {
 			action: 'pandocconvert',
 			pagename: item.targetPageName,
-			filename: tempFileName
+			filekey: tempFileName,
+			sourcefilename: item.source.name
 		};
 		if ( overwriteExisting.value ) {
 			params.forceoverwrite = 1;
 		}
 		return api.postWithEditToken( params ).then( ( result ) => {
+			item.pendingModeration = result.pandocconvert.result === 'queued';
 			item.status = 'done';
 			const pagename = ( result.pandocconvert && result.pandocconvert.pagename ) || item.targetPageName;
 			const title = mw.Title.newFromText( pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
-			api.postWithEditToken( {
-				action: 'delete',
-				title: 'File:' + tempFileName,
-				reason: mw.msg( 'pandocultimateconverter-conversion-complete-comment' )
-			} );
+			item.cleanupWarning = !!result.pandocconvert.cleanupwarning;
 			item.uploadedFileName = '';
-			if ( llmPolish.value && LLM_AVAILABLE ) {
+			if ( llmPolish.value && LLM_AVAILABLE && !item.pendingModeration ) {
 				enqueuePolish( item.id );
 			}
 		} ).catch( ( code, errorObj ) => {
@@ -586,11 +561,12 @@ module.exports = exports = defineStore( 'converter', () => {
 			params.forceoverwrite = 1;
 		}
 		return api.postWithEditToken( params ).then( ( result ) => {
+			item.pendingModeration = result.pandocconvert.result === 'queued';
 			item.status = 'done';
 			const pagename = ( result.pandocconvert && result.pandocconvert.pagename ) || item.targetPageName;
 			const title = mw.Title.newFromText( pagename );
 			item.resultPageUrl = title ? title.getUrl() : '';
-			if ( llmPolish.value && LLM_AVAILABLE ) {
+			if ( llmPolish.value && LLM_AVAILABLE && !item.pendingModeration ) {
 				enqueuePolish( item.id );
 			}
 		} ).catch( ( code, errorObj ) => {
@@ -618,9 +594,10 @@ module.exports = exports = defineStore( 'converter', () => {
 		return api.postWithEditToken( {
 			action: 'pandocllmpolish',
 			pagename: item.targetPageName
-		} ).then( () => {
+		} ).then( ( result ) => {
 			item.status = 'done';
-			item.polishCompleted = true;
+			item.pendingModeration = result.pandocllmpolish.result === 'queued';
+			item.polishCompleted = !item.pendingModeration;
 		} ).catch( ( code, errorObj ) => {
 			item.status = 'done';
 			item.polishError = ( errorObj && errorObj.error && errorObj.error.info ) || code;

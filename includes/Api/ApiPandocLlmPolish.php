@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PandocUltimateConverter\Api;
 
 use ApiBase;
 use MediaWiki\Extension\PandocUltimateConverter\LlmPolishService;
+use MediaWiki\Extension\PandocUltimateConverter\PageImporter;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title;
@@ -55,6 +56,7 @@ class ApiPandocLlmPolish extends ApiBase {
 
 		$user = $this->getUser();
 
+		$baseRevision = $wikiPage->getLatest();
 		$originalText = $content->getText();
 		$polishedText = $llmService->polish( $originalText );
 
@@ -62,20 +64,9 @@ class ApiPandocLlmPolish extends ApiBase {
 			$this->dieWithError( 'apierror-pandocllmpolish-failed' );
 		}
 
-		$pageUpdater = $wikiPage->newPageUpdater( $user );
-		$newContent  = new \WikitextContent( $polishedText );
-		$pageUpdater->setContent( SlotRecord::MAIN, $newContent );
-		$pageUpdater->saveRevision(
-			\CommentStoreComment::newUnsavedComment(
-				wfMessage( 'pandocultimateconverter-llmpolish-comment' )->text()
-			),
-			EDIT_INTERNAL
-		);
-
-		$this->getResult()->addValue( null, $this->getModuleName(), [
-			'result'   => 'success',
-			'pagename' => $pageName,
-		] );
+		$result = PageImporter::save( $user, $pageName, $polishedText,
+			wfMessage( 'pandocultimateconverter-llmpolish-comment' )->text(), true, $baseRevision );
+		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
 
 	/** @inheritDoc */

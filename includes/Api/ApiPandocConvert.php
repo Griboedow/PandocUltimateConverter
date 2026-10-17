@@ -17,9 +17,10 @@ use Wikimedia\ParamValidator\ParamValidator;
  * using Pandoc.
  *
  * Workflow (file):
- *   1. Upload file via the standard MediaWiki API (action=upload).
- *   2. Call action=pandocconvert with pagename= and filename=.
- *   3. Optionally delete the file via the standard MediaWiki API (action=delete).
+ *   1. Stash the file via action=upload&stash=1.
+ *   2. Call action=pandocconvert with pagename, filekey and sourcefilename.
+ *   3. The private source is removed after publication or moderation submission.
+ * Existing repository files can still be converted using filename; they are retained.
  *
  * Workflow (URL):
  *   1. Call action=pandocconvert with pagename= and url=.
@@ -30,14 +31,15 @@ class ApiPandocConvert extends ApiBase {
 		$params  = $this->extractRequestParams();
 		$pageName = $params['pagename'];
 		$fileName = $params['filename'] ?? null;
+		$fileKey = $params['filekey'] ?? null;
 		$sourceUrl = $params['url'] ?? null;
 		$forceOverwrite = $params['forceoverwrite'];
 
 		// Exactly one source must be supplied
-		if ( $fileName === null && $sourceUrl === null ) {
+		if ( $fileName === null && $sourceUrl === null && $fileKey === null ) {
 			$this->dieWithError( 'apierror-pandocultimateconverter-nosource' );
 		}
-		if ( $fileName !== null && $sourceUrl !== null ) {
+		if ( count( array_filter( [ $fileName, $sourceUrl, $fileKey ], static fn ( $v ) => $v !== null ) ) > 1 ) {
 			$this->dieWithError( 'apierror-pandocultimateconverter-multiplesource' );
 		}
 
@@ -75,16 +77,14 @@ class ApiPandocConvert extends ApiBase {
 			$user
 		);
 
-		if ( $fileName !== null ) {
-			$service->convertFileToPage( $fileName, $pageName );
+		if ( $fileKey !== null ) {
+			$result = $service->convertStashedFileToPage( $fileKey, $pageName, $forceOverwrite, $params['sourcefilename'] );
+		} elseif ( $fileName !== null ) {
+			$result = $service->convertFileToPage( $fileName, $pageName, false, $forceOverwrite );
 		} else {
-			$service->convertUrlToPage( $sourceUrl, $pageName );
+			$result = $service->convertUrlToPage( $sourceUrl, $pageName, false, $forceOverwrite );
 		}
-
-		$this->getResult()->addValue( null, $this->getModuleName(), [
-			'result'   => 'success',
-			'pagename' => $pageName,
-		] );
+		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
 
 	/** @inheritDoc */
@@ -93,6 +93,12 @@ class ApiPandocConvert extends ApiBase {
 			'pagename' => [
 				ParamValidator::PARAM_TYPE     => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'filekey' => [
+				ParamValidator::PARAM_TYPE => 'string',
+			],
+			'sourcefilename' => [
+				ParamValidator::PARAM_TYPE => 'string',
 			],
 			'filename' => [
 				ParamValidator::PARAM_TYPE     => 'string',

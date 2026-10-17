@@ -11,6 +11,19 @@ use SkinTemplate;
 
 class HookHandler implements SkinTemplateNavigation__UniversalHook {
 
+	/** Echo is optional; this hook is only called when it is installed. */
+	public function onBeforeCreateEchoEvent( array &$notifications, array &$categories, array &$icons ): void {
+		$categories['confluence-migration'] = [
+			'priority' => 5, 'tooltip' => 'echo-pref-tooltip-confluence-migration',
+		];
+		$notifications['confluence-migration-done'] = [
+			'category' => 'confluence-migration', 'group' => 'interactive', 'section' => 'alert',
+			'canNotifyAgent' => true,
+			'user-locators' => [ 'EchoUserLocator::locateEventAgent' ],
+			'presentation-model' => ConfluenceMigrationPresentationModel::class,
+		];
+	}
+
 	public function onSkinTemplateNavigation__Universal( $sktemplate, &$links ): void {
 		$config = MediaWikiServices::getInstance()
 			->getConfigFactory()

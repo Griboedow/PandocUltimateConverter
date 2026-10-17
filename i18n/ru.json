@@ -150,5 +150,13 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "«$1» не является распознанным пространством имён MediaWiki на этой вики.",
 	"apierror-pandocconfluencemigrate-servicens": "Встроенные пространства имён и пространства обсуждений (Основное, Файл, Категория, Шаблон и др.) не могут использоваться в качестве целей импорта. Используйте пользовательское пространство имён.",
-	"apihelp-pandocconfluencemigrate-summary": "Добавляет в очередь фоновое задание, которое импортирует все страницы из пространства Confluence в эту вики."
+	"apihelp-pandocconfluencemigrate-summary": "Добавляет в очередь фоновое задание, которое импортирует все страницы из пространства Confluence в эту вики.",
+	"pandocultimateconverter-codex-status-pending": "Преобразовано — ожидает модерации",
+	"pandocultimateconverter-codex-cleanup-warning": "Страница отправлена, но временный исходник не удалось удалить. Обратитесь к администратору вики.",
+	"confluencemigration-notify-partial": "Миграция пространства Confluence «$1» завершена: импортировано страниц — $2, ошибок — $3.",
+	"echo-category-title-confluence-migration": "Миграции Confluence",
+	"apihelp-pandocconvert-param-filekey": "Ключ временной загрузки текущего пользователя. Удаляется после преобразования или отправки на модерацию.",
+	"confluencemigration-notify-error": "Не удалось перенести пространство Confluence «$1». Подробности доступны в состоянии миграции.",
+	"echo-pref-tooltip-confluence-migration": "Уведомлять меня о завершении миграции Confluence.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

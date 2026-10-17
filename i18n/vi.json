@@ -150,5 +150,13 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" không phải là không gian tên MediaWiki được nhận dạng trên wiki này.",
 	"apierror-pandocconfluencemigrate-servicens": "Các không gian tên tích hợp sẵn và thảo luận (Chính, Tệp, Thể loại, Bản mẫu, v.v.) không thể dùng làm đích nhập. Vui lòng dùng không gian tên tùy chỉnh.",
-	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
+	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki.",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

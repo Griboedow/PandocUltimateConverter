@@ -29,8 +29,8 @@
 	"pandocultimateconverter-error-generic": "Failed to upload file: $1",
 	"pandocultimateconverter-error-title": "Conversion error",
 	"pandocultimateconverter-error-conversion": "Pandoc conversion failed: $1",
-	"apierror-pandocultimateconverter-nosource": "You must supply either 'filename' or 'url'.",
-	"apierror-pandocultimateconverter-multiplesource": "Supply either 'filename' or 'url', not both.",
+	"apierror-pandocultimateconverter-nosource": "Specify a filename, filekey or URL.",
+	"apierror-pandocultimateconverter-multiplesource": "Specify only one of filename, filekey and URL.",
 	"apierror-pandocultimateconverter-invalidurlscheme": "Only http and https URLs are supported.",
 	"apierror-pandocultimateconverter-pageexists": "The target page already exists. Pass forceoverwrite=1 to overwrite it.",
 	"apierror-pandocultimateconverter-conversionfailed": "Pandoc conversion failed: $1",
@@ -134,6 +134,8 @@
 	"confluencemigration-pagelist-help": "Enter Confluence page titles to import, one per line. Append /* to a title to also import all its sub-pages at every level (e.g. Documentation/* imports the Documentation page and everything nested under it).",
 	"confluencemigration-error-invalid-prefix": "The prefix contains an unrecognised namespace. Use a valid custom namespace (e.g. \"MyNS:\") or a plain prefix without a colon.",
 	"confluencemigration-notify-done": "Confluence migration of space $1 is complete: $2 {{PLURAL:$2|page|pages}} migrated.",
+	"confluencemigration-notify-error": "Confluence migration of space $1 failed.",
+	"echo-pref-tooltip-confluence-migration": "Receive notifications when Confluence space migrations complete.",
 	"confluencemigration-jobs-heading": "Pending migration jobs",
 	"confluencemigration-jobs-col-id": "Job ID",
 	"confluencemigration-jobs-col-space": "Space",
@@ -152,5 +154,11 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\" is not a recognised MediaWiki namespace on this wiki.",
 	"apierror-pandocconfluencemigrate-servicens": "Built-in and talk namespaces (Main, File, Category, Template, etc.) cannot be used as import targets. Please use a custom namespace.",
-	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki."
+	"apihelp-pandocconfluencemigrate-summary": "Enqueue a background job that imports all pages from a Confluence space into this wiki.",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

@@ -150,5 +150,13 @@
 	"apierror-pandocconfluencemigrate-authfailed": "Could not connect to Confluence: $1",
 	"apierror-pandocconfluencemigrate-invalidns": "\"$1\"은(는) 이 위키에서 인식되는 MediaWiki 이름공간이 아닙니다.",
 	"apierror-pandocconfluencemigrate-servicens": "기본 및 토론 이름공간(기본, 파일, 분류, 틀 등)은 가져오기 대상으로 사용할 수 없습니다. 사용자 정의 이름공간을 사용하세요.",
-	"apihelp-pandocconfluencemigrate-summary": "Confluence 스페이스의 모든 페이지를 이 위키로 가져오는 백그라운드 작업을 대기열에 추가합니다."
+	"apihelp-pandocconfluencemigrate-summary": "Confluence 스페이스의 모든 페이지를 이 위키로 가져오는 백그라운드 작업을 대기열에 추가합니다.",
+	"pandocultimateconverter-codex-status-pending": "Converted — awaiting moderation",
+	"pandocultimateconverter-codex-cleanup-warning": "The page was submitted, but temporary source cleanup failed. Please contact a wiki administrator.",
+	"confluencemigration-notify-partial": "Migration of Confluence space \"$1\" finished: $2 pages imported, $3 errors.",
+	"echo-category-title-confluence-migration": "Confluence migrations",
+	"apihelp-pandocconvert-param-filekey": "Key of a private upload stash owned by the current user. Removed after successful conversion or submission to moderation.",
+	"confluencemigration-notify-error": "Migration of Confluence space \"$1\" failed. See the migration status for details.",
+	"echo-pref-tooltip-confluence-migration": "Notify me when a Confluence migration finishes.",
+	"apihelp-pandocconvert-param-sourcefilename": "Original name of a stashed document, including its file extension (for example, Document.docx)."
 }

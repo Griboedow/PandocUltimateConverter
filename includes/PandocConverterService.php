@@ -53,7 +53,7 @@ class PandocConverterService {
 	 * @param bool   $llmPolish  Whether to apply LLM cleanup after conversion.
 	 * @throws \RuntimeException If the file cannot be found or conversion fails.
 	 */
-	public function convertFileToPage( string $fileName, string $pageName, bool $llmPolish = false ): void {
+	public function convertFileToPage( string $fileName, string $pageName, bool $llmPolish = false, bool $overwrite = true ): array {
 		$fileTitle = Title::newFromTextThrow( $fileName, NS_FILE );
 		$localFile = $this->repoGroup->findFile( $fileTitle );
 
@@ -63,7 +63,58 @@ class PandocConverterService {
 
 		$filePath    = $localFile->getLocalRefPath();
 		$pandocOutput = $this->pandocWrapper->convertFile( $filePath );
-		$this->savePandocOutput( $pandocOutput, $pageName, $llmPolish );
+		return $this->savePandocOutput( $pandocOutput, $pageName, $llmPolish, $overwrite );
+	}
+
+	/** Convert a private upload, removing it only after a save or accepted moderation queue entry. */
+	public function convertStashedFileToPage( string $fileKey, string $pageName,
+		bool $overwrite = false, ?string $sourceFilename = null
+	): array {
+		$stash = $this->repoGroup->getLocalRepo()->getUploadStash( $this->user );
+		$file = $stash->getFile( $fileKey ); // Enforces ownership; never use noAuth.
+		$virtualPath = $stash->getMetadata( $fileKey )['us_path'];
+		// HTTP uploads may be stashed with a .tmp extension (notably DOCX on
+		// Windows). Pandoc and the DOC/PDF preprocessors need the input suffix.
+		$extension = strtolower( pathinfo( $sourceFilename ?? $fileKey, PATHINFO_EXTENSION ) );
+		if ( !preg_match( '/^[a-z0-9]{1,16}$/D', $extension ) || $extension === 'tmp' ) {
+			throw new \RuntimeException( 'The original source filename with its extension is required.' );
+		}
+		$base = tempnam( sys_get_temp_dir(), 'pandoc-source-' );
+		if ( $base === false ) {
+			throw new \RuntimeException( 'Unable to create a temporary source file.' );
+		}
+		$source = $base . '.' . $extension;
+		try {
+			if ( !rename( $base, $source ) || !copy( $file->getLocalRefPath(), $source ) ) {
+				throw new \RuntimeException( 'Unable to prepare the stashed document for conversion.' );
+			}
+			$output = $this->pandocWrapper->convertFile( $source );
+		} finally {
+			if ( is_file( $source ) ) {
+				unlink( $source );
+			}
+			if ( is_file( $base ) ) {
+				unlink( $base );
+			}
+		}
+		$result = $this->savePandocOutput( $output, $pageName, false, $overwrite );
+		// Some MW versions resolve UploadStashFile's path before passing it to
+		// freeTemp(), which expects the original virtual URL. Keep that URL from
+		// the authenticated stash metadata and verify the physical cleanup too.
+		try {
+			$removed = $stash->removeFile( $fileKey );
+			$repo = $this->repoGroup->getLocalRepo();
+			if ( $repo->fileExists( $virtualPath ) ) {
+				$removed = $repo->freeTemp( $virtualPath ) && $removed;
+			}
+			if ( !$removed ) {
+				$result['cleanupwarning'] = true;
+			}
+		} catch ( \Exception $e ) {
+			wfDebugLog( 'PandocUltimateConverter', 'Stash cleanup failed: ' . $e->getMessage() );
+			$result['cleanupwarning'] = true;
+		}
+		return $result;
 	}
 
 	/**
@@ -74,9 +125,9 @@ class PandocConverterService {
 	 * @param bool   $llmPolish  Whether to apply LLM cleanup after conversion.
 	 * @throws \RuntimeException If conversion fails.
 	 */
-	public function convertUrlToPage( string $sourceUrl, string $pageName, bool $llmPolish = false ): void {
+	public function convertUrlToPage( string $sourceUrl, string $pageName, bool $llmPolish = false, bool $overwrite = true ): array {
 		$pandocOutput = $this->pandocWrapper->convertUrl( $sourceUrl );
-		$this->savePandocOutput( $pandocOutput, $pageName, $llmPolish );
+		return $this->savePandocOutput( $pandocOutput, $pageName, $llmPolish, $overwrite );
 	}
 
 	/**
@@ -87,7 +138,7 @@ class PandocConverterService {
 	 * @param string $pageName      Target wiki page title.
 	 * @param bool   $llmPolish     Whether to run the LLM polishing step.
 	 */
-	private function savePandocOutput( array $pandocOutput, string $pageName, bool $llmPolish = false ): void {
+	private function savePandocOutput( array $pandocOutput, string $pageName, bool $llmPolish = false, bool $overwrite = true ): array {
 		try {
 			$imagesVocabulary = $this->pandocWrapper->processImages(
 				$pandocOutput['mediaFolder'],
@@ -109,13 +160,7 @@ class PandocConverterService {
 			}
 		}
 
-		$title       = Title::newFromText( $pageName );
-		$pageUpdater = $this->titleFactory->newFromTitle( $title )->newPageUpdater( $this->user );
-		$content     = new \WikitextContent( $postprocessedText );
-		$pageUpdater->setContent( SlotRecord::MAIN, $content );
-		$pageUpdater->saveRevision(
-			\CommentStoreComment::newUnsavedComment( wfMessage( 'pandocultimateconverter-history-comment' ) ),
-			EDIT_INTERNAL
-		);
+		return PageImporter::save( $this->user, $pageName, $postprocessedText,
+			wfMessage( 'pandocultimateconverter-history-comment' )->text(), $overwrite );
 	}
 }
