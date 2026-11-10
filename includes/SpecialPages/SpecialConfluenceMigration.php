@@ -32,7 +32,7 @@ use MediaWiki\MediaWikiServices;
  * <code>$wgPandocUltimateConverter_EnableConfluenceMigration = false;</code>
  * in LocalSettings.php.
  */
-class SpecialConfluenceMigration extends \SpecialPage {
+class SpecialConfluenceMigration extends PandocSpecialPage {
 
 	private Config $config;
 
