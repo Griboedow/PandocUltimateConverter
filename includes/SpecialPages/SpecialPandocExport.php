@@ -21,7 +21,7 @@ use MediaWiki\Title\Title;
  * directly to the browser as a download attachment.  Without those parameters it renders
  * the interactive Codex UI.
  */
-class SpecialPandocExport extends \SpecialPage {
+class SpecialPandocExport extends PandocSpecialPage {
 
 	/**
 	 * Supported export formats.

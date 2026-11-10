@@ -12,7 +12,7 @@ use MediaWiki\Extension\PandocUltimateConverter\PandocConverterService;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 
-class SpecialPandocUltimateConverter extends \SpecialPage
+class SpecialPandocUltimateConverter extends PandocSpecialPage
 {
     private const TITLE_MIN_LENGTH = 4;
     private const TITLE_MAX_LENGTH = 255;

@@ -303,6 +303,11 @@ jobs:
           PHPEOF
           php /tmp/mw_smoke_test.php
 
+      - name: Check special-page constructor and permission compatibility
+        env:
+          MW_INSTALL_PATH: ${{ github.workspace }}/mediawiki
+        run: php mediawiki/extensions/PandocUltimateConverter/tests/special-page-compatibility.php
+
   # ---------------------------------------------------------------------------
   # E2E + MediaWiki integration tests — run the full import/export pipeline
   # inside a real MediaWiki installation for each supported MW version.
